@@ -3,19 +3,20 @@ import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePostApiAuthLoginMutation } from "../../router/apis/ArNextAPI";
 import { selectIsAuthenticated } from "../../router/reducers/auth/authSlice";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import FloatingLabel from "react-bootstrap/FloatingLabel";
+import Alert from "react-bootstrap/Alert";
 
-export default function Login() {
+function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const isAuthed = useSelector(selectIsAuthenticated);
-
   const [login, { isLoading, error }] = usePostApiAuthLoginMutation();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [checked, setChecked] = useState(false);
 
-  // If already logged in, redirect away from login page
   useEffect(() => {
     if (isAuthed) {
       const from = location.state?.from?.pathname || "/dashboard";
@@ -27,14 +28,10 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // IMPORTANT: your endpoint expects { loginRequest: {...} }
       await login({ loginRequest: { email, password } }).unwrap();
-
-      // authSlice will update via matcher (matchFulfilled)
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
     } catch (err) {
-      // error shown below; unwrap throws for rejected requests
       console.error("Login failed:", err);
     }
   };
@@ -44,34 +41,67 @@ export default function Login() {
     error?.data?.message || error?.error || error?.message || null;
 
   return (
-    <div style={{ maxWidth: 360, margin: "80px auto" }}>
-      <h2>Login</h2>
+    <>
+      <div className="account-pages my-5 pt-sm-5">
+        <h2>Login</h2>
 
-      <form onSubmit={onSubmit}>
-        <label>Email</label>
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          type="email"
-          autoComplete="email"
-          style={{ width: "100%", marginBottom: 12 }}
-        />
+        <Form onSubmit={onSubmit}>
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            <FloatingLabel
+              controlId="floatingEmail"
+              label="Email address"
+              className="mb-3"
+            >
+              <Form.Control
+                required
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Form.Text className="text-muted">
+                We'll never share your email.
+              </Form.Text>
+            </FloatingLabel>
+          </Form.Group>
 
-        <label>Password</label>
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          type="password"
-          autoComplete="current-password"
-          style={{ width: "100%", marginBottom: 12 }}
-        />
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <FloatingLabel
+              controlId="floatingPassword"
+              label="Password"
+              className="mb-3"
+            >
+              <Form.Control
+                required
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FloatingLabel>
+          </Form.Group>
 
-        <button type="submit" disabled={isLoading} style={{ width: "100%" }}>
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
+          <Form.Group className="mb-3">
+            <Form.Check
+              type="checkbox"
+              label="Remember me"
+              checked={checked}
+              onChange={(e) => setChecked(e.target.checked)}
+            />
+          </Form.Group>
 
-        {errorMessage && <p style={{ color: "crimson" }}>{errorMessage}</p>}
-      </form>
-    </div>
+          <Button variant="primary" type="submit" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </Button>
+        </Form>
+      </div>
+      {errorMessage && (
+        <Alert variant="danger" className="mb-3">
+          {errorMessage}
+        </Alert>
+      )}
+    </>
   );
 }
+
+export default Login;

@@ -1,7 +1,28 @@
-import { useDispatch } from "react-redux";
-import { logout } from "../router/reducers/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import { usePostApiAuthLogoutMutation } from "../../router/apis/ArNextAPI";
 
-export default function LogoutButton() {
-  const dispatch = useDispatch();
-  return <button onClick={() => dispatch(logout())}>Logout</button>;
+function LogoutButton() {
+  const navigate = useNavigate();
+  const [logout, { isLoading }] = usePostApiAuthLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap(); // usually no payload needed
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleLogout}
+      disabled={isLoading}
+      className="btn text-danger"
+    >
+      {isLoading ? "Logging out..." : "Logout"}
+    </button>
+  );
 }
+
+export default LogoutButton;
