@@ -1,0 +1,20 @@
+<!-- montra-logo.svg (wordmark only) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="MONTRA">
+  <!-- Background (transparent) -->
+  <rect width="100%" height="100%" fill="none"/>
+
+  <!-- Wordmark -->
+  <text
+    x="50%"
+    y="50%"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    fill="white"
+    font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+    font-weight="800"
+    font-size="170"
+    letter-spacing="14"
+  >
+    MONTRA
+  </text>
+</svg>

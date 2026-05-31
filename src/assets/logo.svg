@@ -1,0 +1,14 @@
+<!-- montra-logo-tight.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 810 180" role="img" aria-label="MONTRA">
+  <text
+    x="0"
+    y="140"
+    fill="white"
+    font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+    font-weight="800"
+    font-size="160"
+    letter-spacing="12"
+  >
+    MONTRA
+  </text>
+</svg>
