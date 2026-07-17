@@ -113,6 +113,9 @@ function TopBar({ avatarUrl = "https://i.pravatar.cc/40" }) {
             <NavDropdown.Item as={NavLink} to="/settings">
               Settings
             </NavDropdown.Item>
+            <NavDropdown.Item as={NavLink} to="/authsetup">
+              Setup 2FA
+            </NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item>
               <LogoutButton></LogoutButton>

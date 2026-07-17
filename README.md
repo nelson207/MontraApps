@@ -1,16 +1,102 @@
-# React + Vite
+# MONTRA POS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MONTRA POS is an early-stage Point of Sale project created to test and explore different React and TypeScript features.
 
-Currently, two official plugins are available:
+The project is currently focused on experimentation, prototyping, and validating frontend approaches rather than providing a production-ready POS solution.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Project Status
 
-## React Compiler
+> **Early development**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+MONTRA POS is still in a very early stage. Features, structure, dependencies, and implementation details may change frequently.
 
-## Expanding the ESLint configuration
+## Goals
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Experiment with React and TypeScript
+- Test reusable component patterns
+- Explore application state management
+- Validate form and wizard-based workflows
+- Test API integration
+- Improve responsive user-interface design
+- Evaluate project architecture and development practices
+
+## Technology Stack
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Bootstrap / SCSS
+- REST APIs
+
+## Getting Started
+
+### Requirements
+
+- Node.js
+- npm
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd montra-pos
+```
+
+Install the dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The terminal will display the local URL where the application is available.
+
+## Available Scripts
+
+```bash
+npm run dev
+```
+
+Starts the application in development mode.
+
+```bash
+npm run build
+```
+
+Creates a production build.
+
+```bash
+npm run preview
+```
+
+Runs the production build locally for testing.
+
+## Current Focus
+
+The current development focus includes:
+
+- Navigation and routing
+- Reusable UI components
+- Multi-step forms
+- Data validation
+- API communication
+- Authentication experiments
+- Application state management
+- Responsive layouts
+
+## Disclaimer
+
+MONTRA POS is an experimental project and is not currently intended for use in production or in real commercial environments.
+.NET10 Backend API to be release in the future.
+
+## License
+
+No license has been defined yet.

@@ -51,12 +51,160 @@
         }
       }
     },
+    "/api/Auth/RecoverPassword": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Auth/Logout": {
       "post": {
         "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/SetupAuthenticator": {
+      "post": {
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupAuthenticatorResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupAuthenticatorResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupAuthenticatorResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/VerifyAuthenticator": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyAuthenticatorRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyAuthenticatorRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyAuthenticatorRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/Validate2FA": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateTwoFactorRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateTwoFactorRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateTwoFactorRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
           }
         }
       }
@@ -968,33 +1116,6 @@
         }
       }
     },
-    "/api/Entities/GetActiveNews": {
-      "get": {
-        "tags": ["Entities"],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AplCompanyNews"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AplCompanyNews"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AplCompanyNews"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Entities/GetNews": {
       "get": {
         "tags": ["Entities"],
@@ -1004,17 +1125,26 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/AplCompanyNews"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AplCompanyNewsDto"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AplCompanyNews"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AplCompanyNewsDto"
+                  }
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AplCompanyNews"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AplCompanyNewsDto"
+                  }
                 }
               }
             }
@@ -1090,249 +1220,28 @@
   },
   "components": {
     "schemas": {
-      "AplCompanyNews": {
+      "AplCompanyNewsDto": {
         "type": "object",
         "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "aplCompanyNewsTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "authorizationLevel": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "body": {
-            "type": "string",
-            "nullable": true
-          },
-          "creationMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "entities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsEntity"
-            },
-            "nullable": true
-          },
-          "excludeAplUser": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "excludeEntity": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "excludeImporter": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "excludeLocal": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "excludeManager": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "excludePerson": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "excludePurposeType": {
-            "type": "boolean",
-            "nullable": true
-          },
           "id": {
             "type": "integer",
             "format": "int64",
-            "nullable": true
-          },
-          "image": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
-          },
-          "importers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsImporter"
-            },
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsKey"
-          },
-          "lastChangeMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsSearchDetail"
-          },
-          "linkUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "locals": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsLocal"
-            },
-            "nullable": true
-          },
-          "manageReadInfo": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "managers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsManager"
-            },
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsField"
-            },
-            "nullable": true
-          },
-          "persons": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsPerson"
-            },
-            "nullable": true
-          },
-          "purposes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsPurposeType"
-            },
-            "nullable": true
-          },
-          "readInfos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordReadInfo"
-            },
-            "nullable": true
-          },
-          "relatedDoc": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
-          },
-          "relatedDocFileName": {
-            "type": "string",
-            "nullable": true
-          },
-          "secondaryImage": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
-          },
-          "structNodeTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "subtitle": {
-            "type": "string",
             "nullable": true
           },
           "title": {
             "type": "string",
             "nullable": true
           },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsAplUser"
-            },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "body": {
+            "type": "string",
+            "nullable": true
+          },
+          "aplCompanyNewsType": {
+            "type": "string",
             "nullable": true
           },
           "validityBeginDate": {
@@ -1344,2521 +1253,48 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsAplUser": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
           },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "aplUserId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsAplUserKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsAplUserDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsAplUserField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsAplUserSearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsAplUserField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsAplUserDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsAplUserField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsAplUserKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "aplUserId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsAplUserSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsDetail": {
-        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsEntity": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "entityId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsEntityKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsEntityDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsEntityField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsEntitySearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsEntityField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsEntityDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsEntityField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsEntityKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsEntitySearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsField": {
-        "enum": [
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-          20, 21, 22, 23, 24, 25
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsImporter": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "importerStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsImporterKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsImporterDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsImporterField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsImporterSearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsImporterField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsImporterDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsImporterField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsImporterKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "importerStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsImporterSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsLocal": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsLocalKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsLocalDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsLocalField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsLocalSearchDetail"
-          },
-          "localStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsLocalField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsLocalDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsLocalField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsLocalKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "localStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsLocalSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsManager": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsManagerKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsManagerDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsManagerField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsManagerSearchDetail"
-          },
-          "managerStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsManagerField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsManagerDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsManagerField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsManagerKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "managerStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsManagerSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsPerson": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsPersonKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsPersonDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsPersonField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsPersonSearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsPersonField"
-            },
-            "nullable": true
-          },
-          "personStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsPersonDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsPersonField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsPersonKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "personStructNodeId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsPersonSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsPurposeType": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplBusinessPurposeTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplCompanyNewsPurposeTypeKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsPurposeTypeDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplCompanyNewsPurposeTypeField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplCompanyNewsPurposeTypeSearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplCompanyNewsPurposeTypeField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsPurposeTypeDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsPurposeTypeField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsPurposeTypeKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplBusinessPurposeTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "aplCompanyNewsId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplCompanyNewsPurposeTypeSearchDetail": {
-        "enum": [0, 1],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplCompanyNewsSearchDetail": {
-        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplRecordDataSource": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplRecordDataSourceTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "aplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "associatedAplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "associatedRelatedId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "fieldName": {
-            "type": "string",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "isDataFilled": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isInformative": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplRecordDataSourceKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplRecordDataSourceDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplRecordDataSourceField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplRecordDataSourceSearchDetail"
-          },
-          "logMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSourceField"
-            },
-            "nullable": true
-          },
-          "originMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "relatedId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplRecordDataSourceDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplRecordDataSourceField": {
-        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplRecordDataSourceKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "fieldName": {
-            "type": "string",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "relatedId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplRecordDataSourceSearchDetail": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplRecordReadInfo": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "aplUserId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplRecordReadInfoKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplRecordReadInfoDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplRecordReadInfoField"
-          },
-          "lastOpeningMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastReadingMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplRecordReadInfoSearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordReadInfoField"
-            },
-            "nullable": true
-          },
-          "openingMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "readingMoment": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "relatedId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "wasOpen": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "wasRead": {
-            "type": "boolean",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplRecordReadInfoDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplRecordReadInfoField": {
-        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplRecordReadInfoKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "aplUserId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "relatedId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplRecordReadInfoSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableAuditValue": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplAuditConfigFieldDefId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "aplTableAuditId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "baseTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "fieldName": {
-            "type": "string",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "isChanged": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplTableAuditValueKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplTableAuditValueDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplTableAuditValueField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplTableAuditValueSearchDetail"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValueField"
-            },
-            "nullable": true
-          },
-          "newValue": {
-            "type": "string",
-            "nullable": true
-          },
-          "newValueAsString": {
-            "type": "string",
-            "nullable": true
-          },
-          "newValueBool": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "newValueDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "newValueDecimal": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "newValueLong": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "oldValue": {
-            "type": "string",
-            "nullable": true
-          },
-          "oldValueAsString": {
-            "type": "string",
-            "nullable": true
-          },
-          "oldValueBool": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "oldValueDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "oldValueDecimal": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "oldValueLong": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "valueName": {
-            "type": "string",
-            "nullable": true
-          },
-          "valueNameAsString": {
+          "image": {
             "type": "string",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "AplTableAuditValueDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableAuditValueField": {
-        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableAuditValueKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableAuditValueSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableData": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplTableMetaDataId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "boolValue": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "dataValue": {
-            "type": "string",
-            "nullable": true
-          },
-          "dateTimeValue": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "decimalValue": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "intValue": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplTableDataKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplTableDataDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplTableDataField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplTableDataSearchDetail"
-          },
-          "metaDataDefinition": {
-            "$ref": "#/components/schemas/AplTableMetaData"
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableDataField"
-            },
-            "nullable": true
-          },
-          "ownerId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "rowVersion": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableDataDetail": {
-        "enum": [0, 1],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableDataField": {
+      "AplUserLoginInfoField": {
         "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         "type": "integer",
         "format": "int32"
       },
-      "AplTableDataKey": {
+      "AplUserLoginInfoFieldApiFieldMetadataDto": {
         "type": "object",
         "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
+          "fieldId": {
+            "$ref": "#/components/schemas/AplUserLoginInfoField"
           },
-          "aplTableMetaDataId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "ownerId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableDataSearchDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaData": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
+          "propertyName": {
             "type": "string",
             "nullable": true
           },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
+          "jsonName": {
+            "type": "string",
             "nullable": true
           },
-          "isTranslated": {
+          "dataType": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
             "type": "boolean"
           },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "abrev": {
-            "type": "string",
-            "nullable": true
-          },
-          "aplTableMetaDataGroupId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "baseTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "choiceAplStatementId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "choiceValues": {
-            "type": "string",
-            "nullable": true
-          },
-          "dataFormat": {
-            "type": "string",
-            "nullable": true
-          },
-          "decimalDigits": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "defaultValue": {
-            "type": "string",
-            "nullable": true
-          },
-          "descr": {
-            "type": "string",
-            "nullable": true
-          },
-          "domain": {
-            "$ref": "#/components/schemas/AplTableMetaData"
-          },
-          "domainAplTableMetaDataId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "group": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroup"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "internalCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "invalidDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isDomain": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isObligatory": {
-            "type": "boolean",
-            "nullable": true
+          "isVisible": {
+            "type": "boolean"
           },
           "isReadOnly": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplTableMetaDataKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplTableMetaDataField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataSearchDetail"
-          },
-          "lineNumber": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxChars": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxValue": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "minValue": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableMetaDataField"
-            },
-            "nullable": true
-          },
-          "notInCache": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "numCols": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableMetaDataDefinition": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
             "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "abrev": {
-            "type": "string",
-            "nullable": true
-          },
-          "aplTableMetaDataGroupId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "baseTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "choiceAplStatementId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "choiceValues": {
-            "type": "string",
-            "nullable": true
-          },
-          "dataFormat": {
-            "type": "string",
-            "nullable": true
-          },
-          "decimalDigits": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "defaultValue": {
-            "type": "string",
-            "nullable": true
-          },
-          "descr": {
-            "type": "string",
-            "nullable": true
-          },
-          "domain": {
-            "$ref": "#/components/schemas/AplTableMetaData"
-          },
-          "domainAplTableMetaDataId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "group": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroup"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "internalCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "invalidDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isDomain": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isObligatory": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isReadOnly": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplTableMetaDataKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplTableMetaDataField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataSearchDetail"
-          },
-          "lineNumber": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxChars": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxValue": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "minValue": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableMetaDataField"
-            },
-            "nullable": true
-          },
-          "notInCache": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "numCols": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
           }
         },
         "additionalProperties": false
-      },
-      "AplTableMetaDataDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataField": {
-        "enum": [
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-          20, 21, 22
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataGroup": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "abrev": {
-            "type": "string",
-            "nullable": true
-          },
-          "aplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "definitions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableMetaDataDefinition"
-            },
-            "nullable": true
-          },
-          "descr": {
-            "type": "string",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "invalidDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupSearchDetail"
-          },
-          "mappings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableMetaDataGroupMap"
-            },
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableMetaDataGroupField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableMetaDataGroupDetail": {
-        "enum": [0, 1, 2],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataGroupField": {
-        "enum": [0, 1, 2, 3, 4, 5],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataGroupKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "abrev": {
-            "type": "string",
-            "nullable": true
-          },
-          "aplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableMetaDataGroupMap": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "clonedFromId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "containerId": {
-            "type": "string",
-            "nullable": true
-          },
-          "containerIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldStates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RecordFieldState"
-            },
-            "nullable": true
-          },
-          "isTranslated": {
-            "type": "boolean"
-          },
-          "modifiedValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableAuditValue"
-            },
-            "nullable": true
-          },
-          "partialSaveId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionInfo"
-          },
-          "recordDataSource": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplRecordDataSource"
-            },
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/InstanceStatus"
-          },
-          "tableData": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableData"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationResult"
-            },
-            "nullable": true
-          },
-          "aplTableMetaDataGroupId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "key": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupMapKey"
-          },
-          "lastDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupMapDetail"
-          },
-          "lastField": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupMapField"
-          },
-          "lastSearchDetail": {
-            "$ref": "#/components/schemas/AplTableMetaDataGroupMapSearchDetail"
-          },
-          "mapping": {
-            "type": "string",
-            "nullable": true
-          },
-          "modifiedFields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AplTableMetaDataGroupMapField"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableMetaDataGroupMapDetail": {
-        "enum": [0],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataGroupMapField": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataGroupMapKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableMetaDataGroupMapSearchDetail": {
-        "enum": [0, 1],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataGroupSearchDetail": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AplTableMetaDataKey": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "abrev": {
-            "type": "string",
-            "nullable": true
-          },
-          "aplTableMetaDataGroupId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AplTableMetaDataSearchDetail": {
-        "enum": [0, 1, 2, 3, 4, 5],
-        "type": "integer",
-        "format": "int32"
       },
       "BankAccountDto": {
         "type": "object",
@@ -4806,39 +2242,6 @@
           },
           "isReadOnly": {
             "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "DictionaryProxyKeyAndValueOfstringstringzwHo_PEFv": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "key": {
-            "type": "string",
-            "nullable": true
-          },
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "DictionaryStringStringProxy": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "keysAndValues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DictionaryProxyKeyAndValueOfstringstringzwHo_PEFv"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -7031,7 +4434,7 @@
           "metadataResponse": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/LoginMethodApiFieldMetadataDto"
+              "$ref": "#/components/schemas/AplUserLoginInfoFieldApiFieldMetadataDto"
             },
             "nullable": true
           }
@@ -7074,6 +4477,10 @@
           },
           "requiresTwoFactor": {
             "type": "boolean"
+          },
+          "twoFactorToken": {
+            "type": "string",
+            "nullable": true
           },
           "challengeId": {
             "type": "string",
@@ -7129,29 +4536,6 @@
         "enum": [0, 1, 2, 4, 8, 16, 32],
         "type": "integer",
         "format": "int32"
-      },
-      "PermissionInfo": {
-        "type": "object",
-        "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/PermissionFlags"
-          },
-          "reason": {
-            "type": "string",
-            "nullable": true
-          },
-          "reasons": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
       },
       "PersonDto": {
         "type": "object",
@@ -7559,54 +4943,29 @@
         "type": "integer",
         "format": "int32"
       },
-      "RecordFieldState": {
+      "RecoverPasswordDto": {
+        "required": ["userEmail", "userLogin"],
         "type": "object",
         "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "aplRecordFieldStateViewId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "aplScreenId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "aplTaskId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "fieldId": {
+          "userEmail": {
             "type": "string",
             "nullable": true
           },
-          "id": {
-            "type": "integer",
-            "format": "int64",
+          "userLogin": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetupAuthenticatorResponseDto": {
+        "type": "object",
+        "properties": {
+          "manualEntryKey": {
+            "type": "string",
             "nullable": true
           },
-          "isInvisible": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isObligatory": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isReadOnly": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "recordId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "zoneName": {
+          "authenticatorUri": {
             "type": "string",
             "nullable": true
           }
@@ -7810,89 +5169,32 @@
         },
         "additionalProperties": false
       },
-      "ValidationResult": {
+      "ValidateTwoFactorRequestDto": {
         "type": "object",
         "properties": {
-          "extensionData": {
-            "$ref": "#/components/schemas/ExtensionDataObject"
-          },
-          "context": {
+          "twoFactorToken": {
             "type": "string",
             "nullable": true
           },
-          "dataProxy": {
-            "$ref": "#/components/schemas/DictionaryStringStringProxy"
-          },
-          "extraInfo": {
+          "otpCode": {
             "type": "string",
             "nullable": true
           },
-          "field": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "fieldName": {
-            "type": "string",
-            "nullable": true
-          },
-          "fieldType": {
-            "type": "string",
-            "nullable": true
-          },
-          "hideResultCode": {
+          "rememberMe": {
             "type": "boolean"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "recordIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "registerRead": {
-            "type": "boolean"
-          },
-          "relatedAplTableId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "relatedId": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "relatedUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "result": {
-            "$ref": "#/components/schemas/ValidationResultCode"
-          },
-          "rscCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "rscEnumTypeName": {
-            "type": "string",
-            "nullable": true
-          },
-          "techMsg": {
-            "type": "string",
-            "nullable": true
-          },
-          "index": {
-            "type": "integer",
-            "format": "int32"
           }
         },
         "additionalProperties": false
       },
-      "ValidationResultCode": {
-        "enum": [0, 1, 2, 3],
-        "type": "integer",
-        "format": "int32"
+      "VerifyAuthenticatorRequestDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {

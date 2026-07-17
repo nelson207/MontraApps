@@ -9,6 +9,9 @@ type AuthState = {
   user: string | null;
   isAuthenticated: boolean;
   error: string | null;
+  requiresTwoFactor?: boolean;
+  twoFactorToken?: string | null;
+  rememberMe?: boolean;
 };
 
 const tokenFromStorage =
@@ -62,37 +65,85 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder
+      .addMatcher(
+        MontraPOSApi.endpoints.postApiAuthLogin.matchFulfilled,
+        (state, action) => {
+          const data = action.payload as LoginResponseDto | undefined;
+          const token = data?.accessToken ?? null;
+          const user = data?.userId ?? null;
+          const rememberMe = data?.rememberMe ?? false;
+          const requiresTwoFactor = data?.requiresTwoFactor === true;
+
+          const twoFactorToken =
+            ((data as any)?.twoFactorToken as string | undefined) ?? null;
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("user");
+
+          state.error = null;
+
+          if (requiresTwoFactor) {
+            state.token = null;
+            state.user = null;
+            state.isAuthenticated = false;
+            state.requiresTwoFactor = true;
+            state.twoFactorToken = twoFactorToken;
+            state.rememberMe = rememberMe;
+
+            return;
+          }
+
+          state.token = token;
+          state.user = user;
+          state.isAuthenticated = Boolean(token);
+          state.requiresTwoFactor = false;
+          state.twoFactorToken = null;
+          state.rememberMe = false;
+
+          if (rememberMe) {
+            if (token) localStorage.setItem("token", token);
+            if (user) localStorage.setItem("user", JSON.stringify(user));
+          } else {
+            if (token) sessionStorage.setItem("token", token);
+            if (user) sessionStorage.setItem("user", JSON.stringify(user));
+          }
+        },
+      )
+      .addMatcher(
+        MontraPOSApi.endpoints.postApiAuthValidate2Fa.matchFulfilled,
+        (state, action) => {
+          const data = action.payload as LoginResponseDto | undefined;
+          const token = data?.accessToken ?? null;
+          const user = data?.userId ?? null;
+          const rememberMe = data?.rememberMe ?? false;
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("user");
+
+          state.error = null;
+          state.token = token;
+          state.user = user;
+          state.isAuthenticated = Boolean(token);
+          state.rememberMe = false;
+
+          if (rememberMe) {
+            if (token) localStorage.setItem("token", token);
+            if (user) localStorage.setItem("user", JSON.stringify(user));
+          } else {
+            if (token) sessionStorage.setItem("token", token);
+            if (user) sessionStorage.setItem("user", JSON.stringify(user));
+          }
+        },
+      );
+
     builder.addMatcher(
-      MontraPOSApi.endpoints.postApiAuthLogin.matchFulfilled,
-      (state, action) => {
-        const data = action.payload as LoginResponseDto | undefined;
-        const token = (data?.accessToken as string | undefined) ?? null;
-        const rememberMe = (data?.rememberMe as boolean | undefined) ?? false;
-
-        const user = (data?.userId as string) ?? null;
-
-        state.token = token;
-        state.user = user;
-        state.isAuthenticated = Boolean(token);
-        state.error = null;
-
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
-
-        if (rememberMe) {
-          if (token) localStorage.setItem("token", token);
-          if (user) localStorage.setItem("user", JSON.stringify(user));
-        } else {
-          if (token) sessionStorage.setItem("token", token);
-          if (user) sessionStorage.setItem("user", JSON.stringify(user));
-        }
-      },
-    );
-
-    builder.addMatcher(
-      MontraPOSApi.endpoints.postApiAuthLogin.matchRejected,
+      MontraPOSApi.endpoints.postApiAuthLogin.matchRejected ||
+        MontraPOSApi.endpoints.postApiAuthValidate2Fa.matchRejected,
       (state, action) => {
         const payload = action.payload as
           | { data?: { message?: string } }

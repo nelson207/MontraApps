@@ -11,11 +11,47 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.loginRequestDto,
       }),
     }),
+    postApiAuthRecoverPassword: build.mutation<
+      PostApiAuthRecoverPasswordApiResponse,
+      PostApiAuthRecoverPasswordApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/Auth/RecoverPassword`,
+        method: "POST",
+        body: queryArg.recoverPasswordDto,
+      }),
+    }),
     postApiAuthLogout: build.mutation<
       PostApiAuthLogoutApiResponse,
       PostApiAuthLogoutApiArg
     >({
       query: () => ({ url: `/api/Auth/Logout`, method: "POST" }),
+    }),
+    postApiAuthSetupAuthenticator: build.mutation<
+      PostApiAuthSetupAuthenticatorApiResponse,
+      PostApiAuthSetupAuthenticatorApiArg
+    >({
+      query: () => ({ url: `/api/Auth/SetupAuthenticator`, method: "POST" }),
+    }),
+    postApiAuthVerifyAuthenticator: build.mutation<
+      PostApiAuthVerifyAuthenticatorApiResponse,
+      PostApiAuthVerifyAuthenticatorApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/Auth/VerifyAuthenticator`,
+        method: "POST",
+        body: queryArg.verifyAuthenticatorRequestDto,
+      }),
+    }),
+    postApiAuthValidate2Fa: build.mutation<
+      PostApiAuthValidate2FaApiResponse,
+      PostApiAuthValidate2FaApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/Auth/Validate2FA`,
+        method: "POST",
+        body: queryArg.validateTwoFactorRequestDto,
+      }),
     }),
     postApiBasicListsFetchEquipmentType: build.mutation<
       PostApiBasicListsFetchEquipmentTypeApiResponse,
@@ -224,12 +260,6 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: () => ({ url: `/api/Entities/GetNewCompanyEntity` }),
     }),
-    getApiEntitiesGetActiveNews: build.query<
-      GetApiEntitiesGetActiveNewsApiResponse,
-      GetApiEntitiesGetActiveNewsApiArg
-    >({
-      query: () => ({ url: `/api/Entities/GetActiveNews` }),
-    }),
     getApiEntitiesGetNews: build.query<
       GetApiEntitiesGetNewsApiResponse,
       GetApiEntitiesGetNewsApiArg
@@ -265,8 +295,24 @@ export type PostApiAuthLoginApiResponse = /** status 200 OK */ LoginResponseDto;
 export type PostApiAuthLoginApiArg = {
   loginRequestDto: LoginRequestDto;
 };
+export type PostApiAuthRecoverPasswordApiResponse = /** status 200 OK */ string;
+export type PostApiAuthRecoverPasswordApiArg = {
+  recoverPasswordDto: RecoverPasswordDto;
+};
 export type PostApiAuthLogoutApiResponse = unknown;
 export type PostApiAuthLogoutApiArg = void;
+export type PostApiAuthSetupAuthenticatorApiResponse =
+  /** status 200 OK */ SetupAuthenticatorResponseDto;
+export type PostApiAuthSetupAuthenticatorApiArg = void;
+export type PostApiAuthVerifyAuthenticatorApiResponse = unknown;
+export type PostApiAuthVerifyAuthenticatorApiArg = {
+  verifyAuthenticatorRequestDto: VerifyAuthenticatorRequestDto;
+};
+export type PostApiAuthValidate2FaApiResponse =
+  /** status 200 OK */ LoginResponseDto;
+export type PostApiAuthValidate2FaApiArg = {
+  validateTwoFactorRequestDto: ValidateTwoFactorRequestDto;
+};
 export type PostApiBasicListsFetchEquipmentTypeApiResponse =
   /** status 200 OK */ CodeAbbreviation[];
 export type PostApiBasicListsFetchEquipmentTypeApiArg = {
@@ -366,11 +412,8 @@ export type GetApiEntitiesGetNewPersonEntityApiArg = void;
 export type GetApiEntitiesGetNewCompanyEntityApiResponse =
   /** status 200 OK */ EntityDto;
 export type GetApiEntitiesGetNewCompanyEntityApiArg = void;
-export type GetApiEntitiesGetActiveNewsApiResponse =
-  /** status 200 OK */ AplCompanyNews;
-export type GetApiEntitiesGetActiveNewsApiArg = void;
 export type GetApiEntitiesGetNewsApiResponse =
-  /** status 200 OK */ AplCompanyNews;
+  /** status 200 OK */ AplCompanyNewsDto[];
 export type GetApiEntitiesGetNewsApiArg = void;
 export type GetApiNotificationsSendMessageApiResponse = unknown;
 export type GetApiNotificationsSendMessageApiArg = {
@@ -407,6 +450,7 @@ export type LoginResponseDto = {
   tokenType?: string | null;
   expiresInSeconds?: number;
   requiresTwoFactor?: boolean;
+  twoFactorToken?: string | null;
   challengeId?: string | null;
   errorCode?: string | null;
   message?: string | null;
@@ -416,6 +460,16 @@ export type LoginResponseDto = {
   roles?: string[] | null;
   expiresAt?: string | null;
   metadataResponse?: LoginMethodApiFieldMetadataDto[] | null;
+};
+export type AplUserLoginInfoField = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type AplUserLoginInfoFieldApiFieldMetadataDto = {
+  fieldId?: AplUserLoginInfoField;
+  propertyName?: string | null;
+  jsonName?: string | null;
+  dataType?: string | null;
+  isRequired?: boolean;
+  isVisible?: boolean;
+  isReadOnly?: boolean;
 };
 export type LoginRequestDto = {
   id?: number | null;
@@ -437,7 +491,23 @@ export type LoginRequestDto = {
   ipAddress?: string | null;
   userAgent?: string | null;
   rememberMe?: boolean;
-  metadataResponse?: LoginMethodApiFieldMetadataDto[] | null;
+  metadataResponse?: AplUserLoginInfoFieldApiFieldMetadataDto[] | null;
+};
+export type RecoverPasswordDto = {
+  userEmail: string | null;
+  userLogin: string | null;
+};
+export type SetupAuthenticatorResponseDto = {
+  manualEntryKey?: string | null;
+  authenticatorUri?: string | null;
+};
+export type VerifyAuthenticatorRequestDto = {
+  code?: string | null;
+};
+export type ValidateTwoFactorRequestDto = {
+  twoFactorToken?: string | null;
+  otpCode?: string | null;
+  rememberMe?: boolean;
 };
 export type ExtensionDataObject = object;
 export type PermissionFlags = 0 | 1 | 2 | 4 | 8 | 16 | 32;
@@ -2439,758 +2509,15 @@ export type CalculateInitialDateCustomRequest = {
   entryDate?: string;
   clientSignatureDate?: string | null;
 };
-export type RecordFieldState = {
-  extensionData?: ExtensionDataObject;
-  aplRecordFieldStateViewId?: number | null;
-  aplScreenId?: number | null;
-  aplTaskId?: number | null;
-  fieldId?: string | null;
+export type AplCompanyNewsDto = {
   id?: number | null;
-  isInvisible?: boolean | null;
-  isObligatory?: boolean | null;
-  isReadOnly?: boolean | null;
-  recordId?: number | null;
-  zoneName?: string | null;
-};
-export type PermissionInfo = {
-  extensionData?: ExtensionDataObject;
-  permissions?: PermissionFlags;
-  reason?: string | null;
-  reasons?: string[] | null;
-};
-export type DictionaryProxyKeyAndValueOfstringstringzwHoPeFv = {
-  extensionData?: ExtensionDataObject;
-  key?: string | null;
-  value?: string | null;
-};
-export type DictionaryStringStringProxy = {
-  extensionData?: ExtensionDataObject;
-  keysAndValues?: DictionaryProxyKeyAndValueOfstringstringzwHoPeFv[] | null;
-};
-export type ValidationResultCode = 0 | 1 | 2 | 3;
-export type ValidationResult = {
-  extensionData?: ExtensionDataObject;
-  context?: string | null;
-  dataProxy?: DictionaryStringStringProxy;
-  extraInfo?: string | null;
-  field?: number;
-  fieldName?: string | null;
-  fieldType?: string | null;
-  hideResultCode?: boolean;
-  message?: string | null;
-  recordIndex?: number;
-  registerRead?: boolean;
-  relatedAplTableId?: number | null;
-  relatedId?: number | null;
-  relatedUrl?: string | null;
-  result?: ValidationResultCode;
-  rscCode?: string | null;
-  rscEnumTypeName?: string | null;
-  techMsg?: string | null;
-  index?: number;
-};
-export type AplTableDataKey = {
-  extensionData?: ExtensionDataObject;
-  aplTableMetaDataId?: number | null;
-  id?: number | null;
-  ownerId?: number | null;
-};
-export type AplTableDataDetail = 0 | 1;
-export type AplTableDataField = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-export type AplTableDataSearchDetail = 0 | 1 | 2;
-export type AplTableMetaDataKey = {
-  extensionData?: ExtensionDataObject;
-  abrev?: string | null;
-  aplTableMetaDataGroupId?: number | null;
-  id?: number | null;
-};
-export type AplTableMetaDataDetail = 0 | 1 | 2;
-export type AplTableMetaDataField =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11
-  | 12
-  | 13
-  | 14
-  | 15
-  | 16
-  | 17
-  | 18
-  | 19
-  | 20
-  | 21
-  | 22;
-export type AplTableMetaDataSearchDetail = 0 | 1 | 2 | 3 | 4 | 5;
-export type AplTableMetaDataDefinition = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  abrev?: string | null;
-  aplTableMetaDataGroupId?: number | null;
-  baseTypeId?: number | null;
-  choiceAplStatementId?: number | null;
-  choiceValues?: string | null;
-  dataFormat?: string | null;
-  decimalDigits?: number | null;
-  defaultValue?: string | null;
-  descr?: string | null;
-  domain?: AplTableMetaData;
-  domainAplTableMetaDataId?: number | null;
-  group?: AplTableMetaDataGroup;
-  id?: number | null;
-  internalCode?: string | null;
-  invalidDate?: string | null;
-  isDomain?: boolean | null;
-  isObligatory?: boolean | null;
-  isReadOnly?: boolean | null;
-  key?: AplTableMetaDataKey;
-  lastDetail?: AplTableMetaDataDetail;
-  lastField?: AplTableMetaDataField;
-  lastSearchDetail?: AplTableMetaDataSearchDetail;
-  lineNumber?: number | null;
-  maxChars?: number | null;
-  maxValue?: number | null;
-  minValue?: number | null;
-  modifiedFields?: AplTableMetaDataField[] | null;
-  notInCache?: boolean | null;
-  numCols?: number | null;
-};
-export type AplTableMetaDataGroupKey = {
-  extensionData?: ExtensionDataObject;
-  abrev?: string | null;
-  aplTableId?: number | null;
-  id?: number | null;
-};
-export type AplTableMetaDataGroupDetail = 0 | 1 | 2;
-export type AplTableMetaDataGroupField = 0 | 1 | 2 | 3 | 4 | 5;
-export type AplTableMetaDataGroupSearchDetail = 0 | 1 | 2 | 3;
-export type AplTableMetaDataGroupMapKey = {
-  extensionData?: ExtensionDataObject;
-  id?: number | null;
-};
-export type AplTableMetaDataGroupMapDetail = 0;
-export type AplTableMetaDataGroupMapField = 0 | 1 | 2 | 3;
-export type AplTableMetaDataGroupMapSearchDetail = 0 | 1;
-export type AplTableMetaDataGroupMap = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplTableMetaDataGroupId?: number | null;
-  id?: number | null;
-  key?: AplTableMetaDataGroupMapKey;
-  lastDetail?: AplTableMetaDataGroupMapDetail;
-  lastField?: AplTableMetaDataGroupMapField;
-  lastSearchDetail?: AplTableMetaDataGroupMapSearchDetail;
-  mapping?: string | null;
-  modifiedFields?: AplTableMetaDataGroupMapField[] | null;
-};
-export type AplTableMetaDataGroup = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  abrev?: string | null;
-  aplTableId?: number | null;
-  definitions?: AplTableMetaDataDefinition[] | null;
-  descr?: string | null;
-  id?: number | null;
-  invalidDate?: string | null;
-  key?: AplTableMetaDataGroupKey;
-  lastDetail?: AplTableMetaDataGroupDetail;
-  lastField?: AplTableMetaDataGroupField;
-  lastSearchDetail?: AplTableMetaDataGroupSearchDetail;
-  mappings?: AplTableMetaDataGroupMap[] | null;
-  modifiedFields?: AplTableMetaDataGroupField[] | null;
-};
-export type AplTableMetaData = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  abrev?: string | null;
-  aplTableMetaDataGroupId?: number | null;
-  baseTypeId?: number | null;
-  choiceAplStatementId?: number | null;
-  choiceValues?: string | null;
-  dataFormat?: string | null;
-  decimalDigits?: number | null;
-  defaultValue?: string | null;
-  descr?: string | null;
-  domain?: AplTableMetaData;
-  domainAplTableMetaDataId?: number | null;
-  group?: AplTableMetaDataGroup;
-  id?: number | null;
-  internalCode?: string | null;
-  invalidDate?: string | null;
-  isDomain?: boolean | null;
-  isObligatory?: boolean | null;
-  isReadOnly?: boolean | null;
-  key?: AplTableMetaDataKey;
-  lastDetail?: AplTableMetaDataDetail;
-  lastField?: AplTableMetaDataField;
-  lastSearchDetail?: AplTableMetaDataSearchDetail;
-  lineNumber?: number | null;
-  maxChars?: number | null;
-  maxValue?: number | null;
-  minValue?: number | null;
-  modifiedFields?: AplTableMetaDataField[] | null;
-  notInCache?: boolean | null;
-  numCols?: number | null;
-};
-export type AplTableData = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplTableMetaDataId?: number | null;
-  boolValue?: boolean | null;
-  dataValue?: string | null;
-  dateTimeValue?: string | null;
-  decimalValue?: number | null;
-  id?: number | null;
-  intValue?: number | null;
-  key?: AplTableDataKey;
-  lastDetail?: AplTableDataDetail;
-  lastField?: AplTableDataField;
-  lastSearchDetail?: AplTableDataSearchDetail;
-  metaDataDefinition?: AplTableMetaData;
-  modifiedFields?: AplTableDataField[] | null;
-  ownerId?: number | null;
-  rowVersion?: string | null;
-};
-export type AplRecordDataSourceKey = {
-  extensionData?: ExtensionDataObject;
-  aplTableId?: number | null;
-  fieldName?: string | null;
-  id?: number | null;
-  relatedId?: number | null;
-};
-export type AplRecordDataSourceDetail = 0;
-export type AplRecordDataSourceField =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11;
-export type AplRecordDataSourceSearchDetail = 0 | 1 | 2 | 3;
-export type AplRecordDataSource = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplRecordDataSourceTypeId?: number | null;
-  aplTableId?: number | null;
-  associatedAplTableId?: number | null;
-  associatedRelatedId?: number | null;
-  fieldName?: string | null;
-  id?: number | null;
-  isDataFilled?: boolean | null;
-  isInformative?: boolean | null;
-  key?: AplRecordDataSourceKey;
-  lastDetail?: AplRecordDataSourceDetail;
-  lastField?: AplRecordDataSourceField;
-  lastSearchDetail?: AplRecordDataSourceSearchDetail;
-  logMoment?: string | null;
-  modifiedFields?: AplRecordDataSourceField[] | null;
-  originMoment?: string | null;
-  relatedId?: number | null;
-};
-export type AplTableAuditValueKey = {
-  extensionData?: ExtensionDataObject;
-  id?: number | null;
-};
-export type AplTableAuditValueDetail = 0;
-export type AplTableAuditValueField =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11
-  | 12
-  | 13
-  | 14
-  | 15
-  | 16
-  | 17;
-export type AplTableAuditValueSearchDetail = 0 | 1 | 2;
-export type AplTableAuditValue = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplAuditConfigFieldDefId?: number | null;
-  aplTableAuditId?: number | null;
-  baseTypeId?: number | null;
-  fieldName?: string | null;
-  id?: number | null;
-  isChanged?: boolean | null;
-  key?: AplTableAuditValueKey;
-  lastDetail?: AplTableAuditValueDetail;
-  lastField?: AplTableAuditValueField;
-  lastSearchDetail?: AplTableAuditValueSearchDetail;
-  modifiedFields?: AplTableAuditValueField[] | null;
-  newValue?: string | null;
-  newValueAsString?: string | null;
-  newValueBool?: boolean | null;
-  newValueDate?: string | null;
-  newValueDecimal?: number | null;
-  newValueLong?: number | null;
-  oldValue?: string | null;
-  oldValueAsString?: string | null;
-  oldValueBool?: boolean | null;
-  oldValueDate?: string | null;
-  oldValueDecimal?: number | null;
-  oldValueLong?: number | null;
-  valueName?: string | null;
-  valueNameAsString?: string | null;
-};
-export type AplCompanyNewsEntityKey = {
-  extensionData?: ExtensionDataObject;
-  id?: number | null;
-};
-export type AplCompanyNewsEntityDetail = 0;
-export type AplCompanyNewsEntityField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsEntitySearchDetail = 0 | 1 | 2;
-export type AplCompanyNewsEntity = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyNewsId?: number | null;
-  entityId?: number | null;
-  id?: number | null;
-  key?: AplCompanyNewsEntityKey;
-  lastDetail?: AplCompanyNewsEntityDetail;
-  lastField?: AplCompanyNewsEntityField;
-  lastSearchDetail?: AplCompanyNewsEntitySearchDetail;
-  modifiedFields?: AplCompanyNewsEntityField[] | null;
-};
-export type AplCompanyNewsImporterKey = {
-  extensionData?: ExtensionDataObject;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  importerStructNodeId?: number | null;
-};
-export type AplCompanyNewsImporterDetail = 0;
-export type AplCompanyNewsImporterField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsImporterSearchDetail = 0 | 1 | 2;
-export type AplCompanyNewsImporter = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  importerStructNodeId?: number | null;
-  key?: AplCompanyNewsImporterKey;
-  lastDetail?: AplCompanyNewsImporterDetail;
-  lastField?: AplCompanyNewsImporterField;
-  lastSearchDetail?: AplCompanyNewsImporterSearchDetail;
-  modifiedFields?: AplCompanyNewsImporterField[] | null;
-};
-export type AplCompanyNewsKey = {
-  extensionData?: ExtensionDataObject;
-  id?: number | null;
-};
-export type AplCompanyNewsDetail = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-export type AplCompanyNewsField =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11
-  | 12
-  | 13
-  | 14
-  | 15
-  | 16
-  | 17
-  | 18
-  | 19
-  | 20
-  | 21
-  | 22
-  | 23
-  | 24
-  | 25;
-export type AplCompanyNewsSearchDetail =
-  | 0
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11;
-export type AplCompanyNewsLocalKey = {
-  extensionData?: ExtensionDataObject;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  localStructNodeId?: number | null;
-};
-export type AplCompanyNewsLocalDetail = 0;
-export type AplCompanyNewsLocalField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsLocalSearchDetail = 0 | 1 | 2;
-export type AplCompanyNewsLocal = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  key?: AplCompanyNewsLocalKey;
-  lastDetail?: AplCompanyNewsLocalDetail;
-  lastField?: AplCompanyNewsLocalField;
-  lastSearchDetail?: AplCompanyNewsLocalSearchDetail;
-  localStructNodeId?: number | null;
-  modifiedFields?: AplCompanyNewsLocalField[] | null;
-};
-export type AplCompanyNewsManagerKey = {
-  extensionData?: ExtensionDataObject;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  managerStructNodeId?: number | null;
-};
-export type AplCompanyNewsManagerDetail = 0;
-export type AplCompanyNewsManagerField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsManagerSearchDetail = 0 | 1 | 2;
-export type AplCompanyNewsManager = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  key?: AplCompanyNewsManagerKey;
-  lastDetail?: AplCompanyNewsManagerDetail;
-  lastField?: AplCompanyNewsManagerField;
-  lastSearchDetail?: AplCompanyNewsManagerSearchDetail;
-  managerStructNodeId?: number | null;
-  modifiedFields?: AplCompanyNewsManagerField[] | null;
-};
-export type AplCompanyNewsPersonKey = {
-  extensionData?: ExtensionDataObject;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  personStructNodeId?: number | null;
-};
-export type AplCompanyNewsPersonDetail = 0;
-export type AplCompanyNewsPersonField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsPersonSearchDetail = 0 | 1 | 2;
-export type AplCompanyNewsPerson = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  key?: AplCompanyNewsPersonKey;
-  lastDetail?: AplCompanyNewsPersonDetail;
-  lastField?: AplCompanyNewsPersonField;
-  lastSearchDetail?: AplCompanyNewsPersonSearchDetail;
-  modifiedFields?: AplCompanyNewsPersonField[] | null;
-  personStructNodeId?: number | null;
-};
-export type AplCompanyNewsPurposeTypeKey = {
-  extensionData?: ExtensionDataObject;
-  aplBusinessPurposeTypeId?: number | null;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-};
-export type AplCompanyNewsPurposeTypeDetail = 0;
-export type AplCompanyNewsPurposeTypeField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsPurposeTypeSearchDetail = 0 | 1;
-export type AplCompanyNewsPurposeType = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplBusinessPurposeTypeId?: number | null;
-  aplCompanyNewsId?: number | null;
-  id?: number | null;
-  key?: AplCompanyNewsPurposeTypeKey;
-  lastDetail?: AplCompanyNewsPurposeTypeDetail;
-  lastField?: AplCompanyNewsPurposeTypeField;
-  lastSearchDetail?: AplCompanyNewsPurposeTypeSearchDetail;
-  modifiedFields?: AplCompanyNewsPurposeTypeField[] | null;
-};
-export type AplRecordReadInfoKey = {
-  extensionData?: ExtensionDataObject;
-  aplTableId?: number | null;
-  aplUserId?: number | null;
-  id?: number | null;
-  relatedId?: number | null;
-};
-export type AplRecordReadInfoDetail = 0;
-export type AplRecordReadInfoField = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-export type AplRecordReadInfoSearchDetail = 0 | 1 | 2;
-export type AplRecordReadInfo = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplTableId?: number | null;
-  aplUserId?: number | null;
-  id?: number | null;
-  key?: AplRecordReadInfoKey;
-  lastDetail?: AplRecordReadInfoDetail;
-  lastField?: AplRecordReadInfoField;
-  lastOpeningMoment?: string | null;
-  lastReadingMoment?: string | null;
-  lastSearchDetail?: AplRecordReadInfoSearchDetail;
-  modifiedFields?: AplRecordReadInfoField[] | null;
-  openingMoment?: string | null;
-  readingMoment?: string | null;
-  relatedId?: number | null;
-  wasOpen?: boolean | null;
-  wasRead?: boolean | null;
-};
-export type AplCompanyNewsAplUserKey = {
-  extensionData?: ExtensionDataObject;
-  aplCompanyNewsId?: number | null;
-  aplUserId?: number | null;
-  id?: number | null;
-};
-export type AplCompanyNewsAplUserDetail = 0;
-export type AplCompanyNewsAplUserField = 0 | 1 | 2 | 3;
-export type AplCompanyNewsAplUserSearchDetail = 0 | 1 | 2;
-export type AplCompanyNewsAplUser = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyNewsId?: number | null;
-  aplUserId?: number | null;
-  id?: number | null;
-  key?: AplCompanyNewsAplUserKey;
-  lastDetail?: AplCompanyNewsAplUserDetail;
-  lastField?: AplCompanyNewsAplUserField;
-  lastSearchDetail?: AplCompanyNewsAplUserSearchDetail;
-  modifiedFields?: AplCompanyNewsAplUserField[] | null;
-};
-export type AplCompanyNews = {
-  extensionData?: ExtensionDataObject;
-  clonedFromId?: number | null;
-  containerId?: string | null;
-  containerIndex?: number;
-  fieldStates?: RecordFieldState[] | null;
-  isTranslated?: boolean;
-  modifiedValues?: AplTableAuditValue[] | null;
-  partialSaveId?: number | null;
-  permissions?: PermissionInfo;
-  recordDataSource?: AplRecordDataSource[] | null;
-  status?: InstanceStatus;
-  tableData?: AplTableData[] | null;
-  warnings?: ValidationResult[] | null;
-  aplCompanyId?: number | null;
-  aplCompanyNewsTypeId?: number | null;
-  authorizationLevel?: number | null;
-  body?: string | null;
-  creationMoment?: string | null;
-  entities?: AplCompanyNewsEntity[] | null;
-  excludeAplUser?: boolean | null;
-  excludeEntity?: boolean | null;
-  excludeImporter?: boolean | null;
-  excludeLocal?: boolean | null;
-  excludeManager?: boolean | null;
-  excludePerson?: boolean | null;
-  excludePurposeType?: boolean | null;
-  id?: number | null;
-  image?: string | null;
-  importers?: AplCompanyNewsImporter[] | null;
-  key?: AplCompanyNewsKey;
-  lastChangeMoment?: string | null;
-  lastDetail?: AplCompanyNewsDetail;
-  lastField?: AplCompanyNewsField;
-  lastSearchDetail?: AplCompanyNewsSearchDetail;
-  linkUrl?: string | null;
-  locals?: AplCompanyNewsLocal[] | null;
-  manageReadInfo?: boolean | null;
-  managers?: AplCompanyNewsManager[] | null;
-  modifiedFields?: AplCompanyNewsField[] | null;
-  persons?: AplCompanyNewsPerson[] | null;
-  purposes?: AplCompanyNewsPurposeType[] | null;
-  readInfos?: AplRecordReadInfo[] | null;
-  relatedDoc?: string | null;
-  relatedDocFileName?: string | null;
-  secondaryImage?: string | null;
-  structNodeTypeId?: number | null;
-  subtitle?: string | null;
   title?: string | null;
-  users?: AplCompanyNewsAplUser[] | null;
+  subtitle?: string | null;
+  body?: string | null;
+  aplCompanyNewsType?: string | null;
   validityBeginDate?: string | null;
   validityEndDate?: string | null;
+  image?: string | null;
 };
 export type FinancialProductField =
   | 0
@@ -3247,7 +2574,11 @@ export type FinancialProductDetailsRequest = {
 };
 export const {
   usePostApiAuthLoginMutation,
+  usePostApiAuthRecoverPasswordMutation,
   usePostApiAuthLogoutMutation,
+  usePostApiAuthSetupAuthenticatorMutation,
+  usePostApiAuthVerifyAuthenticatorMutation,
+  usePostApiAuthValidate2FaMutation,
   usePostApiBasicListsFetchEquipmentTypeMutation,
   usePostApiBasicListsFetchEquipmentCategoryMutation,
   usePostApiBasicListsFetchEquipmentStateMutation,
@@ -3271,7 +2602,6 @@ export const {
   usePostApiCreditOperationsCalculateInitialDateMutation,
   useGetApiEntitiesGetNewPersonEntityQuery,
   useGetApiEntitiesGetNewCompanyEntityQuery,
-  useGetApiEntitiesGetActiveNewsQuery,
   useGetApiEntitiesGetNewsQuery,
   useGetApiNotificationsSendMessageQuery,
   usePostApiSimulationsGetFinancialProductDetailsMutation,
