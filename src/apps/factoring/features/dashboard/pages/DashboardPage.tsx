@@ -1,4 +1,3 @@
-import HomeGreeting from "@platform/features/layout/components/HomeGreeting";
 import NewsGallery from "@platform/features/news/components/NewsGallery";
 import InsightsBoard from "@platform/features/insights/components/InsightsBoard";
 import AssignedTasks from "@platform/features/tasks/components/AssignedTasks";
@@ -9,7 +8,6 @@ import { INSIGHTS } from "../../../insights";
 function DashboardPage() {
   return (
     <div className="app-page">
-      <HomeGreeting />
       <NewsGallery />
       <AssignedTasks extraTabs={[{ id: "insights", ...INSIGHTS.tab, content: <InsightsBoard /> }]} />
     </div>

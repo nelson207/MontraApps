@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import HomeGreeting from "@platform/features/layout/components/HomeGreeting";
 import NewsGallery from "@platform/features/news/components/NewsGallery";
 import BreakdownChart from "@platform/features/insights/components/BreakdownChart";
 import TrendChart from "@platform/features/insights/components/TrendChart";
@@ -34,7 +33,6 @@ const monthLabel = (month: string, i: number) => {
 function DashboardPage() {
   return (
     <div className="app-page">
-      <HomeGreeting />
       <NewsGallery />
       <ContractsOverview />
     </div>

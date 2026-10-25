@@ -4,6 +4,7 @@ import { useModuleLabel } from "../hooks/useModuleLabel";
 import { openMobileSidebar } from "../layoutSlice";
 import { useCurrentModule } from "../hooks/useCurrentModule";
 import NotificationsMenu from "./NotificationsMenu";
+import TopbarGreeting from "./TopbarGreeting";
 import { SIDEBAR_ID } from "../constants";
 import UserMenu from "./UserMenu";
 import { TopbarExtras } from "@app/shell";
@@ -36,6 +37,8 @@ function Topbar() {
           {currentModule ? moduleLabel(currentModule) : "Montra"}
         </h1>
       </div>
+
+      <TopbarGreeting />
 
       <div className="ms-auto d-flex align-items-center gap-1 gap-sm-2">
         <NotificationsMenu />
