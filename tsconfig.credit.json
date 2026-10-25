@@ -1,0 +1,13 @@
+{
+  "//": "Type-checks Montra Credit and the platform code it uses (@app = credit), from the entry point: it has no working context, tasks or user management, so those shared features aren't part of it. tsconfig.app.json checks the whole platform against Credit.",
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.credit.tsbuildinfo",
+    "paths": {
+      "@platform/*": ["./src/platform/*"],
+      "@credit/*": ["./src/apps/credit/*"],
+      "@app/*": ["./src/apps/credit/*"]
+    }
+  },
+  "include": ["src/platform/main.tsx", "src/apps/credit"]
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Contexto de trabalho",
+  "sample": "Dados de exemplo",
+  "sampleTitle": "O serviço da hierarquia ainda não está disponível, por isso são mostrados dados de exemplo.",
+  "memberNote": "Como {{role}}, atua sempre em seu nome.",
+  "onBehalf": "Escolher outro {{member}} que não seja o próprio significa atuar em nome dessa pessoa.",
+  "unavailable": "Contexto indisponível",
+  "unavailableLabel": "Contexto de trabalho indisponível",
+  "unavailableTitle": "Não foi possível carregar o seu contexto de trabalho ({{levels}}).",
+  "detail": "{{level}}: {{name}}",
+  "notChosen": "por escolher",
+  "label": "Contexto de trabalho: {{member}}, {{unit}}, {{organization}}",
+  "labelNotChosen": "Contexto de trabalho: por escolher",
+  "choose": "Escolha o {{level}}",
+  "actingAs": "A atuar como {{name}}",
+  "banner": "Está a atuar como <strong>{{member}}</strong> ({{unit}} · {{organization}}). {{note}}",
+  "actAsMyself": "Atuar em meu nome",
+  "select": "Selecione o {{level}}",
+  "selectFirst": "Selecione primeiro o {{level}}",
+  "all": "Todos os {{levels}}",
+  "you": "{{name}} (você)"
+}

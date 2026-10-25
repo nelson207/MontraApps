@@ -1,0 +1,1 @@
+npx @rtk-query/codegen-openapi src/platform/api/generated/openapi-config.ts

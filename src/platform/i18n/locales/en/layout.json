@@ -1,0 +1,33 @@
+{
+  "mainNavigation": "Main navigation",
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu",
+  "expandSidebar": "Expand sidebar",
+  "collapseSidebar": "Collapse sidebar",
+  "collapse": "Collapse",
+  "userMenu": {
+    "label": "Account menu",
+    "labelAdministrator": "Account menu (administrator)",
+    "administrator": "Administrator",
+    "myAccount": "My account",
+    "appearance": "Appearance",
+    "language": "Language",
+    "settings": "Settings",
+    "notifications": "Notifications"
+  },
+  "notificationsMenu": {
+    "title": "Notifications",
+    "label": "Notifications",
+    "labelUnread": "Notifications ({{count}} unread)",
+    "markAllRead": "Mark all as read",
+    "caughtUp": "You're all caught up.",
+    "unread": "Unread",
+    "viewAll": "View all notifications",
+    "justNow": "just now"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "The page you are looking for doesn't exist or has moved.",
+    "back": "Back to dashboard"
+  }
+}

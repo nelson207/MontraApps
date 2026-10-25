@@ -1,0 +1,48 @@
+{
+  "mainNavigation": "Navegação principal",
+  "openMenu": "Abrir menu",
+  "closeMenu": "Fechar menu",
+  "expandSidebar": "Expandir barra lateral",
+  "collapseSidebar": "Recolher barra lateral",
+  "collapse": "Recolher",
+  "userMenu": {
+    "label": "Menu da conta",
+    "labelAdministrator": "Menu da conta (administrador)",
+    "administrator": "Administrador",
+    "myAccount": "A minha conta",
+    "appearance": "Aspeto",
+    "language": "Idioma",
+    "settings": "Definições",
+    "notifications": "Notificações"
+  },
+  "notificationsMenu": {
+    "title": "Notificações",
+    "label": "Notificações",
+    "labelUnread": "Notificações ({{count}} por ler)",
+    "markAllRead": "Marcar todas como lidas",
+    "caughtUp": "Está tudo em dia.",
+    "unread": "Por ler",
+    "viewAll": "Ver todas as notificações",
+    "justNow": "agora mesmo"
+  },
+  "modules": {
+    "Home": "Início",
+    "News": "Notícias",
+    "Notifications": "Notificações",
+    "Settings": "Definições",
+    "Tasks": "Tarefas",
+    "Users": "Utilizadores",
+    "New user": "Novo utilizador",
+    "Edit user": "Editar utilizador",
+    "Assigned tasks": "Tarefas atribuídas"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "text": "A página que procura não existe ou foi movida.",
+    "back": "Voltar ao painel"
+  },
+  "sections": {
+    "Overview": "Visão geral",
+    "Administration": "Administração"
+  }
+}

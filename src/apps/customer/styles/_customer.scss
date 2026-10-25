@@ -1,0 +1,165 @@
+// ---------------------------------------------------------------------------
+// Montra Customer: home figures, contracts, cashflow
+// ---------------------------------------------------------------------------
+
+// --- Home: key figures --------------------------------------------------------
+
+.app-kpi {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: map-get($spacers, 3);
+  border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  border-left: 4px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}body-bg);
+
+  &.is-primary {
+    border-left-color: var(--app-primary);
+  }
+
+  &.is-success {
+    border-left-color: var(--#{$prefix}success);
+  }
+
+  &.is-warning {
+    border-left-color: var(--#{$prefix}warning);
+  }
+
+  &.is-danger {
+    border-left-color: var(--#{$prefix}danger);
+    background-color: var(--#{$prefix}danger-bg-subtle);
+
+    .app-kpi-value {
+      color: var(--#{$prefix}danger-text-emphasis);
+    }
+  }
+}
+
+.app-kpi-label {
+  font-size: $font-size-sm;
+  color: var(--#{$prefix}secondary-color);
+}
+
+.app-kpi-value {
+  margin-top: map-get($spacers, 1);
+  font-size: $h3-font-size;
+  font-weight: $font-weight-bold;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.app-kpi-note {
+  font-size: $font-size-sm;
+  color: var(--#{$prefix}secondary-color);
+}
+
+.app-kpi-link {
+  margin-top: auto;
+  padding-top: map-get($spacers, 1);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+// --- Contracts ------------------------------------------------------------------
+
+.app-role-badge {
+  font-weight: $font-weight-semibold;
+
+  &.is-customer {
+    background-color: var(--#{$prefix}primary-bg-subtle);
+    color: var(--#{$prefix}primary-text-emphasis);
+  }
+
+  &.is-secondHolder {
+    background-color: var(--#{$prefix}info-bg-subtle);
+    color: var(--#{$prefix}info-text-emphasis);
+  }
+
+  &.is-guarantor {
+    background-color: var(--#{$prefix}warning-bg-subtle);
+    color: var(--#{$prefix}warning-text-emphasis);
+  }
+}
+
+.app-contract-card {
+  display: block;
+  height: 100%;
+  padding: map-get($spacers, 3);
+  border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}body-bg);
+  color: inherit;
+  text-decoration: none;
+  @include transition(border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease);
+
+  &:hover,
+  &:focus-visible {
+    color: inherit;
+    border-color: var(--app-primary);
+    box-shadow: $box-shadow-sm;
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-primary-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.app-repaid-progress {
+  display: flex;
+  height: 0.5rem;
+}
+
+.app-progress-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover .fw-semibold,
+  &:focus-visible .fw-semibold {
+    color: var(--app-primary-text, var(--#{$prefix}primary));
+  }
+}
+
+// --- Cashflow -----------------------------------------------------------------
+
+.app-figure {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: map-get($spacers, 3);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}tertiary-bg);
+
+  &.is-danger {
+    background-color: var(--#{$prefix}danger-bg-subtle);
+
+    .app-figure-value {
+      color: var(--#{$prefix}danger-text-emphasis);
+    }
+  }
+}
+
+.app-figure-label,
+.app-figure-note {
+  font-size: $font-size-sm;
+  color: var(--#{$prefix}secondary-color);
+}
+
+.app-figure-value {
+  font-size: $h5-font-size;
+  font-weight: $font-weight-bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-cashflow-table {
+  tr.is-next > * {
+    background-color: var(--#{$prefix}primary-bg-subtle);
+  }
+
+  tr.is-overdue > * {
+    background-color: var(--#{$prefix}danger-bg-subtle);
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "modules": {
+    "Proposal": "Proposta",
+    "Quotation": "Simulação",
+    "Search operations": "Pesquisar operações"
+  },
+  "brand": {
+    "tagline": "Operações de crédito, da simulação ao contrato.",
+    "highlights": [
+      {
+        "title": "Simulações e propostas",
+        "text": "Simule, compare e submeta operações de crédito em minutos."
+      },
+      {
+        "title": "Toda a sua rede",
+        "text": "Trabalhe com intermediários de crédito, fornecedores e vendedores."
+      },
+      {
+        "title": "Seguro por definição",
+        "text": "Autenticação de dois fatores e acesso por perfil."
+      }
+    ]
+  },
+  "sections": {
+    "Credit operations": "Operações de crédito"
+  },
+  "workContext": {
+    "levels": {
+      "organization": {
+        "label": "Intermediário de crédito",
+        "plural": "intermediários de crédito"
+      },
+      "unit": {
+        "label": "Fornecedor",
+        "plural": "fornecedores"
+      },
+      "member": {
+        "label": "Vendedor",
+        "plural": "vendedores"
+      }
+    },
+    "memberRole": "vendedor",
+    "purpose": "Valores por omissão para novas simulações e propostas.",
+    "impersonationNote": "As novas operações serão registadas em nome dessa pessoa."
+  }
+}

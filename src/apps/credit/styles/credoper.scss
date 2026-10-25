@@ -1,0 +1,442 @@
+// ---------------------------------------------------------------------------
+// Quotation / Proposal wizard (features/credoper)
+// ---------------------------------------------------------------------------
+
+// --- Stepper -----------------------------------------------------------------
+
+.app-stepper {
+  gap: map-get($spacers, 2);
+}
+
+.app-stepper-item {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+
+  // connector line between steps
+  & + &::before {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    right: calc(50% + 1.25rem);
+    left: calc(-50% + 1.25rem);
+    height: 2px;
+    background-color: var(--#{$prefix}border-color);
+  }
+
+  // filled after a step that is reached and complete (the current one included)
+  &.is-complete + &::before {
+    background-color: var(--app-primary);
+  }
+}
+
+.app-stepper-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: map-get($spacers, 1);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--#{$prefix}secondary-color);
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-primary-focus-ring);
+    outline-offset: 2px;
+    border-radius: $border-radius;
+  }
+}
+
+.app-stepper-marker {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  border: 2px solid var(--#{$prefix}border-color);
+  background-color: var(--#{$prefix}body-bg);
+}
+
+.app-stepper-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: $font-size-sm;
+}
+
+.app-stepper-item.is-current {
+  .app-stepper-marker {
+    border-color: var(--app-primary);
+    background-color: var(--app-primary);
+    color: var(--app-on-primary);
+  }
+  .app-stepper-button {
+    color: var(--#{$prefix}body-color);
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.app-stepper-item.is-done .app-stepper-marker {
+  border-color: var(--app-primary);
+  color: var(--app-primary-text);
+}
+
+.app-stepper-item.is-error .app-stepper-marker {
+  border-color: var(--#{$prefix}danger);
+  background-color: var(--#{$prefix}danger-bg-subtle);
+  color: var(--#{$prefix}danger-text-emphasis);
+}
+
+// --- Summary panel -----------------------------------------------------------
+
+.app-summary-panel {
+  @include media-breakpoint-up(lg) {
+    position: sticky;
+    top: calc(var(--app-topbar-height) + #{map-get($spacers, 3)});
+  }
+}
+
+.app-summary-monthly {
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  @include transition(opacity 0.15s ease);
+
+  &.is-stale {
+    background-color: var(--#{$prefix}warning-bg-subtle);
+
+    .display-6 {
+      opacity: 0.55;
+    }
+  }
+}
+
+// The current step can have errors too (after a failed Next)
+.app-stepper-item.is-current.has-errors .app-stepper-marker {
+  border-color: var(--#{$prefix}danger);
+  background-color: var(--#{$prefix}danger);
+  color: $white;
+}
+
+// --- Form sections -------------------------------------------------------------
+
+
+// --- Interventions: person cards ----------------------------------------------
+
+.app-person-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  min-height: 4.25rem;
+  border: 1px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}body-bg);
+  @include transition(border-color 0.15s ease, box-shadow 0.15s ease);
+
+  &.is-selected {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 2px var(--app-primary-focus-ring);
+  }
+}
+
+.app-person-card-main {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 3);
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+  text-align: start;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+.app-person-card-remove {
+  flex-shrink: 0;
+}
+
+.app-person-card-add {
+  justify-content: center;
+  gap: map-get($spacers, 2);
+  border-style: dashed;
+  color: var(--app-primary-text);
+
+  &:hover:not(:disabled) {
+    border-color: var(--app-primary);
+  }
+
+  // Not available (e.g. second holder for a company): muted, reason stays readable
+  &:disabled {
+    color: var(--#{$prefix}secondary-color);
+    background-color: var(--#{$prefix}tertiary-bg);
+    cursor: not-allowed;
+  }
+}
+
+// --- Summary step -----------------------------------------------------------------
+
+.app-summary-group {
+  padding-bottom: map-get($spacers, 3);
+  border-bottom: 1px solid var(--#{$prefix}border-color);
+
+  &:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  dd {
+    overflow-wrap: anywhere;
+  }
+}
+
+// --- Insurances ----------------------------------------------------------------
+
+.app-insurance-card {
+  display: flex;
+  align-items: flex-start;
+  gap: map-get($spacers, 3);
+  padding: map-get($spacers, 3);
+  border: 1px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}body-bg);
+
+  &.has-errors {
+    border-color: var(--#{$prefix}danger-border-subtle);
+    background-color: var(--#{$prefix}danger-bg-subtle);
+  }
+}
+
+// --- Summary step -----------------------------------------------------------------
+
+.app-readiness {
+  display: flex;
+  align-items: flex-start;
+  gap: map-get($spacers, 3);
+  padding: map-get($spacers, 3);
+  border: 1px solid transparent;
+  border-radius: $border-radius-lg;
+
+  &.is-ready {
+    background-color: var(--#{$prefix}success-bg-subtle);
+    border-color: var(--#{$prefix}success-border-subtle);
+
+    .app-readiness-icon {
+      color: var(--#{$prefix}success);
+    }
+  }
+
+  // Converted proposal: where it came from
+  &.is-origin {
+    background-color: var(--#{$prefix}primary-bg-subtle);
+    border-color: var(--#{$prefix}primary-border-subtle);
+
+    .app-readiness-icon {
+      color: var(--app-primary-text, var(--#{$prefix}primary));
+    }
+  }
+
+  &.has-issues {
+    background-color: var(--#{$prefix}warning-bg-subtle);
+    border-color: var(--#{$prefix}warning-border-subtle);
+
+    .app-readiness-icon {
+      color: var(--#{$prefix}warning);
+    }
+  }
+}
+
+.app-readiness-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.app-readiness-step {
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+  border-radius: $border-radius;
+  background-color: var(--#{$prefix}body-bg);
+}
+
+.app-financing-overview {
+  overflow: hidden;
+  border: 1px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-xl;
+}
+
+.app-financing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: map-get($spacers, 1);
+  padding: map-get($spacers, 4);
+  text-align: center;
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  @include transition(background-color 0.15s ease);
+
+  &.is-stale {
+    background-color: var(--#{$prefix}warning-bg-subtle);
+
+    .app-financing-monthly {
+      opacity: 0.55;
+    }
+  }
+}
+
+.app-financing-monthly {
+  font-size: calc(1.6rem + 1vw);
+  font-weight: $font-weight-bold;
+  line-height: 1.1;
+  color: var(--app-primary-text, var(--#{$prefix}primary-text-emphasis));
+
+  @include media-breakpoint-up(xl) {
+    font-size: 2.5rem;
+  }
+}
+
+.app-review-card {
+  border-color: var(--#{$prefix}border-color);
+
+  .card-header {
+    background-color: transparent;
+    padding-block: map-get($spacers, 2);
+  }
+
+  &.has-issues {
+    border-color: var(--#{$prefix}warning-border-subtle);
+
+    .card-header {
+      background-color: var(--#{$prefix}warning-bg-subtle);
+    }
+  }
+}
+
+.app-review-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  color: var(--app-primary-text, var(--#{$prefix}primary));
+  background-color: var(--#{$prefix}primary-bg-subtle);
+}
+
+.app-review-avatar {
+  @extend .app-review-icon;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.app-review-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: map-get($spacers, 1) map-get($spacers, 3);
+  font-size: $font-size-sm;
+
+  dt {
+    font-weight: $font-weight-normal;
+    color: var(--#{$prefix}secondary-color);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+// --- Equipment detail step (auto credit) ---------------------------------------------
+
+// Informative commercial value on the right of the Equipment detail "Vehicle" title
+
+// --- Business step -------------------------------------------------------------
+
+.app-business-card {
+  display: flex;
+  align-items: flex-start;
+  gap: map-get($spacers, 3);
+  padding: map-get($spacers, 3);
+  border: 1px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}body-bg);
+  color: inherit;
+  @include transition(border-color 0.15s ease, box-shadow 0.15s ease);
+
+  &:hover {
+    border-color: var(--app-primary);
+  }
+
+  &.is-selected {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 1px var(--app-primary);
+    background-color: var(--#{$prefix}primary-bg-subtle);
+  }
+}
+
+.app-business-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: $border-radius;
+  background-color: var(--app-primary);
+  color: var(--app-on-primary);
+  font-size: 1.25rem;
+}
+
+.app-business-check {
+  color: var(--app-primary-text, var(--#{$prefix}primary));
+  font-size: 1.25rem;
+}
+
+// --- Renting: vehicle list -------------------------------------------------------
+
+.app-vehicle-card {
+  border-color: var(--#{$prefix}border-color);
+
+  > .card-header {
+    background-color: transparent;
+  }
+
+  &.has-errors {
+    border-color: var(--#{$prefix}danger-border-subtle);
+
+    > .card-header {
+      background-color: var(--#{$prefix}danger-bg-subtle);
+    }
+  }
+}
+
+.app-vehicle-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background-color: var(--app-primary);
+  color: var(--app-on-primary);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+// Review gallery arrows (Summary cards with several entries)
+.app-gallery-btn {
+  padding: 0.125rem 0.4rem;
+  line-height: 1;
+}

@@ -1,0 +1,45 @@
+{
+  "modules": {
+    "Documents": "Documentos",
+    "New request": "Novo pedido"
+  },
+  "brand": {
+    "tagline": "Transforme as suas faturas em liquidez com os acordos que já tem.",
+    "highlights": [
+      {
+        "title": "Faturas em dois passos",
+        "text": "Escolha o acordo, adicione as faturas. Factoring ou confirming."
+      },
+      {
+        "title": "Todos os vencimentos à vista",
+        "text": "O que está financiado, o que vai vencer e o que está em atraso."
+      },
+      {
+        "title": "Seguro por definição",
+        "text": "Autenticação de dois fatores e acesso por perfil."
+      }
+    ]
+  },
+  "sections": {
+    "Factoring": "Factoring"
+  },
+  "workContext": {
+    "levels": {
+      "organization": {
+        "label": "Intermediário de crédito",
+        "plural": "intermediários de crédito"
+      },
+      "unit": {
+        "label": "Fornecedor",
+        "plural": "fornecedores"
+      },
+      "member": {
+        "label": "Vendedor",
+        "plural": "vendedores"
+      }
+    },
+    "memberRole": "vendedor",
+    "purpose": "Valores por omissão para novos pedidos de factoring: os acordos disponíveis.",
+    "impersonationNote": "Os novos pedidos de factoring serão registados em nome dessa pessoa."
+  }
+}

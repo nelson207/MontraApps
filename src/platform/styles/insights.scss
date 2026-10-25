@@ -1,0 +1,248 @@
+// ---------------------------------------------------------------------------
+// Insights dashboards (platform/features/insights)
+// Palette validated with the dataviz validator (light surface):
+//  - categorical slots 1–5: adjacent CVD ΔE ≥ 9.1, normal-vision ≥ 19.6. Slots 3–5 are
+//    under 3:1 on the surface → every chart shows values as labels and has a table view.
+//  - ordinal blue (funnel): monotone, light end 2.06:1.
+// Dark mode: the same hues stepped for the dark surface #1a1a19 (dataviz validator, dark):
+//  - categorical: all checks pass; worst adjacent CVD ΔE 8.4, normal-vision 19.3, all ≥ 3:1.
+//  - ordinal blue: steps 300–600, monotone, light end 2.15:1.
+// ---------------------------------------------------------------------------
+
+.app-viz {
+  --viz-surface: #fcfcfb;
+  --viz-series-1: #2a78d6;
+  --viz-series-2: #eb6834;
+  --viz-series-3: #1baf7a;
+  --viz-series-4: #eda100;
+  --viz-series-5: #e87ba4;
+  --viz-ordinal-1: #86b6ef;
+  --viz-ordinal-2: #5598e7;
+  --viz-ordinal-3: #2a78d6;
+  --viz-ordinal-4: #1c5cab;
+  --viz-text-secondary: #52514e;
+  --viz-muted: #898781;
+  --viz-grid: #e1e0d9;
+  --viz-axis: #c3c2b7;
+  --viz-good: #006300;
+  --viz-bad: #d03b3b;
+  --viz-spark: #c3c2b7;
+  --viz-border: rgba(11, 11, 11, 0.1);
+}
+
+[data-bs-theme="dark"] .app-viz {
+  --viz-surface: #1a1a19;
+  --viz-series-1: #3987e5;
+  --viz-series-2: #d95926;
+  --viz-series-3: #199e70;
+  --viz-series-4: #c98500;
+  --viz-series-5: #d55181;
+  --viz-ordinal-1: #6da7ec;
+  --viz-ordinal-2: #3987e5;
+  --viz-ordinal-3: #256abf;
+  --viz-ordinal-4: #184f95;
+  --viz-text-secondary: #c3c2b7;
+  --viz-muted: #898781;
+  --viz-grid: #2c2c2a;
+  --viz-axis: #383835;
+  --viz-good: #0ca30c;
+  --viz-bad: #e66767;
+  --viz-spark: #5c5b57;
+  --viz-border: rgba(255, 255, 255, 0.1);
+}
+
+.app-viz-card {
+  height: 100%;
+  border: 1px solid var(--viz-border);
+  border-radius: $border-radius-lg;
+  background-color: var(--viz-surface);
+
+  .app-viz-title {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    margin: 0;
+  }
+
+  .app-viz-subtitle {
+    font-size: $font-size-sm;
+    color: var(--viz-text-secondary);
+    margin: 0;
+  }
+}
+
+// Refetch keeps the frame: the previous render stays, dimmed
+.app-viz-refreshing {
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+// --- Stat tile -------------------------------------------------------------
+
+.app-stat-value {
+  font-size: 1.75rem;
+  font-weight: $font-weight-semibold;
+  line-height: 1.1;
+}
+
+.app-stat-delta {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+
+  &.is-good {
+    color: var(--viz-good);
+  }
+
+  &.is-bad {
+    color: var(--viz-bad);
+  }
+
+  &.is-flat {
+    color: var(--viz-muted);
+  }
+}
+
+// --- Stacked bar (part-to-whole) ---------------------------------------------
+
+.app-stack {
+  display: flex;
+  gap: 2px; // surface gap between segments
+  height: 20px;
+}
+
+.app-stack-segment {
+  min-width: 4px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  transition: filter 0.1s ease;
+
+  &:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    filter: brightness(1.12);
+    outline: 2px solid var(--viz-text-secondary);
+    outline-offset: 1px;
+  }
+}
+
+.app-viz-swatch {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.app-viz-linekey {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+// --- Horizontal bars (funnel, ranking) ---------------------------------------
+
+.app-hbar-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  min-height: 20px;
+}
+
+.app-hbar {
+  height: 16px;
+  min-width: 4px;
+  border-radius: 0 4px 4px 0; // square at the baseline, rounded data end
+}
+
+.app-hbar-value {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+}
+
+// --- Trend (lines) -------------------------------------------------------------
+
+.app-trend {
+  position: relative;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--viz-text-secondary);
+    outline-offset: 4px;
+    border-radius: $border-radius-sm;
+  }
+}
+
+.app-trend-grid {
+  stroke: var(--viz-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.app-trend-axis {
+  stroke: var(--viz-axis);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.app-trend-tick {
+  fill: var(--viz-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+// --- Tooltip -------------------------------------------------------------------
+
+.app-viz-tooltip {
+  position: absolute;
+  z-index: 5;
+  min-width: 9rem;
+  padding: map-get($spacers, 2);
+  border-radius: $border-radius;
+  background-color: var(--#{$prefix}body-bg);
+  box-shadow: $box-shadow;
+  font-size: $font-size-sm;
+  pointer-events: none;
+  white-space: nowrap;
+
+  strong {
+    font-weight: $font-weight-semibold;
+  }
+}
+
+// Numbers that line up in columns (table rows, legend values)
+.app-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+// --- Upcoming list ---------------------------------------------------------------
+
+.app-date-chip {
+  flex-shrink: 0;
+  width: 3rem;
+  padding: map-get($spacers, 1) 0;
+  border-radius: $border-radius;
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  color: var(--app-primary-text, var(--#{$prefix}primary-text-emphasis));
+  text-align: center;
+  line-height: 1.1;
+}

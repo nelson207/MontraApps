@@ -2,12 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/assets/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/src/platform/assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Montra POS</title>
+    <title>Montra Credit</title>
+    <script>
+      // Light/dark before the app loads (no white flash in dark mode); the app keeps it in sync
+      // afterwards (features/theme/useApplyTheme). Same storage key as platform/app/preferences.ts.
+      (function () {
+        var mode = "system";
+        try {
+          var saved = JSON.parse(localStorage.getItem("montra:preferences") || "{}");
+          if (saved.theme && /^(light|dark)$/.test(saved.theme.mode)) mode = saved.theme.mode;
+        } catch (e) {}
+        if (mode === "system") mode = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.setAttribute("data-bs-theme", mode);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/platform/main.tsx"></script>
   </body>
 </html>

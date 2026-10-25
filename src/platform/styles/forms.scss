@@ -1,0 +1,418 @@
+// ---------------------------------------------------------------------------
+// Shared form parts (every Montra app)
+// ---------------------------------------------------------------------------
+
+// Section title inside a form card (e.g. "Vehicle", "Usage")
+.app-form-section {
+  display: flex;
+  align-items: center;
+  margin: map-get($spacers, 2) 0 map-get($spacers, 3);
+  padding-bottom: map-get($spacers, 2);
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: var(--#{$prefix}secondary-color);
+  border-bottom: 1px solid var(--#{$prefix}border-color);
+
+  &:not(:first-child) {
+    margin-top: map-get($spacers, 4);
+  }
+}
+
+// Informative amount next to a section title (e.g. the vehicle's commercial value)
+.app-commercial-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: map-get($spacers, 2);
+  padding: map-get($spacers, 1) map-get($spacers, 3);
+  border-radius: $border-radius-pill;
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+
+  strong {
+    font-size: $font-size-base;
+    color: var(--app-primary-text, var(--#{$prefix}primary-text-emphasis));
+  }
+}
+
+// --- Short wizard steps (components/ui/StepsNav): marker + label, a line between --
+
+.app-steps {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 3);
+}
+
+.app-step {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 3);
+  min-width: 0;
+
+  // connector line
+  & + &::before {
+    content: "";
+    flex: 0 0 clamp(1.5rem, 8vw, 5rem);
+    height: 2px;
+    background-color: var(--#{$prefix}border-color);
+  }
+
+  &.is-current + &::before,
+  & + &.is-current::before {
+    background-color: var(--app-primary);
+  }
+}
+
+.app-step-button {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--#{$prefix}secondary-color);
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-primary-focus-ring);
+    outline-offset: 2px;
+    border-radius: $border-radius;
+  }
+}
+
+.app-step-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  border: 2px solid var(--#{$prefix}border-color);
+  background-color: var(--#{$prefix}body-bg);
+}
+
+.app-step-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: $font-size-sm;
+}
+
+.app-step.is-current {
+  .app-step-marker {
+    border-color: var(--app-primary);
+    background-color: var(--app-primary);
+    color: var(--app-on-primary);
+  }
+
+  .app-step-button {
+    color: var(--#{$prefix}body-color);
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.app-step.is-done .app-step-marker {
+  border-color: var(--app-primary);
+  color: var(--app-primary-text);
+}
+
+// Narrow screens: only the current step's label
+@include media-breakpoint-down(sm) {
+  .app-step:not(.is-current) .app-step-label {
+    display: none;
+  }
+}
+
+// --- Agreement cards (Stock Credit, Factoring): radio cards -------------------
+
+.app-agreement-card {
+  display: block;
+  height: 100%;
+  padding: map-get($spacers, 3);
+  border: 1px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}body-bg);
+  cursor: pointer;
+  @include transition(border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease);
+
+  &:hover {
+    border-color: var(--app-primary);
+  }
+
+  &.is-invalid {
+    border-color: var(--#{$prefix}form-invalid-border-color);
+  }
+}
+
+.app-agreement-check {
+  color: var(--app-primary);
+  visibility: hidden;
+}
+
+.app-agreement-usage {
+  display: flex;
+  height: 0.375rem;
+}
+
+.btn-check:checked + .app-agreement-card {
+  border-color: var(--app-primary);
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  box-shadow: 0 0 0 1px var(--app-primary);
+
+  .app-agreement-check {
+    visibility: visible;
+  }
+}
+
+.btn-check:focus-visible + .app-agreement-card {
+  outline: 3px solid var(--app-primary-focus-ring);
+  outline-offset: 2px;
+}
+
+.btn-check:disabled + .app-agreement-card {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+// Summary box on a wizard's "submitted" screen
+.app-wizard-done {
+  max-width: 44rem;
+}
+
+// Settings → Appearance: the date format select doesn't need the full width
+.app-date-format-setting {
+  max-width: 22rem;
+}
+
+// ---------------------------------------------------------------------------
+// Form fields: soft filled (every .form-control / .form-select, the searchable select, the phone
+// and date inputs). A light tint of the main colour, no border until hover; on focus the page
+// background with a main-colour border and ring. Size: Sass variables in montra.scss.
+// ---------------------------------------------------------------------------
+
+:root {
+  --app-field-tint: 5%;
+  --app-field-bg: color-mix(in srgb, var(--app-primary) var(--app-field-tint), var(--#{$prefix}body-bg));
+  --app-field-hover-border: var(--#{$prefix}border-color);
+  --app-field-focus-border: color-mix(in srgb, var(--app-primary) 60%, var(--#{$prefix}body-bg));
+  --app-field-invalid-bg: color-mix(in srgb, var(--#{$prefix}danger) 6%, var(--#{$prefix}body-bg));
+}
+
+[data-bs-theme="dark"] {
+  --app-field-tint: 10%;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--app-field-bg);
+  border-color: transparent;
+
+  &:hover:not(:disabled):not([readonly]):not(:focus):not(.is-invalid) {
+    border-color: var(--app-field-hover-border);
+  }
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--#{$prefix}body-bg);
+  border-color: var(--app-field-focus-border);
+}
+
+.form-control:disabled,
+.form-control[readonly],
+.form-select:disabled {
+  background-color: var(--#{$prefix}secondary-bg);
+  border-color: transparent;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  background-color: var(--app-field-invalid-bg);
+}
+
+// Units and icons (€, km, @, the lock…) inside the field, in the main colour
+.input-group-text {
+  padding-block: $input-padding-y;
+  font-size: $input-font-size;
+  color: var(--app-primary-text);
+  background-color: var(--app-field-bg);
+  border-color: transparent;
+}
+
+// Field-like buttons in a group (password eye, date picker): no box, main colour on hover
+.input-group > .btn-outline-secondary,
+.input-group > .app-phone-country,
+.input-group > .app-date-input-btn {
+  padding-block: $input-padding-y;
+  font-size: $input-font-size;
+  color: var(--#{$prefix}secondary-color);
+  background-color: var(--app-field-bg);
+  border-color: transparent;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--app-primary-text);
+    background-color: var(--app-field-bg);
+    border-color: transparent;
+  }
+}
+
+// One field, one ring: the group shows the focus, its parts don't
+.input-group {
+  border-radius: $input-border-radius;
+
+  &:focus-within {
+    box-shadow: 0 0 0 $input-btn-focus-width var(--app-primary-focus-ring);
+
+    > .form-control,
+    > .form-select,
+    > .input-group-text,
+    > .btn-outline-secondary,
+    > .app-date-input-btn,
+    > .app-phone-country,
+    > .app-combobox > .app-combobox-trigger {
+      background-color: var(--#{$prefix}body-bg);
+      border-color: var(--app-field-focus-border);
+      box-shadow: none;
+
+      // …still without a seam where the parts meet (Bootstrap overlaps neighbours by 1px)
+      &:not(:first-child) {
+        border-left-color: transparent;
+      }
+
+      &:not(:last-child) {
+        border-right-color: transparent;
+      }
+    }
+  }
+
+  // No seam between the parts of a group (they read as one field)
+  > :not(:first-child):not(.dropdown-menu) {
+    border-left-color: transparent;
+  }
+
+  > :not(:last-child):not(.dropdown-menu) {
+    border-right-color: transparent;
+  }
+}
+
+// --- Date field (components/ui/DateInput) ------------------------------------
+
+.app-date-input {
+  position: relative;
+}
+
+// The browser's own picker, only opened by the calendar button
+.app-date-input-native {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// --- Wizard steps (components/ui/StepTransition) -------------------------------
+// The new step fades in, sliding from the side it comes from; a plain fade with reduced motion.
+
+@keyframes app-step-in-forward {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@keyframes app-step-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+}
+
+@keyframes app-step-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.app-step-transition {
+  &.is-forward,
+  &.is-back {
+    animation: app-step-fade-in 0.2s ease both;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &.is-forward {
+      animation: app-step-in-forward 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    &.is-back {
+      animation: app-step-in-back 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+}
+
+// --- Phone field (features/phone/components/PhoneInput) -----------------------
+
+.app-phone-input {
+  position: relative;
+}
+
+// "PT +351" inside the field, in the main colour (like the € / km units)
+.input-group > .app-phone-country {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--app-primary-text);
+  font-variant-numeric: tabular-nums;
+
+  &:disabled {
+    opacity: 1; // one country: shown, not a control
+    color: var(--app-primary-text);
+  }
+
+  .bi {
+    font-size: 0.7em;
+  }
+}
+
+.app-phone-country-code {
+  font-size: 0.75em;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.02em;
+}
+
+.app-phone-menu {
+  top: calc(100% + #{map-get($spacers, 1)});
+  left: 0;
+  min-width: 16rem;
+}
+
+.app-phone-list {
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+// --- Settings → Application (features/appSettings) ----------------------------
+
+.app-setting-option + .app-setting-option {
+  padding-top: map-get($spacers, 4);
+  border-top: 1px solid var(--#{$prefix}border-color-translucent);
+}
+
+// Checkbox choices in columns
+.app-setting-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: map-get($spacers, 1) map-get($spacers, 3);
+}

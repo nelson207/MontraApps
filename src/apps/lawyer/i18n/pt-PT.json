@@ -1,0 +1,39 @@
+{
+  "modules": {},
+  "brand": {
+    "tagline": "Ações judiciais, prazos e documentos, num só lugar.",
+    "highlights": [
+      {
+        "title": "Todas as ações judiciais",
+        "text": "Acompanhe cada processo da entrada à decisão."
+      },
+      {
+        "title": "Nunca perca um prazo",
+        "text": "Audiências e prazos onde os pode ver."
+      },
+      {
+        "title": "Seguro por definição",
+        "text": "Autenticação de dois fatores e acesso por perfil."
+      }
+    ]
+  },
+  "workContext": {
+    "levels": {
+      "organization": {
+        "label": "Escritório de advogados",
+        "plural": "escritórios de advogados"
+      },
+      "unit": {
+        "label": "Departamento",
+        "plural": "departamentos"
+      },
+      "member": {
+        "label": "Advogado",
+        "plural": "advogados"
+      }
+    },
+    "memberRole": "advogado",
+    "purpose": "Com quem trabalha: valores por omissão para novas ações judiciais.",
+    "impersonationNote": "As novas ações judiciais serão registadas em nome dessa pessoa."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "//": "Type-checks Montra Customer and the platform code it uses (@app = customer), from the entry point: it has no working context, tasks or user management, so those shared features aren't part of it. tsconfig.app.json checks the whole platform against Credit.",
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.customer.tsbuildinfo",
+    "paths": {
+      "@platform/*": [
+        "./src/platform/*"
+      ],
+      "@customer/*": [
+        "./src/apps/customer/*"
+      ],
+      "@app/*": [
+        "./src/apps/customer/*"
+      ]
+    }
+  },
+  "include": [
+    "src/platform/main.tsx",
+    "src/apps/customer"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "account": "Conta",
+    "security": "Segurança",
+    "appearance": "Aspeto",
+    "application": "Aplicação"
+  },
+  "language": {
+    "title": "Idioma",
+    "help": "O idioma da aplicação. Os nomes que vêm do servidor (negócios, produtos…) ainda não são traduzidos."
+  },
+  "appearance": {
+    "title": "Aspeto",
+    "reset": "Repor",
+    "mode": "Modo",
+    "modeLabel": "Aspeto",
+    "modes": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Sistema"
+    },
+    "systemTitle": "Seguir a definição do computador",
+    "modeHelp": "Sistema segue a definição clara ou escura do seu computador e muda com ela.",
+    "dateFormat": "Formato de data",
+    "dateFormatOption": "{{format}} · p. ex. {{example}}",
+    "dateFormatHelp": "Como as datas são escritas e mostradas nos campos de data.",
+    "presets": "Predefinições",
+    "presetLabel": "Predefinição {{name}}",
+    "colors": {
+      "primary": "Cor principal",
+      "primaryHelp": "Barra lateral, botões, ligações e destaques.",
+      "onPrimary": "Texto sobre a cor principal",
+      "onPrimaryHelp": "Texto e ícones na barra lateral e nos botões principais.",
+      "bodyText": "Cor do texto do conteúdo",
+      "bodyTextHelp": "Texto na área de conteúdo, no modo claro (o modo escuro usa texto claro)."
+    },
+    "auto": "Automático",
+    "sidebarContrast": "Contraste da barra lateral:",
+    "contrastTitle": "O WCAG AA exige pelo menos 4,5:1 para texto normal",
+    "readable": "legível",
+    "lowContrast": "contraste baixo",
+    "preview": "Pré-visualização",
+    "previewHome": "Início",
+    "previewNews": "Notícias",
+    "previewContent": "Texto do conteúdo com uma <link>ligação</link>.",
+    "previewPrimary": "Principal",
+    "previewOutline": "Contorno",
+    "previewBadge": "Etiqueta",
+    "previewSwitch": "Interruptor"
+  }
+}

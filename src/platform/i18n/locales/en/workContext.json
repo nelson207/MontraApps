@@ -1,0 +1,22 @@
+{
+  "title": "Working context",
+  "sample": "Sample data",
+  "sampleTitle": "The hierarchy service isn't available yet, so sample data is shown.",
+  "memberNote": "As a {{role}} you always act as yourself.",
+  "onBehalf": "Choosing a {{member}} other than yourself means acting on their behalf.",
+  "unavailable": "Context unavailable",
+  "unavailableLabel": "Working context unavailable",
+  "unavailableTitle": "Couldn't load your working context ({{levels}}).",
+  "detail": "{{level}}: {{name}}",
+  "notChosen": "not chosen",
+  "label": "Working context: {{member}}, {{unit}}, {{organization}}",
+  "labelNotChosen": "Working context: not chosen",
+  "choose": "Choose a {{level}}",
+  "actingAs": "Acting as {{name}}",
+  "banner": "You're acting as <strong>{{member}}</strong> ({{unit}} · {{organization}}). {{note}}",
+  "actAsMyself": "Act as myself",
+  "select": "Select a {{level}}",
+  "selectFirst": "Select a {{level}} first",
+  "all": "All {{levels}}",
+  "you": "{{name}} (you)"
+}

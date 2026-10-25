@@ -1,0 +1,22 @@
+{
+  "//": "Type-checks the shared platform against Montra Stock Credit (@app = stock); tsconfig.app.json checks it against Credit.",
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.stock.tsbuildinfo",
+    "paths": {
+      "@platform/*": [
+        "./src/platform/*"
+      ],
+      "@stock/*": [
+        "./src/apps/stock/*"
+      ],
+      "@app/*": [
+        "./src/apps/stock/*"
+      ]
+    }
+  },
+  "include": [
+    "src/platform",
+    "src/apps/stock"
+  ]
+}

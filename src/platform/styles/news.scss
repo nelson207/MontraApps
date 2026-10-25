@@ -1,0 +1,242 @@
+// ---------------------------------------------------------------------------
+// News (features/news): gallery, preview modal, search list, article
+// ---------------------------------------------------------------------------
+
+$news-transition: 0.18s ease;
+
+// Picture or themed placeholder; always fills its box
+.app-news-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-news-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(var(--app-on-primary-rgb), 0.85);
+  font-size: 2.5rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--app-primary) 70%, #000),
+    var(--app-primary) 60%,
+    color-mix(in srgb, var(--app-primary) 75%, #fff)
+  );
+}
+
+// Crop to 2 lines with "…". !important so a display utility (e.g. .d-block) can't
+// silently disable it; overflow-wrap so one very long word can't widen the box.
+.app-news-clamp-2 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+// --- Dashboard strip (NewsGallery) -----------------------------------------
+// One row of equal tiles on wide screens; a horizontal swipe strip below that,
+// so the section never grows taller than a single row.
+
+.app-news-strip {
+  display: grid;
+  gap: map-get($spacers, 3);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(14rem, 75%);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: map-get($spacers, 1);
+
+  @include media-breakpoint-up(md) {
+    grid-auto-columns: minmax(14rem, 40%);
+  }
+
+  @include media-breakpoint-up(xl) {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow-x: visible;
+  }
+}
+
+// Fixed height: image + meta line + 2-line title, whatever the text length
+$news-tile-height: 14.5rem;
+
+.app-news-tile {
+  display: flex;
+  flex-direction: column;
+  height: $news-tile-height;
+  padding: 0;
+  overflow: hidden;
+  text-align: start;
+  color: inherit;
+  scroll-snap-align: start;
+  border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  background-color: var(--#{$prefix}body-bg);
+  @include border-radius($border-radius-lg);
+  @include transition(transform $news-transition, box-shadow $news-transition, border-color $news-transition);
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--#{$prefix}primary-border-subtle);
+    box-shadow: $box-shadow-sm;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-primary-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.app-news-tile-image {
+  display: block;
+  flex-shrink: 0;
+  height: 9.75rem;
+  overflow: hidden;
+
+  .app-news-image-fallback {
+    font-size: 1.75rem;
+  }
+}
+
+.app-news-tile-body {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: map-get($spacers, 2) map-get($spacers, 3) map-get($spacers, 3);
+}
+
+.app-news-tile-placeholder {
+  height: $news-tile-height;
+}
+
+// --- Preview modal -----------------------------------------------------------
+
+.app-news-preview-hero {
+  height: 15rem;
+}
+
+.app-news-preview-close {
+  padding: 0.6rem;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  opacity: 1;
+}
+
+// --- Search list / related ---------------------------------------------------
+
+.app-news-thumb {
+  flex-shrink: 0;
+  display: block;
+  width: 6rem;
+  height: 4.5rem;
+  overflow: hidden;
+  @include border-radius($border-radius-lg);
+}
+
+.app-news-thumb-sm {
+  width: 4.5rem;
+  height: 3.25rem;
+}
+
+.app-news-related:hover .fw-semibold {
+  color: var(--app-primary-text);
+}
+
+// --- Article -----------------------------------------------------------------
+
+.app-news-article-hero {
+  height: 18rem;
+
+  @include media-breakpoint-up(lg) {
+    height: 24rem;
+  }
+}
+
+.app-news-article-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: map-get($spacers, 4);
+  color: $white;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 20%, rgba(0, 0, 0, 0.8));
+
+  @include media-breakpoint-up(lg) {
+    padding: map-get($spacers, 5);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Assigned tasks priority cards (platform/features/tasks)
+// ---------------------------------------------------------------------------
+
+.priority-card {
+  @include transition(transform $news-transition, box-shadow $news-transition, border-color $news-transition);
+
+  &:hover,
+  &.priority-card-active {
+    transform: translateY(-2px);
+    border-color: var(--#{$prefix}primary) !important;
+    box-shadow: $box-shadow;
+  }
+}
+
+// Priority colours: Critical red, High orange, Medium yellow, Low green
+.app-priority-low {
+  background-color: $green;
+  color: $white;
+}
+
+.app-priority-medium {
+  background-color: $yellow;
+  color: $black;
+}
+
+.app-priority-high {
+  background-color: $orange;
+  color: $black;
+}
+
+.app-priority-critical {
+  background-color: $red;
+  color: $white;
+}
+
+// Long category names end in "…" instead of being cut mid-word
+.app-news-badge {
+  max-width: 14rem;
+  vertical-align: middle;
+}
+
+// Dashboard strip with nothing current: same card, the height of the tiles
+.app-news-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: map-get($spacers, 1);
+  min-height: $news-tile-height;
+  padding: map-get($spacers, 4);
+  border: 1px dashed var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  text-align: center;
+}
+
+.app-news-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: map-get($spacers, 2);
+  border-radius: 50%;
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  color: var(--app-primary-text);
+  font-size: 1.35rem;
+}

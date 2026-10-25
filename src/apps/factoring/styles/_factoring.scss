@@ -1,0 +1,158 @@
+// ---------------------------------------------------------------------------
+// Factoring requests and documents (features/factoring)
+// ---------------------------------------------------------------------------
+
+// Factoring / confirming badge
+.app-nature-badge {
+  font-weight: $font-weight-semibold;
+
+  &.is-nature-0 {
+    background-color: var(--#{$prefix}primary-bg-subtle);
+    color: var(--#{$prefix}primary-text-emphasis);
+  }
+
+  &.is-nature-1 {
+    background-color: var(--#{$prefix}warning-bg-subtle);
+    color: var(--#{$prefix}warning-text-emphasis);
+  }
+}
+
+// --- Company chosen through the search dialog ---------------------------------
+
+.app-entity-field {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  width: 100%;
+  min-height: 3.5rem;
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+  border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  border-radius: $input-border-radius;
+  background-color: var(--#{$prefix}body-bg);
+  color: inherit;
+  @include transition(border-color 0.15s ease, box-shadow 0.15s ease);
+
+  &.is-compact {
+    min-height: calc(#{$input-height});
+    padding-block: map-get($spacers, 1);
+  }
+
+  &:hover {
+    border-color: var(--app-primary);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 $input-btn-focus-width var(--app-primary-focus-ring);
+  }
+
+  &.is-invalid {
+    border-color: var(--#{$prefix}form-invalid-border-color);
+  }
+}
+
+.app-entity-field-action {
+  flex-shrink: 0;
+  color: var(--app-primary-text, var(--#{$prefix}primary));
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.app-entity-modal .modal-body {
+  min-height: 22rem;
+}
+
+.app-entity-option {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 3);
+  width: 100%;
+  padding: map-get($spacers, 2);
+  border: 0;
+  border-radius: $border-radius;
+  background: none;
+  color: inherit;
+  text-align: start;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--#{$prefix}tertiary-bg);
+  }
+
+  &.is-selected {
+    background-color: var(--#{$prefix}primary-bg-subtle);
+  }
+}
+
+.app-entity-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: $border-radius;
+  background-color: var(--#{$prefix}secondary-bg);
+  color: var(--#{$prefix}secondary-color);
+}
+
+// --- Invoices of a request -----------------------------------------------------
+
+.app-document-card {
+  padding: map-get($spacers, 3) map-get($spacers, 3) 0;
+  border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+
+  &.has-errors {
+    border-color: var(--#{$prefix}form-invalid-border-color);
+  }
+}
+
+.app-document-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  color: var(--#{$prefix}primary-text-emphasis);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.app-documents-empty {
+  padding: map-get($spacers, 4);
+  border: 1px dashed var(--#{$prefix}border-color);
+  border-radius: $border-radius-lg;
+  color: var(--#{$prefix}secondary-color);
+  text-align: center;
+}
+
+.app-documents-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: map-get($spacers, 3);
+  margin: 0;
+  padding: map-get($spacers, 3);
+  border-radius: $border-radius-lg;
+  background-color: var(--#{$prefix}tertiary-bg);
+
+  @include media-breakpoint-up(md) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  dt {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-normal;
+    color: var(--#{$prefix}secondary-color);
+  }
+
+  dd {
+    margin: 0;
+    font-size: $h5-font-size;
+    font-weight: $font-weight-semibold;
+  }
+}

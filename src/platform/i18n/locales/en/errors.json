@@ -1,0 +1,12 @@
+{
+  "codes": {
+    "validation_failed": "Some of the values aren't valid. Check the form and try again.",
+    "user_management_forbidden": "You can't manage this user.",
+    "user_has_no_entity": "Your user has no contact record.",
+    "invalid_email_confirmation_code": "This link is invalid or has expired.",
+    "backend_unavailable": "The service is temporarily unavailable. Please try again later."
+  },
+  "unreachable": "Can't reach the server. Check your connection and try again.",
+  "forbidden": "You don't have permission to do this.",
+  "tooManyAttempts": "Too many attempts, try again later."
+}

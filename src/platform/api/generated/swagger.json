@@ -1,0 +1,7138 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "MontraAPI",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login/windows": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WindowsLoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WindowsLoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WindowsLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login/idp": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdpLoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdpLoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdpLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/verify": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorVerifyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorVerifyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorVerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/setup": {
+      "post": {
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorSetupResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorSetupResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/enable": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorEnableRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorEnableRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorEnableRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/password/forgot": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/password/change": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/password/change-required": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredPasswordChangeRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredPasswordChangeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredPasswordChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/buildings/new": {
+      "get": {
+        "tags": ["Building"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies": {
+      "get": {
+        "tags": ["Company"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/{id}/businesses": {
+      "get": {
+        "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyBusinessDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyBusinessDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyBusinessDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/countries": {
+      "get": {
+        "tags": ["Company"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/businesses": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "BusinessId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ImporterId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "PurposeTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MarketCampaignId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CustomerTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ChannelId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ProductPurpose",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "OperationTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "IncludeProductsWithoutImporters",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "credOperStep",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreditOperationStep"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailableBusinessDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailableBusinessDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailableBusinessDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/search": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "Number",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Step",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreditOperationStep"
+            }
+          },
+          {
+            "name": "StateId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperSummaryDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperSummaryDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperSummaryDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/calculate": {
+      "post": {
+        "tags": ["CreditOperations"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateCreditOperationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateCreditOperationRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateCreditOperationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditOperationCalculationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditOperationCalculationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditOperationCalculationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/new-credoper": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "credOperStep",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreditOperationStep"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/new-intervention": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/NewInterventionKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperIntervDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperIntervDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperIntervDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/new-insurance": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsurancePolicyDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsurancePolicyDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsurancePolicyDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/calculate-credoper": {
+      "post": {
+        "tags": ["CreditOperations"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperCalculationResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperCalculationResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperCalculationResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/new": {
+      "get": {
+        "tags": ["Equipment"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/categories": {
+      "get": {
+        "tags": ["Equipment"],
+        "parameters": [
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "equipmentTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "financialProductId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/types": {
+      "get": {
+        "tags": ["Equipment"],
+        "parameters": [
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "financialProductId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "purposeTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/brands": {
+      "get": {
+        "tags": ["Equipment"],
+        "parameters": [
+          {
+            "name": "equipmentTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/models": {
+      "get": {
+        "tags": ["Equipment"],
+        "parameters": [
+          {
+            "name": "equipmentTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/versions": {
+      "get": {
+        "tags": ["Equipment"],
+        "parameters": [
+          {
+            "name": "equipmentTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentOptionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/financial-products": {
+      "get": {
+        "tags": ["FinancialProduct"],
+        "parameters": [
+          {
+            "name": "CompanyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "BusinessId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ImporterId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "PurposeTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MarketCampaignId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CustomerTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ChannelId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "ProductPurpose",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "OperationTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "IncludeProductsWithoutImporters",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FinancialProductDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FinancialProductDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FinancialProductDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/financial-products/defaults": {
+      "post": {
+        "tags": ["FinancialProduct"],
+        "parameters": [
+          {
+            "name": "oldFinancialProductId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news": {
+      "get": {
+        "tags": ["News"],
+        "parameters": [
+          {
+            "name": "portal",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news/search": {
+      "get": {
+        "tags": ["News"],
+        "parameters": [
+          {
+            "name": "portal",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "newsTypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news/{id}/image": {
+      "get": {
+        "tags": ["News"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/parametrization/screen-customizations": {
+      "get": {
+        "tags": ["Parametrization"],
+        "parameters": [
+          {
+            "name": "screenIdentifier",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenCustomizationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenCustomizationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenCustomizationDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Parametrization"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveScreenCustomizationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveScreenCustomizationRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveScreenCustomizationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenCustomizationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenCustomizationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenCustomizationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/me": {
+      "get": {
+        "tags": ["StructNodes"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructScopeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructScopeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructScopeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/intermediaries": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/intermediaries/{id}/suppliers": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/suppliers/{id}/persons": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/law-offices": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/law-offices/{id}/departments": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/departments/{id}/lawyers": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/struct-nodes/{id}": {
+      "get": {
+        "tags": ["StructNodes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructNodeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/contacts": {
+      "get": {
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/contact-details": {
+      "get": {
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserContactsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserContactsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserContactsDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyContactsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyContactsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyContactsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserContactsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserContactsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserContactsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/photo": {
+      "put": {
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/users/confirm-email": {
+      "post": {
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailConfirmationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailConfirmationRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailConfirmationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "post": {
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/work-items/positions": {
+      "get": {
+        "tags": ["WorkItems"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkItemPositionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkItemPositionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkItemPositionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/work-items/dashboard": {
+      "get": {
+        "tags": ["WorkItems"],
+        "parameters": [
+          {
+            "name": "positionId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/work-items/search": {
+      "get": {
+        "tags": ["WorkItems"],
+        "parameters": [
+          {
+            "name": "PositionId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "States",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AplWorkItemInternalState"
+              }
+            }
+          },
+          {
+            "name": "TypeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Number",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AplWorkItemSortingType"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddressDetailsDto": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "streetNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "houseNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "building": {
+            "type": "string",
+            "nullable": true
+          },
+          "apartment": {
+            "type": "string",
+            "nullable": true
+          },
+          "occupiedPoint": {
+            "type": "string",
+            "nullable": true
+          },
+          "place": {
+            "type": "string",
+            "nullable": true
+          },
+          "poBox": {
+            "type": "string",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "locality": {
+            "type": "string",
+            "nullable": true
+          },
+          "parish": {
+            "type": "string",
+            "nullable": true
+          },
+          "council": {
+            "type": "string",
+            "nullable": true
+          },
+          "district": {
+            "type": "string",
+            "nullable": true
+          },
+          "region": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "extraInfo": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPostal": {
+            "type": "boolean"
+          },
+          "isFiscal": {
+            "type": "boolean"
+          },
+          "isHeadquarters": {
+            "type": "boolean"
+          },
+          "isPoBox": {
+            "type": "boolean"
+          },
+          "isResidential": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "addressTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "singleLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "lines": {
+            "$ref": "#/components/schemas/AddressLinesDto"
+          },
+          "details": {
+            "$ref": "#/components/schemas/AddressDetailsDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressLinesDto": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "others": {
+            "type": "string",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "locality": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AplWorkItemInternalState": {
+        "enum": [10, 11, 12, 13, 14],
+        "type": "integer",
+        "format": "int32"
+      },
+      "AplWorkItemSortingType": {
+        "enum": [1, 2, 3, 4, 5],
+        "type": "integer",
+        "format": "int32"
+      },
+      "AssetTypeKind": {
+        "enum": [1, 2],
+        "type": "integer",
+        "format": "int32"
+      },
+      "AvailableBusinessDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyAbbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "financialProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvailableFinancialProductDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AvailableFinancialProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "importerIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protected ids (opaque tokens)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "BuildingDto": {
+        "type": "object",
+        "properties": {
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetDepreciationId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetPurposeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "buildingDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "buildingInfoFractionId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "buildingInfoId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "buildingOwnershipTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "buildingStateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "buildingTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "buildingYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "depreciationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "descr": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasPaymentCalendar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasVATChargedPurchaser": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "isProvisory": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "paymentCurrencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentForexPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "paymentForexRateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "paymentForexValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "purchaseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "saleDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "saleInvoice": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "saleNetAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "sourceBuildingId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CalculateCreditOperationRequest": {
+        "type": "object",
+        "properties": {
+          "financialProductId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "businessId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "operationTypeId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channelId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "purposeTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentInputDto"
+          },
+          "financedAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "periodId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CalculationMessageDto": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "oldPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyBusinessDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyConfigurationDto": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "businesses": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "proposalBusinesses": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "equipmentCategories": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "equipmentTypes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
+      "CompanyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContactDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CountryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "alpha2Code": {
+            "type": "string",
+            "nullable": true
+          },
+          "numericCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "phonePrefix": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "culture": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "aplUserTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "authorizationLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "uiCulture": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CredOperAssetDto": {
+        "type": "object",
+        "properties": {
+          "advancedClientAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "annualAssetUsage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assetExpenseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assetItem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetSituationTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetState": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetType": {
+            "$ref": "#/components/schemas/AssetTypeKind"
+          },
+          "assetUsage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assetUsageInputId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "baseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "baseResidualValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "baseResidualValueCalcStateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "baseResidualValuePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "companyForexPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyForexRateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyForexValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "credOperAssetDeliverTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "credOperAssetStateAbrev": {
+            "type": "string",
+            "nullable": true
+          },
+          "credOperId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliverAddressCountryZipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "deliverAddressId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "deliverMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deliverStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "devolutionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "disposableAssetId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "driverEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "driverStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityCostCenterId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "externalContractNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "finSymbolProdId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "firstRelatedAssetRegistrationId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "hasOtherUsualDriver": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "isDelivered": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isDisposable": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isRelocation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "newAssetId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "newRelatedAssetRegistrationId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "numOfAssetsToNextStep": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "oldAdjustmentAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "oldAdjustmentExpenseTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "oldAssetExpenseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "otherCapitalAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "parentCredOperAssetId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "previousDeliverMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purchaseOptionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "receivingPerson": {
+            "type": "string",
+            "nullable": true
+          },
+          "recoveredAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "relatedAssetId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "remarketingCosts": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residualValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residualValueFactorPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residualValuePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "subCredOperItem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalGrossAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assetId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentDto"
+          },
+          "building": {
+            "$ref": "#/components/schemas/BuildingDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CredOperCalculationResultDto": {
+        "type": "object",
+        "properties": {
+          "isCalculated": {
+            "type": "boolean"
+          },
+          "credOper": {
+            "$ref": "#/components/schemas/CredOperDto"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CredOperDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "financialProductId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "credOperNumber": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "aplBusinessId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "credOperTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finProductVersion": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "aplBusinessPurposeTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "credOperChannelId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasFinConditions": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "entryMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "credOperStep": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "creditIntermediaryStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "importerStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "localStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "credOperClassificationId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "entityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "descr": {
+            "type": "string",
+            "nullable": true
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinConditionsDto"
+            },
+            "nullable": true
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CredOperAssetDto"
+            },
+            "nullable": true
+          },
+          "interventions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CredOperIntervDto"
+            },
+            "nullable": true
+          },
+          "insurances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InsurancePolicyDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CredOperIntervDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/CredOperIntervRole"
+          },
+          "agreementNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "arrearsRateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "assetRetakeAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assumeCustomerDebts": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "businessPartnerStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "communicationMediaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "congenerCredOperIntervId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "consentUseData": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "credOperId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "credOperIntervType": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deferredPaymentMode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "delayInterestRateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "departmentStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "docCessionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "documentMaxTerm": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dueDeltaDays": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityAddressId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityClassificationTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "entityContactId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityEmailId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityPhoneId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "equityCapitalPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "exemptCreditTaxStampAfter": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "exemptCreditTaxStampBefore": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "externalNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "factoringInvoiceMode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "factoringInvoiceMomentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fiscalEntityAddressId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "frameContractMargin": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "frameContractTaxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hasForeignFiscality": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasNotification": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasRecourse": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "initialEntryValueRegul": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "insurerCredOperIntervId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "intervItem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "intervOtherRelatedEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "intervPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "interventionBehaviourTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "interventionOriginId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invoiceDateModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isBeneficialOwner": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isBoardOfDirectorsMember": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isConsentReceived": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isEquityCapitalHolder": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isLegalRepresentative": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isSpouseOnLoan": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isToInvoice": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "issueDocument": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "newRelatedEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "newRelatedEntityTargetContext": {
+            "type": "string",
+            "nullable": true
+          },
+          "notAdvancedMargin": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "notificationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "productGeneratedId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rpScopeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "residenceHeadquarterEntityAddressId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "responsibilityDeltaDays": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "scoringValue": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "sendNotificationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "validationRequiredByUser": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CredOperIntervRole": {
+        "enum": [
+          "Customer",
+          "Guarantor",
+          "Supplier",
+          "Broker",
+          "Other",
+          "FinancialInstitution"
+        ],
+        "type": "string"
+      },
+      "CredOperSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "step": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "credOperTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "financialProductId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entryMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "descr": {
+            "type": "string",
+            "nullable": true
+          },
+          "importerStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "personStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CredOperSummaryDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CredOperSummaryDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreditOperationCalculationDto": {
+        "type": "object",
+        "properties": {
+          "isCalculated": {
+            "type": "boolean"
+          },
+          "financialProductId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "financedAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "periodId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "installmentAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "installmentAmountWithTax": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "implicitRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "annualRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "equipmentNetAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreditOperationStep": {
+        "enum": [1, 2, 3, 4, 5, 6, 7, 12, 13, 99],
+        "type": "integer",
+        "format": "int32"
+      },
+      "EmailConfirmationRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmailDto": {
+        "type": "object",
+        "properties": {
+          "consentToCommunicate": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "emailAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "entityEmailTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "invalidDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isValidated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmailTypesConfigurationDto": {
+        "type": "object",
+        "properties": {
+          "personal": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "work": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentClassDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentDto": {
+        "type": "object",
+        "properties": {
+          "accessoriesAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "accessoriesMarketValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetDepreciationId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetDepreciationPurposeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetOriginId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetPurposeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetRetakeBaseCalcModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "automatonId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "baseMarketValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "baseNetAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "basePurchaseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "bodyCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "cO2Emission": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "cabinSize": {
+            "type": "string",
+            "nullable": true
+          },
+          "calculationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "carConfiguratorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
+            "type": "string",
+            "nullable": true
+          },
+          "consumption": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "depreciationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "descr": {
+            "type": "string",
+            "nullable": true
+          },
+          "driveTrainTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "emissionStandardId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "engineNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "engineSize": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipMonth": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipVariant": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipVariantDescr": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipmentBrand": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipmentCategoryId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipmentKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipmentModel": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipmentSegmentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipmentStateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipmentSupplierAffectRuleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "faceliftGeneration": {
+            "type": "string",
+            "nullable": true
+          },
+          "fiscalC02Emissions": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fiscalCategory": {
+            "type": "string",
+            "nullable": true
+          },
+          "fiscalHorsePower": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "frontTyreType": {
+            "type": "string",
+            "nullable": true
+          },
+          "fuelCardDiscount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelCardLimitAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fuelCardLimitTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fuelCardOperTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "fuelTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "gearbox": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "grantsAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hasCatalyst": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasFuelCard": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasGasInstalation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasMicroprocessor": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasPaymentCalendar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasTPMS": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasTollCard": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasVATChargedPurchaser": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "highwayFuelConsumption": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "homologationClassId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "horsePower": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "interiorColour": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCertified": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isManualValidation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isMobile": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isOptionsMarketValueDefinedByUser": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isProvisory": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isReimported": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isRenovated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isSpecialVehicle": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isStandard": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "licenceDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "licencePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlateAddressState": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlateAddressStateCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlateCouncil": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlateCouncilCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "licencePlateCountryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlateDistrict": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlateDistrictCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "licencePlateTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "locationStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "mandatoryInspectionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "mandatoryInspectionNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "manufacturer": {
+            "type": "string",
+            "nullable": true
+          },
+          "manufacturerKeyNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "marketBuyValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "marketNetValueIfNew": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "marketValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "marketValueIfNew": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxLoadCapacity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxPower": {
+            "type": "string",
+            "nullable": true
+          },
+          "maximumWeight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modelCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "newRelatedConditionsId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "numOfAxles": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numOfAxlesDriven": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numOfDoors": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numOfSeats": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numberOfCarKeys": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "optionsAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "optionsMarketValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "orderDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "orderReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalEquipmentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "otherSerialNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "othersOptionsAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "ownerAplBusinessId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "ownerHasMultipleFinConditions": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "paintTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "paymentCurrencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentForexPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "paymentForexRateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "paymentForexValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "preModelCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "preModelCodeInputModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "previousAssetPurposeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "productionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purchaseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "purchaseInvoice": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rearTyreType": {
+            "type": "string",
+            "nullable": true
+          },
+          "retakeAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "retakePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "retakeSyncModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "revisionsRange": {
+            "type": "string",
+            "nullable": true
+          },
+          "rimDimensions": {
+            "type": "string",
+            "nullable": true
+          },
+          "saleAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "saleDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "saleInvoice": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "saleTaxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "serialNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "serialNumberIdSector": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceEquipmentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "supplierDiscountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "supplierDiscountGrandTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "supplierDiscountNetGrandTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "supplierDiscountPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "supplierEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "suspensionTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxClassifierId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "techExamDueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "tollFuelCardOperTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "topSpeed": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalOtherSupplierCostsPurchaseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "trimLine": {
+            "type": "string",
+            "nullable": true
+          },
+          "tylaCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeKeyNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "urbanFuelConsumption": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "usageReservationManagementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "useModelList": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "vehicleTaxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vehicleTaxAmountCalc": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vehicleTransmissionTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "warrantyEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentInputDto": {
+        "type": "object",
+        "properties": {
+          "typeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentOptionDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FinConditionsDto": {
+        "type": "object",
+        "properties": {
+          "ani": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "acceleratorPeriodTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "acceleratorTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "amountHasTaxes": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "aplTableId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "arrearsRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assetUsage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "calcTransferDateByFinDateMatrix": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "calculateSpread": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "capitalizeStampTax": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "caution": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cautionFactor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cautionInputModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "cautionPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "credOperEventPlanTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "dayRent": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "daysWithoutInterest": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "differPeriods": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "earRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "erRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "equipmentAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "factoringInvoiceMode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "factoringInvoiceMomentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finConditionOfferTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finConditionsCalcReasonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finDueRegimeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finInitialEntryTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finInterestControlTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finMatrixTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finRateDefinitionId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "finalDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finalExpenseTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "financialValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "globalFundingRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "globalIRRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "globalMargin": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "gracePeriods": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hasRenew": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "irRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "implicitRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "indexingRuleId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "initialDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "initialEntryCaution": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialEntryCautionPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialEntryFactor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialEntryPartialValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialEntryPaymentBehaviourTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "initialEntryPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialEntryValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialEntryValueWithoutProRata": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "initialExpenseTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "initialRentValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "installmentsPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "interestTaxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "interestValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "invoiceDateModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invoiceEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "invoiceNumberRents": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invoiceRetentionPerc": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "invoiceRuleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isMultiImplicitRate": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isSelected": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isToIndex": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "marginRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxRentValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxSubventionAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxSubventionPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "minDocumentAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "newRelatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "numOfFlows": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numOfSupplierDays": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "originalTerm": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "otherFlowsInitialPaymentAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "otherFlowsInitialPaymentInputModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "otherFlowsInitialPaymentPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "paymentLevelId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "paymentPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "penaltyRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "periodId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "preFinancingTerm": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "profitContribution": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "profitContributionRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "roeBasePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "roePartPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "roePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "referenceRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "relatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "relatedTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "renewDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "renewTerm": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rentCalcModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rentTaxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "residualValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residualValuePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residualValueWithTax": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "saleTaxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "sequenceNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "simulationType": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "spread": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "spreadDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "supplierImplicitRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "termDays": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "termPeriodId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalAmountChargedToCustomer": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "transferDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "transferDateFinDateMatrixId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "flows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinConditionsFlowDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FinConditionsFlowDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "amountUnrounded": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "balloonRentIncludeNormalRent": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "customerRentalAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "customerRentalAmountWithTax": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "factor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fieldCalcStateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finConditionsId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "finFlowControlTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "implicitRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "invoiceEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "invoiceRuleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isToIndex": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isVariableFlow": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "numOfRepetitions": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "percentageAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "periodId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "periodQuantity": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "sequenceNr": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "spread": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "userInputFieldId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FinancialProductDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IdpLoginRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "montraAplApplication": {
+            "$ref": "#/components/schemas/MontraAplApplications"
+          },
+          "rememberMe": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InsurancePolicyDto": {
+        "type": "object",
+        "properties": {
+          "accountDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "agreedInvoicedPremiumRuleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "appliedDiscountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "assetPurposeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "assetTypeGroupId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "beginFinCFEventId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "bonusMalusLevelId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "bundleTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "calculationReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "calculationReferenceDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "capital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "certificateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "chargeExpense": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "clientDiscountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "clientDiscountModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "clientDiscountPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "dayRent": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "descr": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "discountGracePeriod": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "discountModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "discountPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endFinCFEventId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "externalBeginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "externalEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "externalYears": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "finFlowTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "finalAccountDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "financedAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "firstFlowDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "gracePeriod": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "greenCardNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasInsuranceFlows": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "insuranceCompanyRiskPlanTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "insuranceExtraInvoiceModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insuranceFinRewardRelationModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insuranceFlowModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insuranceGrpPriceVersionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insuranceIndexingModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insuranceOriginId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insurancePriceVersionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "insuranceTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "internalYears": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invoiceCurrencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "invoiceWithFlow": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "invoicedPremium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "isAmountCalculated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isAssetInsurance": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isFrozen": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isInsurancePriceVersionUserDefined": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isInternal": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isLifeInsurance": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isRecommended": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "nsa": {
+            "type": "string",
+            "nullable": true
+          },
+          "netBMPremium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "netPremium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "numOfInsuredEntities": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "originalEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "paymentPeriodId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "periodId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "policyNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "premium": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "productGeneratedId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "relatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "replacementVehicleClassId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "retakeAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "retakePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "returnPremium": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "riskPlanTypeAllowedId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "riskPlanTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "sourceInsurancePolicyId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxExemptionReasonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "term": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "termSourceModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "uncoveredInsurance": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "uncoveredInsuranceDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "upgradeConditionRiskPlanTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "upgradeRiskPlanTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "vendorStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "wasTaxInvoiced": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "whoPaidId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginMethod": {
+        "enum": ["Custom", "Windows", "OpenId"],
+        "type": "string"
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "$ref": "#/components/schemas/LoginMethod"
+          },
+          "montraAplApplication": {
+            "$ref": "#/components/schemas/MontraAplApplications"
+          },
+          "rememberMe": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "requiresTwoFactor": {
+            "type": "boolean"
+          },
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresInSeconds": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "challengeToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiresPasswordChange": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ManagedUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "uiCulture": {
+            "type": "string",
+            "nullable": true
+          },
+          "aplUserTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "authorizationLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invalidDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "contacts": {
+            "$ref": "#/components/schemas/UserContactsDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MontraAplApplications": {
+        "enum": [
+          "MONTRA_APPLICATION_APP",
+          "MONTRA_APPLICATION_CREDIT",
+          "MONTRA_APPLICATION_LAWYER",
+          "MONTRA_APPLICATION_STOCK",
+          "MONTRA_APPLICATION_FACTORING",
+          "MONTRA_APPLICATION_CUSTOMER"
+        ],
+        "type": "string"
+      },
+      "NewInterventionKind": {
+        "enum": ["Customer", "SecondHolder", "Guarantor"],
+        "type": "string"
+      },
+      "NewsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "newsTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "body": {
+            "type": "string",
+            "nullable": true
+          },
+          "linkUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "relatedDocFileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "validityBeginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "validityEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "creationMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastChangeMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NewsDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewsDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhoneDto": {
+        "type": "object",
+        "properties": {
+          "areaCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "extension": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "isInactive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "lastCallMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequiredPasswordChangeRequest": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "oldPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SaveScreenCustomizationRequest": {
+        "type": "object",
+        "properties": {
+          "screenIdentifier": {
+            "$ref": "#/components/schemas/MontraAplApplications"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/ScreenCustomizationConfigurationDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ScreenCustomizationConfigurationDto": {
+        "type": "object",
+        "properties": {
+          "newsTypes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "companies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyConfigurationDto"
+            },
+            "nullable": true
+          },
+          "emailTypes": {
+            "$ref": "#/components/schemas/EmailTypesConfigurationDto"
+          }
+        },
+        "additionalProperties": {}
+      },
+      "ScreenCustomizationDto": {
+        "type": "object",
+        "properties": {
+          "screenIdentifier": {
+            "$ref": "#/components/schemas/MontraAplApplications"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/ScreenCustomizationConfigurationDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StructNodeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "isMine": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StructNodeDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructNodeDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StructScopeDto": {
+        "type": "object",
+        "properties": {
+          "isInternal": {
+            "type": "boolean"
+          },
+          "isSupervisor": {
+            "type": "boolean"
+          },
+          "ownNodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructNodeDto"
+            },
+            "nullable": true
+          },
+          "anchors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protected ids (opaque tokens)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "TwoFactorEnableRequest": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TwoFactorSetupResponse": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string",
+            "nullable": true
+          },
+          "otpAuthUri": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TwoFactorVerifyRequest": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateMyContactsRequest": {
+        "type": "object",
+        "properties": {
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailDto"
+            },
+            "nullable": true
+          },
+          "phones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneDto"
+            },
+            "nullable": true
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "uiCulture": {
+            "type": "string",
+            "nullable": true
+          },
+          "aplUserTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "authorizationLevel": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invalidDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailDto"
+            },
+            "nullable": true
+          },
+          "phones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserContactsDto": {
+        "type": "object",
+        "properties": {
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailDto"
+            },
+            "nullable": true
+          },
+          "phones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneDto"
+            },
+            "nullable": true
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDetailsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "uiCulture": {
+            "type": "string",
+            "nullable": true
+          },
+          "userType": {
+            "type": "string",
+            "nullable": true
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "positionTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "themeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "photoFileId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WindowsLoginRequest": {
+        "type": "object",
+        "properties": {
+          "montraAplApplication": {
+            "$ref": "#/components/schemas/MontraAplApplications"
+          },
+          "rememberMe": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "priorityKind": {
+            "$ref": "#/components/schemas/WorkItemPriorityKind"
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "creationMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueMoment": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "assignedUserId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "assignedUser": {
+            "type": "string",
+            "nullable": true
+          },
+          "credOperId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "credOper": {
+            "type": "string",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "relatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "relatedDescr": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "company": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkItemDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkItemDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkItemPositionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isSelf": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkItemPriorityKind": {
+        "enum": [1, 2, 3, 4],
+        "type": "integer",
+        "format": "int32"
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Access token from POST /api/auth/login.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Building"
+    },
+    {
+      "name": "Company"
+    },
+    {
+      "name": "CreditOperations"
+    },
+    {
+      "name": "Equipment"
+    },
+    {
+      "name": "FinancialProduct"
+    },
+    {
+      "name": "News"
+    },
+    {
+      "name": "Parametrization"
+    },
+    {
+      "name": "StructNodes"
+    },
+    {
+      "name": "Users"
+    },
+    {
+      "name": "WorkItems"
+    }
+  ]
+}

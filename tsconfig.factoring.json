@@ -1,0 +1,22 @@
+{
+  "//": "Type-checks the shared platform against Montra Factoring (@app = factoring); tsconfig.app.json checks it against Credit.",
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.factoring.tsbuildinfo",
+    "paths": {
+      "@platform/*": [
+        "./src/platform/*"
+      ],
+      "@factoring/*": [
+        "./src/apps/factoring/*"
+      ],
+      "@app/*": [
+        "./src/apps/factoring/*"
+      ]
+    }
+  },
+  "include": [
+    "src/platform",
+    "src/apps/factoring"
+  ]
+}

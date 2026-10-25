@@ -1,0 +1,22 @@
+{
+  "//": "Type-checks the shared platform against Montra Lawyer (@app = lawyer); tsconfig.app.json checks it against Credit.",
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.lawyer.tsbuildinfo",
+    "paths": {
+      "@platform/*": [
+        "./src/platform/*"
+      ],
+      "@lawyer/*": [
+        "./src/apps/lawyer/*"
+      ],
+      "@app/*": [
+        "./src/apps/lawyer/*"
+      ]
+    }
+  },
+  "include": [
+    "src/platform",
+    "src/apps/lawyer"
+  ]
+}

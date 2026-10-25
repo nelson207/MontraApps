@@ -1,0 +1,117 @@
+// ---------------------------------------------------------------------------
+// Compile-time defaults. Runtime colors are set from Settings → Appearance
+// (see styles/theme.scss and features/theme).
+// ---------------------------------------------------------------------------
+$primary: #0c6fb7; // keep in sync with MONTRA_PRESET (features/theme/themeUtils.ts)
+
+// Form fields (every input and select in every app): compact, 34px high; colors in styles/forms.scss
+$input-font-size: 0.9375rem;
+$input-padding-y: 0.3125rem;
+$form-label-font-size: 0.875rem;
+$form-label-font-weight: 500;
+$form-label-margin-bottom: 0.25rem;
+$form-label-color: var(--bs-secondary-color);
+
+// ---------------------------------------------------------------------------
+// Extra utilities via Bootstrap's utility API
+// (https://getbootstrap.com/docs/5.3/utilities/api/)
+// ---------------------------------------------------------------------------
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+$utilities: map-merge(
+  $utilities,
+  (
+    // .cursor-pointer, .cursor-move
+    "cursor": (
+      property: cursor,
+      class: cursor,
+      values: pointer move,
+    ),
+    // .bg-cover, .bg-center
+    "background-size": (
+      property: background-size,
+      class: bg,
+      values: (
+        cover: cover,
+      ),
+    ),
+    "background-position": (
+      property: background-position,
+      class: bg,
+      values: (
+        center: center,
+      ),
+    ),
+    // adds .text-pre-line to Bootstrap's .text-wrap / .text-nowrap
+    "white-space": map-merge(
+      map-get($utilities, "white-space"),
+      (
+        values: map-merge(
+          map-get(map-get($utilities, "white-space"), "values"),
+          (
+            pre-line: pre-line,
+          )
+        ),
+      )
+    ),
+  )
+);
+
+@import "bootstrap/scss/bootstrap";
+
+// ---------------------------------------------------------------------------
+// Base
+// ---------------------------------------------------------------------------
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+// Above .input-group focus z-index (5)
+.select-field-spinner {
+  z-index: 5;
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+.auth-form {
+  max-width: 420px;
+}
+
+// ---------------------------------------------------------------------------
+// Credoper
+// ---------------------------------------------------------------------------
+.wizard-step-btn {
+  width: 100px;
+  height: 50px;
+}
+
+// ---------------------------------------------------------------------------
+// Partials
+// ---------------------------------------------------------------------------
+@import "theme";
+@import "layout";
+@import "news";
+@import "results";
+@import "insights";
+@import "forms";
+// The app being built (apps/<app>/styles/montra-app.scss, via the scss loadPaths in vite.config.ts)
+@import "montra-app";
+
+// Login page: development-only demo access
+.app-demo-access {
+  padding-top: map-get($spacers, 3);
+  border-top: 1px dashed var(--#{$prefix}border-color);
+}

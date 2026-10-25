@@ -1,7 +1,26 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.lawyer.json"
+    },
+    {
+      "path": "./tsconfig.stock.json"
+    },
+    {
+      "path": "./tsconfig.factoring.json"
+    },
+    {
+      "path": "./tsconfig.customer.json"
+    },
+    {
+      "path": "./tsconfig.credit.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
   ]
 }

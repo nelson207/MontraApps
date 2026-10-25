@@ -1,0 +1,152 @@
+// ---------------------------------------------------------------------------
+// Runtime theme
+//
+// features/theme writes --app-* variables on <html> (Settings → Appearance).
+// Here they are mapped onto Bootstrap's CSS variables and onto the components
+// whose colors Bootstrap compiles statically, so everything follows the theme.
+// The values below are the defaults used before/without JavaScript.
+// ---------------------------------------------------------------------------
+
+:root {
+  --app-primary: #{$primary};
+  --app-primary-rgb: #{to-rgb($primary)};
+  // Main color as text, readable on the page background (adjusted by JS for the mode)
+  --app-primary-text: #{$primary};
+  --app-primary-text-rgb: #{to-rgb($primary)};
+  --app-on-primary: #{$white};
+  --app-on-primary-rgb: #{to-rgb($white)};
+  --app-body-color: #{$body-color};
+  --app-body-color-rgb: #{to-rgb($body-color)};
+
+  // Light/dark mode: what pale tints mix with (the page background), what text shades move
+  // toward (more contrast), and how strong the main color tint is
+  --app-surface-mix: #fff;
+  --app-text-mix: #000;
+  --app-tint: 12%;
+
+  // Derived shades
+  --app-primary-hover: color-mix(in srgb, var(--app-primary) 85%, #000);
+  --app-primary-active: color-mix(in srgb, var(--app-primary) 75%, #000);
+  --app-primary-focus-ring: rgba(var(--app-primary-rgb), 0.25);
+
+  // Bootstrap tokens
+  --#{$prefix}primary: var(--app-primary);
+  --#{$prefix}primary-rgb: var(--app-primary-rgb);
+  --#{$prefix}primary-text-emphasis: color-mix(in srgb, var(--app-primary-text) 80%, var(--app-text-mix));
+  --#{$prefix}primary-bg-subtle: color-mix(in srgb, var(--app-primary) var(--app-tint), var(--app-surface-mix));
+  --#{$prefix}primary-border-subtle: color-mix(in srgb, var(--app-primary) 35%, var(--app-surface-mix));
+  --#{$prefix}link-color: var(--app-primary-text);
+  --#{$prefix}link-color-rgb: var(--app-primary-text-rgb);
+  --#{$prefix}link-hover-color: color-mix(in srgb, var(--app-primary-text) 80%, var(--app-text-mix));
+  --#{$prefix}link-hover-color-rgb: var(--app-primary-text-rgb);
+  --#{$prefix}body-color: var(--app-body-color);
+  --#{$prefix}body-color-rgb: var(--app-body-color-rgb);
+  --#{$prefix}focus-ring-color: var(--app-primary-focus-ring);
+}
+
+// Dark mode (data-bs-theme="dark" on <html>, set by features/theme): Bootstrap switches its own
+// colors; the theme's mixes follow, and the custom content text color applies to light only.
+[data-bs-theme="dark"] {
+  --app-surface-mix: #{$body-bg-dark};
+  --app-text-mix: #fff;
+  --app-tint: 22%;
+  --#{$prefix}body-color: #{$body-color-dark};
+  --#{$prefix}body-color-rgb: #{to-rgb($body-color-dark)};
+}
+
+.text-on-primary {
+  color: var(--app-on-primary) !important;
+}
+
+.text-bg-primary {
+  color: var(--app-on-primary) !important;
+}
+
+.text-primary {
+  color: rgba(var(--app-primary-text-rgb), var(--#{$prefix}text-opacity, 1)) !important;
+}
+
+// Buttons
+.btn-primary {
+  --#{$prefix}btn-color: var(--app-on-primary);
+  --#{$prefix}btn-bg: var(--app-primary);
+  --#{$prefix}btn-border-color: var(--app-primary);
+  --#{$prefix}btn-hover-color: var(--app-on-primary);
+  --#{$prefix}btn-hover-bg: var(--app-primary-hover);
+  --#{$prefix}btn-hover-border-color: var(--app-primary-hover);
+  --#{$prefix}btn-active-color: var(--app-on-primary);
+  --#{$prefix}btn-active-bg: var(--app-primary-active);
+  --#{$prefix}btn-active-border-color: var(--app-primary-active);
+  --#{$prefix}btn-disabled-color: var(--app-on-primary);
+  --#{$prefix}btn-disabled-bg: var(--app-primary);
+  --#{$prefix}btn-disabled-border-color: var(--app-primary);
+  --#{$prefix}btn-focus-shadow-rgb: var(--app-primary-rgb);
+}
+
+.btn-outline-primary {
+  --#{$prefix}btn-color: var(--app-primary-text);
+  --#{$prefix}btn-border-color: var(--app-primary-text);
+  --#{$prefix}btn-hover-color: var(--app-on-primary);
+  --#{$prefix}btn-hover-bg: var(--app-primary);
+  --#{$prefix}btn-hover-border-color: var(--app-primary);
+  --#{$prefix}btn-active-color: var(--app-on-primary);
+  --#{$prefix}btn-active-bg: var(--app-primary-active);
+  --#{$prefix}btn-active-border-color: var(--app-primary-active);
+  --#{$prefix}btn-disabled-color: var(--app-primary-text);
+  --#{$prefix}btn-disabled-border-color: var(--app-primary-text);
+  --#{$prefix}btn-focus-shadow-rgb: var(--app-primary-rgb);
+}
+
+// Forms
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: color-mix(in srgb, var(--app-primary) 50%, var(--app-surface-mix));
+  box-shadow: 0 0 0 $input-btn-focus-width var(--app-primary-focus-ring);
+}
+
+.form-check-input:checked {
+  background-color: var(--app-primary);
+  border-color: var(--app-primary);
+}
+
+.form-range {
+  &::-webkit-slider-thumb {
+    background-color: var(--app-primary);
+  }
+  &::-moz-range-thumb {
+    background-color: var(--app-primary);
+  }
+}
+
+// Navigation & lists
+.nav-pills {
+  --#{$prefix}nav-pills-link-active-color: var(--app-on-primary);
+  --#{$prefix}nav-pills-link-active-bg: var(--app-primary);
+}
+
+.dropdown-menu {
+  --#{$prefix}dropdown-link-active-color: var(--app-on-primary);
+  --#{$prefix}dropdown-link-active-bg: var(--app-primary);
+}
+
+.list-group {
+  --#{$prefix}list-group-active-color: var(--app-on-primary);
+  --#{$prefix}list-group-active-bg: var(--app-primary);
+  --#{$prefix}list-group-active-border-color: var(--app-primary);
+}
+
+.pagination {
+  --#{$prefix}pagination-color: var(--app-primary-text);
+  --#{$prefix}pagination-hover-color: var(--#{$prefix}link-hover-color);
+  --#{$prefix}pagination-focus-color: var(--#{$prefix}link-hover-color);
+  --#{$prefix}pagination-focus-box-shadow: 0 0 0 #{$input-btn-focus-width} var(--app-primary-focus-ring);
+  --#{$prefix}pagination-active-color: var(--app-on-primary);
+  --#{$prefix}pagination-active-bg: var(--app-primary);
+  --#{$prefix}pagination-active-border-color: var(--app-primary);
+}
+
+.progress,
+.progress-stacked {
+  --#{$prefix}progress-bar-bg: var(--app-primary);
+}

@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "account": "Account",
+    "security": "Security",
+    "appearance": "Appearance",
+    "application": "Application"
+  },
+  "language": {
+    "title": "Language",
+    "help": "The language of the app. Names that come from the server (businesses, products…) aren't translated yet."
+  },
+  "appearance": {
+    "title": "Appearance",
+    "reset": "Reset",
+    "mode": "Mode",
+    "modeLabel": "Appearance",
+    "modes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "systemTitle": "Follow the computer's setting",
+    "modeHelp": "System follows your computer's light or dark setting and switches with it.",
+    "dateFormat": "Date format",
+    "dateFormatOption": "{{format}} · e.g. {{example}}",
+    "dateFormatHelp": "How dates are typed and shown in date fields.",
+    "presets": "Presets",
+    "presetLabel": "{{name}} preset",
+    "colors": {
+      "primary": "Main color",
+      "primaryHelp": "Sidebar, buttons, links and highlights.",
+      "onPrimary": "Text on main color",
+      "onPrimaryHelp": "Text and icons in the sidebar and on primary buttons.",
+      "bodyText": "Content text color",
+      "bodyTextHelp": "Text in the main content area, in light mode (dark mode uses light text)."
+    },
+    "auto": "Auto",
+    "sidebarContrast": "Sidebar contrast:",
+    "contrastTitle": "WCAG AA requires at least 4.5:1 for normal text",
+    "readable": "readable",
+    "lowContrast": "low contrast",
+    "preview": "Preview",
+    "previewHome": "Home",
+    "previewNews": "News",
+    "previewContent": "Content text with a <link>link</link>.",
+    "previewPrimary": "Primary",
+    "previewOutline": "Outline",
+    "previewBadge": "Badge",
+    "previewSwitch": "Switch"
+  }
+}

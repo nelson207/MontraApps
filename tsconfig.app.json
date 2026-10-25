@@ -16,6 +16,17 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path aliases (montra.aliases.ts). @app = the app type-checked here (Credit) */
+    "paths": {
+      "@platform/*": ["./src/platform/*"],
+      "@credit/*": ["./src/apps/credit/*"],
+      "@lawyer/*": ["./src/apps/lawyer/*"],
+      "@stock/*": ["./src/apps/stock/*"],
+      "@factoring/*": ["./src/apps/factoring/*"],
+      "@customer/*": ["./src/apps/customer/*"],
+      "@app/*": ["./src/apps/credit/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

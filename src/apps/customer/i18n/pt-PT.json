@@ -1,0 +1,26 @@
+{
+  "modules": {
+    "Contract": "Contrato",
+    "My contracts": "Os meus contratos"
+  },
+  "brand": {
+    "tagline": "Os seus contratos, pagamentos e documentos, sempre que precisar.",
+    "highlights": [
+      {
+        "title": "O seu próximo pagamento, num relance",
+        "text": "O que paga, quando, e o que está em atraso."
+      },
+      {
+        "title": "Todas as faturas, a qualquer hora",
+        "text": "Veja cada documento em detalhe e descarregue o PDF."
+      },
+      {
+        "title": "Seguro por definição",
+        "text": "A autenticação de dois fatores mantém a sua conta segura."
+      }
+    ]
+  },
+  "sections": {
+    "Contracts": "Contratos"
+  }
+}

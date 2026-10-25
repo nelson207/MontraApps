@@ -1,0 +1,12 @@
+{
+  "codes": {
+    "validation_failed": "Alguns valores não são válidos. Verifique o formulário e tente novamente.",
+    "user_management_forbidden": "Não pode gerir este utilizador.",
+    "user_has_no_entity": "O seu utilizador não tem registo de contactos.",
+    "invalid_email_confirmation_code": "Esta ligação é inválida ou expirou.",
+    "backend_unavailable": "O serviço está temporariamente indisponível. Tente novamente mais tarde."
+  },
+  "unreachable": "Não é possível contactar o servidor. Verifique a ligação e tente novamente.",
+  "forbidden": "Não tem permissão para fazer isto.",
+  "tooManyAttempts": "Demasiadas tentativas, tente mais tarde."
+}

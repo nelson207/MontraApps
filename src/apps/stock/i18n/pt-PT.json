@@ -1,0 +1,45 @@
+{
+  "modules": {
+    "New stock unit": "Nova unidade de stock",
+    "Stock units": "Unidades de stock"
+  },
+  "brand": {
+    "tagline": "Financie o seu stock com os acordos que já tem.",
+    "highlights": [
+      {
+        "title": "Stock em dois passos",
+        "text": "Veículo e montante, depois a fatura do fornecedor. O acordo define as condições."
+      },
+      {
+        "title": "As suas linhas de crédito num relance",
+        "text": "Utilização, stock antigo e prazos de cada acordo."
+      },
+      {
+        "title": "Seguro por definição",
+        "text": "Autenticação de dois fatores e acesso por perfil."
+      }
+    ]
+  },
+  "sections": {
+    "Stock": "Stock"
+  },
+  "workContext": {
+    "levels": {
+      "organization": {
+        "label": "Intermediário de crédito",
+        "plural": "intermediários de crédito"
+      },
+      "unit": {
+        "label": "Fornecedor",
+        "plural": "fornecedores"
+      },
+      "member": {
+        "label": "Vendedor",
+        "plural": "vendedores"
+      }
+    },
+    "memberRole": "vendedor",
+    "purpose": "Valores por omissão para novas unidades de stock: os acordos e o fornecedor.",
+    "impersonationNote": "As novas unidades de stock serão registadas em nome dessa pessoa."
+  }
+}
