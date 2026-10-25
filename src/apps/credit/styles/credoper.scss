@@ -435,6 +435,30 @@
   font-weight: $font-weight-semibold;
 }
 
+// Term slider values: each one centred under its point of the track (--tick: 0…1). The track
+// runs between the thumb's centres, half a thumb in from each side. Small screens: every
+// other value (.is-minor hidden).
+.app-term-ticks {
+  position: relative;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+
+  > span {
+    position: absolute;
+    top: 0;
+    left: calc(#{$form-range-thumb-width * 0.5} + var(--tick) * (100% - #{$form-range-thumb-width}));
+    transform: translateX(-50%);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  @include media-breakpoint-down(md) {
+    > .is-minor {
+      display: none;
+    }
+  }
+}
+
 // Review gallery arrows (Summary cards with several entries)
 .app-gallery-btn {
   padding: 0.125rem 0.4rem;

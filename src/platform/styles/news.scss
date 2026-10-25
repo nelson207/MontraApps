@@ -37,45 +37,39 @@ $news-transition: 0.18s ease;
   overflow-wrap: anywhere;
 }
 
-// --- Dashboard strip (NewsGallery) -----------------------------------------
-// One row of equal tiles on wide screens; a horizontal swipe strip below that,
-// so the section never grows taller than a single row.
+// --- Dashboard gallery (NewsGallery) -----------------------------------------
+// One row of three cards (fewer columns on narrow screens); more news are paged, never a
+// second row.
 
-.app-news-strip {
-  display: grid;
+.app-news-gallery {
+  display: flex;
+  flex-direction: column;
   gap: map-get($spacers, 3);
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(14rem, 75%);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: map-get($spacers, 1);
+}
 
-  @include media-breakpoint-up(md) {
-    grid-auto-columns: minmax(14rem, 40%);
-  }
+.app-news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: map-get($spacers, 3);
 
-  @include media-breakpoint-up(xl) {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    overflow-x: visible;
+  @include media-breakpoint-up(lg) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-// Fixed height: image + meta line + 2-line title, whatever the text length
-$news-tile-height: 14.5rem;
+// Picture (16:9), then category · when, a 2-line title and a 2-line excerpt
+$news-card-min-height: 18rem;
 
-.app-news-tile {
+.app-news-card {
   display: flex;
   flex-direction: column;
-  height: $news-tile-height;
   padding: 0;
   overflow: hidden;
   text-align: start;
   color: inherit;
-  scroll-snap-align: start;
-  border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  border: 1px solid var(--app-surface-border);
   background-color: var(--#{$prefix}body-bg);
-  @include border-radius($border-radius-lg);
+  border-radius: $app-surface-radius;
   @include transition(transform $news-transition, box-shadow $news-transition, border-color $news-transition);
 
   &:hover,
@@ -91,27 +85,91 @@ $news-tile-height: 14.5rem;
   }
 }
 
-.app-news-tile-image {
+.app-news-card-image {
   display: block;
   flex-shrink: 0;
-  height: 9.75rem;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
+  background-color: var(--#{$prefix}secondary-bg);
 
   .app-news-image-fallback {
     font-size: 1.75rem;
   }
 }
 
-.app-news-tile-body {
-  display: block;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-  padding: map-get($spacers, 2) map-get($spacers, 3) map-get($spacers, 3);
+.app-news-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: map-get($spacers, 2);
+  min-width: 0;
+  padding: map-get($spacers, 3) 1.125rem 1.25rem;
 }
 
-.app-news-tile-placeholder {
-  height: $news-tile-height;
+.app-news-card-title {
+  font-size: 0.9375rem;
+  font-weight: $font-weight-semibold;
+  line-height: 1.35;
+}
+
+.app-news-card-excerpt {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--#{$prefix}secondary-color);
+}
+
+.app-news-card-placeholder {
+  min-height: $news-card-min-height;
+  border-radius: $app-surface-radius;
+}
+
+// Page dots under the gallery: the current page is a longer bar in the theme colour
+.app-news-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+.app-news-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: $border-radius;
+  background: transparent;
+
+  span {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: $border-radius-pill;
+    background-color: var(--#{$prefix}border-color);
+    @include transition(width $news-transition, background-color $news-transition);
+  }
+
+  &.is-current span {
+    width: 1.25rem;
+    background-color: var(--app-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+  }
+}
+
+// Load error: a calm line in a panel, not a red alert
+.app-news-message {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  padding: map-get($spacers, 3);
+  border: 1px solid var(--app-surface-border);
+  border-radius: $app-surface-radius;
+  background-color: var(--#{$prefix}body-bg);
+  font-size: $font-size-sm;
+  color: var(--#{$prefix}secondary-color);
 }
 
 // --- Preview modal -----------------------------------------------------------
@@ -214,17 +272,18 @@ $news-tile-height: 14.5rem;
   vertical-align: middle;
 }
 
-// Dashboard strip with nothing current: same card, the height of the tiles
+// Dashboard gallery with nothing current: a panel the height of the cards
 .app-news-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: map-get($spacers, 1);
-  min-height: $news-tile-height;
+  min-height: $news-card-min-height;
   padding: map-get($spacers, 4);
   border: 1px dashed var(--#{$prefix}border-color);
-  border-radius: $border-radius-lg;
+  border-radius: $app-surface-radius;
+  background-color: var(--#{$prefix}body-bg);
   text-align: center;
 }
 

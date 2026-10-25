@@ -1,3 +1,4 @@
+import HomeGreeting from "@platform/features/layout/components/HomeGreeting";
 import NewsGallery from "@platform/features/news/components/NewsGallery";
 import InsightsBoard from "@platform/features/insights/components/InsightsBoard";
 import AssignedTasks from "@platform/features/tasks/components/AssignedTasks";
@@ -7,7 +8,8 @@ import { INSIGHTS } from "../../../insights";
 // dashboards (same layout as Credit's; figures from apps/stock/insights.ts).
 function DashboardPage() {
   return (
-    <div className="d-flex flex-column gap-4">
+    <div className="app-page">
+      <HomeGreeting />
       <NewsGallery />
       <AssignedTasks extraTabs={[{ id: "insights", ...INSIGHTS.tab, content: <InsightsBoard /> }]} />
     </div>

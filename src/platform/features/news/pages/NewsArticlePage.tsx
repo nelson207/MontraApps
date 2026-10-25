@@ -33,6 +33,14 @@ function ArticlePlaceholder() {
 
 // /news/:id: the full article. Works when opened directly (shared link).
 export default function NewsArticlePage() {
+  return (
+    <div className="app-page">
+      <NewsArticle />
+    </div>
+  );
+}
+
+function NewsArticle() {
   const { id } = useParams();
   const { items, getById, isLoading, isError, error, refetch } = useNews();
   const [copied, setCopied] = useState(false);

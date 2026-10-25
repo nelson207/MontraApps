@@ -6,18 +6,13 @@ import { LayoutBanner } from "@app/shell";
 import PageLoader from "./components/PageLoader";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
-import {
-  closeMobileSidebar,
-  selectMobileSidebarOpen,
-  selectSidebarCollapsed,
-} from "./layoutSlice";
+import { closeMobileSidebar, selectMobileSidebarOpen } from "./layoutSlice";
 
-// App shell: sidebar (icon rail when collapsed on desktop, drawer on mobile),
+// App shell: sidebar (icon rail on desktop, drawer on mobile),
 // fixed top bar, and the active module rendered through <Outlet />.
 // Sizes, breakpoints and colors live in styles/layout.scss and styles/theme.scss.
 function MainLayout() {
   const dispatch = useAppDispatch();
-  const collapsed = useAppSelector(selectSidebarCollapsed);
   const mobileOpen = useAppSelector(selectMobileSidebarOpen);
   const { pathname, key: locationKey } = useLocation();
 
@@ -44,7 +39,7 @@ function MainLayout() {
   }, [mobileOpen, dispatch]);
 
   return (
-    <div className={`app-layout ${collapsed ? "is-collapsed" : ""}`}>
+    <div className="app-layout">
       <Sidebar />
 
       {mobileOpen && (

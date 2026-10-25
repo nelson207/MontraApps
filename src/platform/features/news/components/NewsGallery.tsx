@@ -7,13 +7,13 @@ import type { NewsItem } from "../newsModel";
 import NewsImage from "./NewsImage";
 import NewsPreviewModal from "./NewsPreviewModal";
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 3;
 
 const when = (item: NewsItem) =>
   item.publishedAt ? formatRelativeTime(item.publishedAt) : "";
 
-/** Same frame as the other dashboard sections (white card, h5 heading). */
-function GalleryCard({
+/** The section's heading row: title, then the actions on the right. */
+function GallerySection({
   actions,
   children,
 }: {
@@ -21,53 +21,49 @@ function GalleryCard({
   children: ReactNode;
 }) {
   return (
-    <section
-      className="card border-0 shadow-sm"
-      aria-labelledby="news-gallery-title"
-    >
-      <div className="card-body">
-        <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-          <h2 id="news-gallery-title" className="h5 fw-semibold mb-0">
-            Latest news
-          </h2>
-          {actions}
-        </div>
-        {children}
+    <section className="app-news-gallery" aria-labelledby="news-gallery-title">
+      <div className="app-section-head">
+        <h2 id="news-gallery-title" className="app-section-title">
+          Latest news
+        </h2>
+        <div className="d-flex align-items-center gap-2 ms-auto">{actions}</div>
       </div>
+      {children}
     </section>
   );
 }
 
-// Dashboard: a compact strip with the latest current news; a tile opens the preview.
-// Renders nothing when there is no news at all, so the dashboard stays clean.
+const allNewsLink = (label: string) => (
+  <Link to="/news" className="app-section-link">
+    {label}
+    <i className="bi bi-chevron-right small" aria-hidden="true" />
+  </Link>
+);
+
+// Dashboard: one row of three cards with the latest current news; more than three become a
+// paged gallery (previous / next and page dots). A card opens the preview.
 function NewsGallery() {
   const { items, active, isLoading, isError, error, refetch, isSample } =
     useNews();
-  const [start, setStart] = useState(0);
+  const [page, setPage] = useState(0);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   if (isLoading) {
     return (
-      <GalleryCard>
-        <div className="app-news-strip placeholder-glow" aria-busy="true">
+      <GallerySection>
+        <div className="app-news-grid placeholder-glow" aria-busy="true">
           {Array.from({ length: PAGE_SIZE }, (_, i) => (
-            <div
-              key={i}
-              className="placeholder rounded-3 app-news-tile-placeholder"
-            />
+            <div key={i} className="placeholder app-news-card-placeholder" />
           ))}
         </div>
-      </GalleryCard>
+      </GallerySection>
     );
   }
 
   if (isError) {
     return (
-      <GalleryCard>
-        <div
-          className="d-flex flex-wrap align-items-center gap-2 small text-body-secondary"
-          role="alert"
-        >
+      <GallerySection>
+        <div className="app-news-message" role="alert">
           <i
             className="bi bi-exclamation-triangle text-warning"
             aria-hidden="true"
@@ -83,25 +79,16 @@ function NewsGallery() {
             Retry
           </button>
         </div>
-      </GalleryCard>
+      </GallerySection>
     );
   }
 
-  // Nothing current (no news at all, or only old / upcoming ones): the same card, with an
-  // empty state the height of the strip, so the dashboard keeps its layout
+  // Nothing current (no news at all, or only old / upcoming ones): the same section, with an
+  // empty state the height of the cards, so the dashboard keeps its layout
   if (active.length === 0) {
     const hasArchive = items.length > 0;
     return (
-      <GalleryCard
-        actions={
-          hasArchive && (
-            <Link to="/news" className="btn btn-outline-secondary btn-sm">
-              Browse all news
-              <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
-            </Link>
-          )
-        }
-      >
+      <GallerySection actions={hasArchive && allNewsLink("Browse all news")}>
         <div className="app-news-empty" role="status">
           <span className="app-news-empty-icon" aria-hidden="true">
             <i className="bi bi-newspaper" />
@@ -113,83 +100,96 @@ function NewsGallery() {
               : "When news is published for your network, it will appear here."}
           </span>
         </div>
-      </GalleryCard>
+      </GallerySection>
     );
   }
 
-  const visible = active.slice(start, start + PAGE_SIZE);
-  const canPage = active.length > PAGE_SIZE;
+  const pages = Math.ceil(active.length / PAGE_SIZE);
+  // The news can shrink after a reload: stay on a page that exists
+  const current = Math.min(page, pages - 1);
+  const visible = active.slice(current * PAGE_SIZE, current * PAGE_SIZE + PAGE_SIZE);
+  const isGallery = pages > 1;
 
   const actions = (
-    <div className="d-flex align-items-center gap-2">
+    <>
       {isSample && (
         <span className="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border">
           Sample data
         </span>
       )}
-      {canPage && (
+      {allNewsLink("All news")}
+      {isGallery && (
         <>
-          <small className="text-body-secondary d-none d-sm-inline">
-            {start + 1}–{Math.min(start + PAGE_SIZE, active.length)} of{" "}
-            {active.length}
-          </small>
-          <div
-            className="btn-group btn-group-sm"
-            role="group"
-            aria-label="Browse news"
+          <button
+            type="button"
+            className="app-round-btn"
+            aria-label="Previous news"
+            disabled={current === 0}
+            onClick={() => setPage(current - 1)}
           >
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              aria-label="Previous news"
-              disabled={start === 0}
-              onClick={() => setStart((s) => Math.max(0, s - PAGE_SIZE))}
-            >
-              <i className="bi bi-chevron-left" />
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              aria-label="Next news"
-              disabled={start + PAGE_SIZE >= active.length}
-              onClick={() => setStart((s) => s + PAGE_SIZE)}
-            >
-              <i className="bi bi-chevron-right" />
-            </button>
-          </div>
+            <i className="bi bi-chevron-left" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="app-round-btn"
+            aria-label="Next news"
+            disabled={current >= pages - 1}
+            onClick={() => setPage(current + 1)}
+          >
+            <i className="bi bi-chevron-right" aria-hidden="true" />
+          </button>
         </>
       )}
-      <Link to="/news" className="btn btn-outline-secondary btn-sm">
-        View all
-        <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
-      </Link>
-    </div>
+    </>
   );
 
   return (
-    <GalleryCard actions={actions}>
-      <div className="app-news-strip">
+    <GallerySection actions={actions}>
+      <div className="app-news-grid">
         {visible.map((item) => (
           <button
             key={item.id}
             type="button"
-            className="app-news-tile"
+            className="app-news-card"
+            aria-haspopup="dialog"
             onClick={() => setPreviewIndex(active.indexOf(item))}
           >
-            <span className="app-news-tile-image">
+            <span className="app-news-card-image">
               <NewsImage item={item} />
             </span>
-            <span className="app-news-tile-body">
-              <small className="d-block text-body-secondary text-truncate">
+            <span className="app-news-card-body">
+              <small className="text-body-secondary text-truncate">
                 {item.category} · {when(item)}
               </small>
-              <span className="fw-semibold small app-news-clamp-2">
+              <span className="app-news-card-title app-news-clamp-2">
                 {item.title}
               </span>
+              {item.subtitle && (
+                <span className="app-news-card-excerpt app-news-clamp-2">
+                  {item.subtitle}
+                </span>
+              )}
             </span>
           </button>
         ))}
       </div>
+
+      {isGallery && (
+        <div className="app-news-dots">
+          {Array.from({ length: pages }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`app-news-dot ${i === current ? "is-current" : ""}`}
+              aria-label={`News page ${i + 1} of ${pages}`}
+              aria-current={i === current ? "true" : undefined}
+              onClick={() => setPage(i)}
+            >
+              <span />
+            </button>
+          ))}
+        </div>
+      )}
 
       {previewIndex !== null && (
         <NewsPreviewModal
@@ -199,7 +199,7 @@ function NewsGallery() {
           onClose={() => setPreviewIndex(null)}
         />
       )}
-    </GalleryCard>
+    </GallerySection>
   );
 }
 

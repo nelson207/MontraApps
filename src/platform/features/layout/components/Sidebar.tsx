@@ -1,63 +1,38 @@
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { useMenuText, useModuleLabel } from "../hooks/useModuleLabel";
-import { MENU_GROUPS } from "@app/modules";
+import { APP_MODULES, MENU_GROUPS } from "@app/modules";
+import { BRAND } from "@app/brand";
 import type { AppModule } from "@platform/app/contract";
 import { useAppDispatch, useAppSelector } from "@platform/app/store";
-import Tooltip from "@platform/components/ui/Tooltip";
-import {
-  DESKTOP_MEDIA_QUERY,
-  useMediaQuery,
-} from "@platform/hooks/useMediaQuery";
-import {
-  closeMobileSidebar,
-  selectMobileSidebarOpen,
-  selectSidebarCollapsed,
-  toggleSidebarCollapsed,
-} from "../layoutSlice";
+import { closeMobileSidebar, selectMobileSidebarOpen } from "../layoutSlice";
 import { SIDEBAR_ID } from "../constants";
 import AppSwitcher from "@platform/features/appSwitcher/AppSwitcher";
 import BrandLogo from "@platform/components/brand/BrandLogo";
 import { useCanManageUsers } from "@platform/features/users/useCanManageUsers";
 
-function SidebarLink({
-  module,
-  showTooltip,
-}: {
-  module: AppModule;
-  showTooltip: boolean;
-}) {
+// Settings sits apart, at the bottom of the menu (when the app offers it)
+const SETTINGS_MODULE = APP_MODULES.find((module) => module.path === "/settings");
+
+function SidebarLink({ module }: { module: AppModule }) {
   const label = useModuleLabel()(module);
-  const link = (
-    <NavLink
-      to={module.path}
-      className="app-sidebar-link"
-      aria-label={label}
-    >
-      <i className={`bi ${module.icon} app-sidebar-icon`} aria-hidden="true" />
+  return (
+    <NavLink to={module.path} className="app-sidebar-link">
+      <span className="app-sidebar-icon" aria-hidden="true">
+        <i className={`bi ${module.icon}`} />
+      </span>
       <span className="app-sidebar-label">{label}</span>
     </NavLink>
   );
-
-  return showTooltip ? (
-    <Tooltip text={label} className="d-block">
-      {link}
-    </Tooltip>
-  ) : (
-    link
-  );
 }
 
+// Desktop: a slim rail, each module's icon over its name. Mobile: the same menu as a drawer.
 function Sidebar() {
   const { t } = useTranslation("layout");
   const { sectionLabel } = useMenuText();
   const dispatch = useAppDispatch();
-  const collapsed = useAppSelector(selectSidebarCollapsed);
   const mobileOpen = useAppSelector(selectMobileSidebarOpen);
-  const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY);
 
-  // Labels are hidden only on the collapsed desktop rail
-  const showTooltips = collapsed && isDesktop;
   // Modules that need an access are listed once it's known the user has it
   const canManageUsers = useCanManageUsers();
   const groups = MENU_GROUPS.map((group) => ({
@@ -72,9 +47,13 @@ function Sidebar() {
       aria-label={t("mainNavigation")}
     >
       <div className="app-sidebar-brand">
-        {/* The whole brand opens the app switcher (Home is in the menu) */}
+        {/* The brand opens the app switcher (Home is in the menu): the mark on the rail,
+            grid icon + wordmark in the drawer */}
         <AppSwitcher>
-          <BrandLogo size="sm" className="app-sidebar-label" />
+          <span className="app-rail-mark" aria-hidden="true">
+            {BRAND.mark}
+          </span>
+          <BrandLogo size="sm" />
         </AppSwitcher>
 
         <button
@@ -94,7 +73,7 @@ function Sidebar() {
             <ul className="list-unstyled d-flex flex-column gap-1 mb-0">
               {modules.map((module) => (
                 <li key={module.path}>
-                  <SidebarLink module={module} showTooltip={showTooltips} />
+                  <SidebarLink module={module} />
                 </li>
               ))}
             </ul>
@@ -102,22 +81,11 @@ function Sidebar() {
         ))}
       </nav>
 
-      <div className="app-sidebar-footer d-none d-lg-block">
-        <button
-          type="button"
-          className="app-sidebar-link"
-          aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
-          aria-controls={SIDEBAR_ID}
-          aria-expanded={!collapsed}
-          onClick={() => dispatch(toggleSidebarCollapsed())}
-        >
-          <i
-            className={`bi ${collapsed ? "bi-chevron-double-right" : "bi-chevron-double-left"} app-sidebar-icon`}
-            aria-hidden="true"
-          />
-          <span className="app-sidebar-label">{t("collapse")}</span>
-        </button>
-      </div>
+      {SETTINGS_MODULE && (
+        <div className="app-sidebar-footer">
+          <SidebarLink module={SETTINGS_MODULE} />
+        </div>
+      )}
     </aside>
   );
 }

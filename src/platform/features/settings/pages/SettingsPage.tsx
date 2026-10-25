@@ -28,7 +28,7 @@ function SettingsPage() {
     tabs.find((tab) => `#${tab.id}` === hash)?.id ?? "account";
 
   return (
-    <div className="d-flex flex-column gap-4 app-settings">
+    <div className="app-page app-settings">
       <ul className="nav nav-pills flex-nowrap overflow-x-auto gap-1" role="tablist">
         {tabs.map((tab) => (
           <li className="nav-item flex-shrink-0" key={tab.id} role="presentation">

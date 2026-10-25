@@ -35,7 +35,7 @@ function ResultsToolbar({
       <div className="app-results-toolbar-main">
         <div className="app-results-title">
           {titleSlot ?? (
-            <h2 className="h6 mb-0 text-truncate">
+            <h2 className="app-results-heading mb-0 text-truncate">
               {title}
               {count !== undefined && (
                 <span className="app-results-count" aria-live="polite">

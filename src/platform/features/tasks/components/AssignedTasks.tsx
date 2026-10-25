@@ -309,8 +309,9 @@ function TaskList({ mode, state, extraTabs = [], viewAll = false }: TaskListProp
             <i className={`bi bi-arrow-clockwise ${isFetching ? "app-spin" : ""}`} aria-hidden="true" />
           </button>
           {viewAll && (
-            <Link to="/tasks" className="btn btn-link btn-sm text-decoration-none text-nowrap px-1">
-              View all <i className="bi bi-arrow-right" aria-hidden="true" />
+            <Link to="/tasks" className="app-section-link">
+              View all
+              <i className="bi bi-chevron-right small" aria-hidden="true" />
             </Link>
           )}
         </div>

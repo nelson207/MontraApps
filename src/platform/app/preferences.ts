@@ -1,13 +1,12 @@
 import type { ThemeState } from "@platform/features/theme/themeSlice";
 
-// UI preferences persisted per browser: platform ones (sidebar state, theme colors) plus
+// UI preferences persisted per browser: platform ones (theme colors, language) plus
 // whatever the app adds (e.g. Credit's working context), each under its own key.
 // Storage can be unavailable (private mode, blocked site data), so every access is guarded.
 
 const STORAGE_KEY = "montra:preferences";
 
 export type Preferences = {
-  sidebarCollapsed?: boolean;
   theme?: Partial<ThemeState>;
   /** The language the user chose (platform/i18n); none = their uiCulture, then English */
   language?: unknown;

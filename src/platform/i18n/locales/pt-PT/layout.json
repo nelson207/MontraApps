@@ -2,9 +2,11 @@
   "mainNavigation": "Navegação principal",
   "openMenu": "Abrir menu",
   "closeMenu": "Fechar menu",
-  "expandSidebar": "Expandir barra lateral",
-  "collapseSidebar": "Recolher barra lateral",
-  "collapse": "Recolher",
+  "home": {
+    "morning": "Bom dia, {{name}}",
+    "afternoon": "Boa tarde, {{name}}",
+    "evening": "Boa noite, {{name}}"
+  },
   "userMenu": {
     "label": "Menu da conta",
     "labelAdministrator": "Menu da conta (administrador)",

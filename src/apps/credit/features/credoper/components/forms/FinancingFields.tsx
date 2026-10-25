@@ -1,7 +1,7 @@
 import InputField from "@platform/components/ui/InputField";
 import SelectField from "@platform/components/ui/SelectField";
 import { selectCredoper, useAppSelector } from "@credit/store";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DEFAULT_TERM_RESTRICTIONS } from "../../constants";
 import type { QuotationDataProps } from "../../types/credoperTypes";
 import {
@@ -322,9 +322,17 @@ function FinancingFields({
                   )
                 }
               />
-              <div className="d-flex justify-content-between small text-body-secondary">
-                {termTicks?.map((t) => (
-                  <span key={t}>{t}</span>
+              {/* Each value under its point of the slider; on small screens every other one
+                  (always keeping the last), so they don't run together */}
+              <div className="app-term-ticks small text-body-secondary" aria-hidden="true">
+                {termTicks?.map((t, i) => (
+                  <span
+                    key={t}
+                    className={(termTicks.length - 1 - i) % 2 ? "is-minor" : undefined}
+                    style={{ "--tick": maxValue > minValue ? (t - minValue) / (maxValue - minValue) : 0 } as CSSProperties}
+                  >
+                    {t}
+                  </span>
                 ))}
               </div>
               {field.invalidMessage && (

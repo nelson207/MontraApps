@@ -38,7 +38,7 @@ type AppReducers = Record<string, Reducer>;
 
 /**
  * One store per app: platform slices + `appReducers`. `persist` returns the app's own
- * preferences to save next to the platform ones (sidebar, theme); saved when any value changes.
+ * preferences to save next to the platform ones (theme, language); saved when any value changes.
  */
 export function createMontraStore<R extends AppReducers>(
   appReducers: R,
@@ -53,7 +53,6 @@ export function createMontraStore<R extends AppReducers>(
   const snapshot = (): Preferences => {
     const state = store.getState();
     return {
-      sidebarCollapsed: state.layout.sidebarCollapsed,
       theme: state.theme,
       language: state.language.choice,
       // The chosen working context is remembered per browser and per app
