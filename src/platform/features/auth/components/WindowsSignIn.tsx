@@ -18,16 +18,18 @@ type Props = {
   rememberMe: boolean;
   /** The page was opened to say something (session expired, failed sign-in): no automatic attempt */
   hasNotice: boolean;
+  /** The login screen's message (SignInMessage): null when an attempt starts, then why it failed */
+  onMessage: (message: string | null) => void;
 };
 
-type Attempt = { status: "idle" | "trying"; automatic: boolean; message: string | null };
+type Attempt = { status: "idle" | "trying"; automatic: boolean };
 
-const IDLE: Attempt = { status: "idle", automatic: false, message: null };
+const IDLE: Attempt = { status: "idle", automatic: false };
 
 // "Sign in with Windows" (VITE_WINDOWS_LOGIN=button|auto) and, in auto mode, one automatic attempt
 // when the login page opens. The browser proves the Windows identity to the API; this sends no
 // username, only the app and Remember me (see windows/windowsSignIn.ts).
-function WindowsSignIn({ rememberMe, hasNotice }: Props) {
+function WindowsSignIn({ rememberMe, hasNotice, onMessage }: Props) {
   const { t } = useTranslation("auth");
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -50,11 +52,12 @@ function WindowsSignIn({ rememberMe, hasNotice }: Props) {
     });
   if (wantsAuto) {
     setAutoStarted(true);
-    setAttempt({ status: "trying", automatic: true, message: null });
+    setAttempt({ status: "trying", automatic: true });
   }
 
   const send = (automatic: boolean) => {
     cancelled.current = false;
+    onMessage(null);
     const pending = dispatch(
       MontraPOSApi.endpoints.postApiAuthLoginWindows.initiate(
         {
@@ -82,7 +85,9 @@ function WindowsSignIn({ rememberMe, hasNotice }: Props) {
       .catch((error: unknown) => {
         if (cancelled.current) return;
         const failure = timedOut ? { status: "TIMEOUT_ERROR" } : error;
-        setAttempt({ status: "idle", automatic, message: windowsSignInFailure(failure, automatic) });
+        setAttempt({ status: "idle", automatic });
+        const message = windowsSignInFailure(failure, automatic);
+        if (message) onMessage(message);
       })
       .finally(() => {
         clearTimeout(timer);
@@ -101,7 +106,7 @@ function WindowsSignIn({ rememberMe, hasNotice }: Props) {
   if (WINDOWS_LOGIN_MODE === "off") return null;
 
   const signInManually = () => {
-    setAttempt({ status: "trying", automatic: false, message: null });
+    setAttempt({ status: "trying", automatic: false });
     send(false);
   };
 
@@ -126,27 +131,19 @@ function WindowsSignIn({ rememberMe, hasNotice }: Props) {
   }
 
   return (
-    <div>
-      {attempt.message && (
-        <div className="alert alert-warning d-flex align-items-start gap-2 py-2 small" role="alert">
-          <i className="bi bi-exclamation-triangle mt-1" aria-hidden="true" />
-          <span>{attempt.message}</span>
-        </div>
+    <button
+      type="button"
+      className="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+      disabled={attempt.status === "trying"}
+      onClick={signInManually}
+    >
+      {attempt.status === "trying" ? (
+        <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+      ) : (
+        <i className="bi bi-windows" aria-hidden="true" />
       )}
-      <button
-        type="button"
-        className="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
-        disabled={attempt.status === "trying"}
-        onClick={signInManually}
-      >
-        {attempt.status === "trying" ? (
-          <span className="spinner-border spinner-border-sm" aria-hidden="true" />
-        ) : (
-          <i className="bi bi-windows" aria-hidden="true" />
-        )}
-        {t("windows.signIn")}
-      </button>
-    </div>
+      {t("windows.signIn")}
+    </button>
   );
 }
 

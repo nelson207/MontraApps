@@ -37,10 +37,10 @@ export function useLogin() {
   const isAuthed = useAppSelector(selectIsAuthenticated);
   const dispatch = useAppDispatch();
 
-  const [login, { isLoading: isLoginLoading, error: loginError }] =
+  const [login, { isLoading: isLoginLoading, error: loginError, reset: resetLoginError }] =
     usePostApiAuthLoginMutation();
 
-  const [validate2FA, { isLoading: isOtpLoading, error: otpError }] =
+  const [validate2FA, { isLoading: isOtpLoading, error: otpError, reset: resetOtpError }] =
     usePostApiAuth2FaVerifyMutation();
 
   const [
@@ -283,6 +283,11 @@ export function useLogin() {
     isLoginLoading,
     isOtpLoading,
     errorMessage,
+    /** Another way of signing in was tried: the last password / code error is no longer news */
+    clearErrorMessage: () => {
+      resetLoginError();
+      resetOtpError();
+    },
     backCountdown,
 
     onPasswordSubmit,

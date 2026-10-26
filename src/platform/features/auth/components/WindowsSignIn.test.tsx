@@ -29,17 +29,20 @@ afterEach(() => {
 
 function setup(answer: MockAnswer & { delay?: number }, props: { rememberMe?: boolean; hasNotice?: boolean } = {}) {
   const { requests } = mockFetch((url) => (url.pathname === "/api/auth/login/windows" ? answer : undefined));
+  const onMessage = vi.fn<(message: string | null) => void>();
   const store = configureStore({
     reducer: { auth: authReducer, [emptySplitApi.reducerPath]: emptySplitApi.reducer },
     middleware: (getDefault) => getDefault({ serializableCheck: false }).concat(emptySplitApi.middleware),
   });
   render(
     <Provider store={store}>
-      <WindowsSignIn rememberMe={props.rememberMe ?? false} hasNotice={props.hasNotice ?? false} />
+      <WindowsSignIn rememberMe={props.rememberMe ?? false} hasNotice={props.hasNotice ?? false} onMessage={onMessage} />
     </Provider>,
   );
   const windowsCalls = () => requests.filter((r) => new URL(r.url).pathname === "/api/auth/login/windows");
-  return { store, windowsCalls };
+  /** The messages it gave the login screen (null: an attempt started) */
+  const messages = () => onMessage.mock.calls.map(([message]) => message);
+  return { store, windowsCalls, messages };
 }
 
 const signedIn: MockAnswer = { json: { accessToken: TOKEN, expiresInSeconds: 900, requiresTwoFactor: false } };
@@ -60,9 +63,9 @@ describe("automatic Windows sign-in (VITE_WINDOWS_LOGIN=auto)", () => {
   });
 
   it("not a Windows user here (401): no message, the button (and the form) are there", async () => {
-    const { store } = setup(notAWindowsUser);
+    const { store, messages } = setup(notAWindowsUser);
     expect(await screen.findByRole("button", { name: /Sign in with Windows/ })).toBeTruthy();
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(messages()).toEqual([null]);
     expect(store.getState().auth.isAuthenticated).toBe(false);
   });
 
@@ -106,11 +109,11 @@ describe("the Sign in with Windows button (VITE_WINDOWS_LOGIN=button)", () => {
     expect(isAutomaticWindowsSignInPaused()).toBe(false);
   });
 
-  it("explains when this Windows account can't sign in", async () => {
+  it("explains when this Windows account can't sign in (in the login screen's message)", async () => {
     config.mode = "button";
-    setup(notAWindowsUser);
+    const { messages } = setup(notAWindowsUser);
     await userEvent.click(screen.getByRole("button", { name: /Sign in with Windows/ }));
-    expect((await screen.findByRole("alert")).textContent).toContain("username and password");
+    await waitFor(() => expect(messages()).toEqual([null, expect.stringContaining("username and password")]));
   });
 
   it("nothing at all when off", () => {

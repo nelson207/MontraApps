@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import { useState, type FormEvent, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import type { LoginNavState } from "../useSessionExpiredRedirect";
@@ -12,6 +12,7 @@ import ForgotPasswordForm from "../components/ForgotPasswordForm";
 import DemoAccess from "../components/DemoAccess";
 import SessionRestoring from "../components/SessionRestoring";
 import OtherSignInMethods from "../components/OtherSignInMethods";
+import SignInMessage from "../components/SignInMessage";
 import type { IdpLoginNavState } from "./AuthCallbackPage";
 import { selectIsRestoringSession, useAppSelector } from "@platform/app/store";
 
@@ -21,50 +22,52 @@ function LoginPage(): JSX.Element {
   const navState = useLocation().state as (LoginNavState & IdpLoginNavState) | null;
   const sessionExpired = navState?.reason === "sessionExpired";
   const onCredentials = !login.requiresTwoFactor && !login.requiresPasswordChange;
+  // Why the last Windows / Keycloak sign-in failed (a Keycloak failure comes back with the page)
+  const [otherMethodFailure, setOtherMethodFailure] = useState<string | null>(navState?.idpFailure?.message ?? null);
   // A reload: the session may come back (then useLogin goes on to the app)
   const isRestoring = useAppSelector(selectIsRestoringSession);
   if (isRestoring) return <SessionRestoring />;
 
+  // One message at a time, from whichever way of signing in was tried last
+  const onOtherMethodMessage = (message: string | null) => {
+    setOtherMethodFailure(message);
+    login.clearErrorMessage();
+  };
+  const onPasswordSubmit = (e: FormEvent<HTMLFormElement>) => {
+    setOtherMethodFailure(null);
+    void login.onPasswordSubmit(e);
+  };
+
+  const onLoginForm = onCredentials && !login.showForgotPassword;
+  const notice = login.loginNotice ?? (sessionExpired ? t("login.sessionExpired") : null);
+
   return (
     <LoginLayout>
-      {/* A sign-in step sent the user back (e.g. the password-change challenge expired) */}
-      {login.loginNotice && onCredentials && !login.showForgotPassword && (
-        <div className="alert alert-warning d-flex align-items-center gap-2 py-2" role="status">
-          <i className="bi bi-clock-history" aria-hidden="true" />
-          {login.loginNotice}
-        </div>
-      )}
-      {sessionExpired && !login.loginNotice && onCredentials && (
-        <div className="alert alert-warning d-flex align-items-center gap-2 py-2" role="status">
-          <i className="bi bi-clock-history" aria-hidden="true" />
-          {t("login.sessionExpired")}
-        </div>
-      )}
       {login.requiresPasswordChange ? (
         <PasswordChangeForm {...login} />
       ) : login.showForgotPassword ? (
         <ForgotPasswordForm {...login} />
       ) : !login.requiresTwoFactor ? (
         <>
-          <PasswordLoginForm {...login} />
+          <PasswordLoginForm {...login} onPasswordSubmit={onPasswordSubmit} />
           {/* Windows / Keycloak (when configured): same Remember me; no automatic sign-in when
               this page was opened to say something */}
           <OtherSignInMethods
             rememberMe={login.rememberMe}
             from={login.from}
-            idpFailure={navState?.idpFailure}
             hasNotice={sessionExpired || !!navState?.idpFailure || !!login.loginNotice}
+            onMessage={onOtherMethodMessage}
           />
         </>
       ) : (
         <TwoFactorForm {...login} />
       )}
-      <LoginErrorAlert
-        errorMessage={login.errorMessage}
-        backCountdown={login.backCountdown}
-      />
+      {/* The other steps (two-factor code, forgot password) keep their message under the form */}
+      {!onLoginForm && <LoginErrorAlert errorMessage={login.errorMessage} backCountdown={login.backCountdown} />}
       {/* Development only: not part of a production build */}
-      {import.meta.env.DEV && onCredentials && !login.showForgotPassword && <DemoAccess />}
+      {import.meta.env.DEV && onLoginForm && <DemoAccess />}
+      {/* Last: it hangs below everything else without moving it */}
+      {onLoginForm && <SignInMessage failure={login.errorMessage ?? otherMethodFailure} notice={notice} />}
     </LoginLayout>
   );
 }

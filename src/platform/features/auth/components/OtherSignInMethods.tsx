@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { IDP_CONFIG } from "../idp/idpConfig";
-import type { IdpFailure } from "../idp/idpErrors";
 import { WINDOWS_LOGIN_MODE } from "../windows/windowsSignIn";
 import IdpSignIn from "./IdpSignIn";
 import WindowsSignIn from "./WindowsSignIn";
@@ -8,14 +7,15 @@ import WindowsSignIn from "./WindowsSignIn";
 type Props = {
   rememberMe: boolean;
   from: string;
-  idpFailure?: IdpFailure | null;
   /** The page was opened to say something: no automatic sign-in */
   hasNotice: boolean;
+  /** The login screen's message (SignInMessage): null when an attempt starts, then why it failed */
+  onMessage: (message: string | null) => void;
 };
 
 // Under the username/password form: the other ways to sign in that this environment enables
 // (VITE_WINDOWS_LOGIN, VITE_IDP_*). Remember me applies to all of them.
-function OtherSignInMethods({ rememberMe, from, idpFailure, hasNotice }: Props) {
+function OtherSignInMethods({ rememberMe, from, hasNotice, onMessage }: Props) {
   const { t } = useTranslation("auth");
   if (WINDOWS_LOGIN_MODE === "off" && !IDP_CONFIG) return null;
   return (
@@ -26,8 +26,8 @@ function OtherSignInMethods({ rememberMe, from, idpFailure, hasNotice }: Props) 
         <hr className="flex-grow-1 my-0" />
       </div>
       <div className="d-flex flex-column gap-2">
-        <WindowsSignIn rememberMe={rememberMe} hasNotice={hasNotice} />
-        <IdpSignIn rememberMe={rememberMe} from={from} failure={idpFailure} />
+        <WindowsSignIn rememberMe={rememberMe} hasNotice={hasNotice} onMessage={onMessage} />
+        <IdpSignIn rememberMe={rememberMe} from={from} onMessage={onMessage} />
       </div>
     </div>
   );
