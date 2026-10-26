@@ -2,6 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- The folder the app is served from, any name, with both slashes: "/" at the site root,
+         "/Credit/" for https://site:5080/Credit/, "/apps/montra/" for …/apps/montra/.
+         Set it when deploying (dist/<app>/index.html), no build needed. -->
+    <base href="/" />
+    <!-- Deployment settings (API address, sign-in): public/config.js, edited per environment -->
+    <script src="config.js"></script>
     <link rel="icon" type="image/svg+xml" href="/src/platform/assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Montra Credit</title>

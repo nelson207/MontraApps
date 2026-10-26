@@ -46,6 +46,8 @@ export default defineConfig(({ mode }) => {
     // One dependency cache per app: apps running side by side (npm run dev, dev:lawyer, …) would
     // otherwise re-optimize the shared cache for their own config and break each other ("504 Outdated Optimize Dep")
     cacheDir: `node_modules/.vite/${app}`,
+    // Asset URLs relative to index.html's <base href>, so one build can be served from any folder
+    base: './',
     build: {
       outDir: `dist/${app}`,
     },

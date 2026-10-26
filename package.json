@@ -10,6 +10,7 @@
     "dev:stock": "vite --host 0.0.0.0 --mode stock --port 5175 --strictPort",
     "dev:factoring": "vite --host 0.0.0.0 --mode factoring --port 5176 --strictPort",
     "dev:customer": "vite --host 0.0.0.0 --mode customer --port 5177 --strictPort",
+    "build": "tsc -b && vite build --mode credit && vite build --mode lawyer && vite build --mode stock && vite build --mode factoring && vite build --mode customer",
     "build:credit": "tsc -b && vite build --mode credit",
     "build:lawyer": "tsc -b && vite build --mode lawyer",
     "build:stock": "tsc -b && vite build --mode stock",

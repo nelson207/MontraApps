@@ -1,4 +1,6 @@
-// "Sign in with Keycloak" (OpenID Connect): configured per environment, never in code.
+import { DEPLOYMENT_SETTINGS } from "@platform/app/deployment";
+
+// "Sign in with Keycloak" (OpenID Connect): configured per environment (config.js or .env), never in code.
 //   VITE_IDP_ENABLED=true, VITE_IDP_AUTHORITY, VITE_IDP_CLIENT_ID, VITE_IDP_SCOPE, VITE_IDP_LABEL
 
 export type IdpConfig = {
@@ -30,7 +32,7 @@ export function readIdpConfig(env: Partial<Record<string, string | undefined>>):
   };
 }
 
-export const IDP_CONFIG = readIdpConfig(import.meta.env);
+export const IDP_CONFIG = readIdpConfig(DEPLOYMENT_SETTINGS);
 
-/** The POS route Keycloak redirects back to (register it on the client, per app origin) */
+/** The POS route Keycloak redirects back to (register <app origin><base path>/auth/callback on the client) */
 export const IDP_CALLBACK_PATH = "/auth/callback";

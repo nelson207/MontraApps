@@ -1,4 +1,5 @@
 import { InMemoryWebStorage, UserManager, WebStorageStateStore } from "oidc-client-ts";
+import { appRouteUrl } from "@platform/app/deployment";
 import { IDP_CALLBACK_PATH, IDP_CONFIG, type IdpConfig } from "./idpConfig";
 
 // The Keycloak side of "Sign in with Keycloak": Authorization Code flow with PKCE (S256),
@@ -16,8 +17,8 @@ function userManager(config: IdpConfig): UserManager {
   manager ??= new UserManager({
     authority: config.authority,
     client_id: config.clientId,
-    redirect_uri: `${window.location.origin}${IDP_CALLBACK_PATH}`,
-    post_logout_redirect_uri: `${window.location.origin}/login`,
+    redirect_uri: appRouteUrl(IDP_CALLBACK_PATH),
+    post_logout_redirect_uri: appRouteUrl("/login"),
     response_type: "code",
     scope: config.scope,
     userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
@@ -61,5 +62,5 @@ export async function finishIdpSignIn(): Promise<{ accessToken: string; state: I
  * the login page. No ID token is kept, so Keycloak may ask the user to confirm.
  */
 export function endIdpSession(): Promise<void> {
-  return userManager(configured()).signoutRedirect({ post_logout_redirect_uri: `${window.location.origin}/login` });
+  return userManager(configured()).signoutRedirect({ post_logout_redirect_uri: appRouteUrl("/login") });
 }

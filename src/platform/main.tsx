@@ -10,6 +10,7 @@ import "./i18n/i18n";
 // The app being built (MONTRA_APP): its store, with the platform slices included
 import { store } from "@app/store";
 import { connectSession } from "./features/auth/session/sessionSync";
+import { APP_BASE_PATH } from "./app/deployment";
 
 // The session token is kept in memory: restore it after a reload and keep it fresh
 connectSession(store);
@@ -17,7 +18,7 @@ connectSession(store);
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
+      <BrowserRouter basename={APP_BASE_PATH}>
         <App />
       </BrowserRouter>
     </Provider>

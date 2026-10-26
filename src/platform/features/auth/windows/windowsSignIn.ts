@@ -1,9 +1,10 @@
 import { API_BASE_URL } from "@platform/api/apiBase";
+import { DEPLOYMENT_SETTINGS } from "@platform/app/deployment";
 import { problemCode } from "@platform/api/problemCode";
 import i18n from "@platform/i18n/i18n";
 
 // "Sign in with Windows" (POST /api/auth/login/windows, Negotiate: Kerberos/NTLM), set per
-// environment in every app (VITE_WINDOWS_LOGIN, in .env or .env.<app>):
+// environment in every app (VITE_WINDOWS_LOGIN, in config.js, .env or .env.<app>):
 //   off     no Windows sign-in (default)
 //   button  a "Sign in with Windows" button on the login page
 //   auto    the login page tries it once by itself, falling back to the form; plus the button
@@ -30,7 +31,7 @@ export function readWindowsLoginMode(env: Partial<Record<string, string | undefi
   return "auto";
 }
 
-export const WINDOWS_LOGIN_MODE = readWindowsLoginMode(import.meta.env);
+export const WINDOWS_LOGIN_MODE = readWindowsLoginMode(DEPLOYMENT_SETTINGS);
 
 /** How long an automatic attempt may take before the form is shown (no Windows prompt is waited on) */
 export const AUTO_ATTEMPT_TIMEOUT_MS = 8_000;
