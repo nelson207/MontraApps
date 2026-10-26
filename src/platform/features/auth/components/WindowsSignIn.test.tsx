@@ -18,7 +18,13 @@ vi.mock("../windows/windowsSignIn", async (importOriginal) => ({
   },
 }));
 
-const TOKEN = `${btoa(JSON.stringify({ alg: "HS256" }))}.${btoa(JSON.stringify({ lm: "windows", exp: Math.floor(Date.now() / 1000) + 900 }))}.sig`;
+vi.mock("@platform/api/apiBase", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@platform/api/apiBase")>()),
+  WINDOWS_LOGIN_URL: "https://api.example.test/windows",
+}));
+const WINDOWS_LOGIN_PATH = "/windows/api/auth/login/windows";
+
+const TOKEN =`${btoa(JSON.stringify({ alg: "HS256" }))}.${btoa(JSON.stringify({ lm: "windows", exp: Math.floor(Date.now() / 1000) + 900 }))}.sig`;
 
 afterEach(() => {
   cleanup();
@@ -28,7 +34,7 @@ afterEach(() => {
 });
 
 function setup(answer: MockAnswer & { delay?: number }, props: { rememberMe?: boolean; hasNotice?: boolean } = {}) {
-  const { requests } = mockFetch((url) => (url.pathname === "/api/auth/login/windows" ? answer : undefined));
+  const { requests } = mockFetch((url) => (url.pathname === WINDOWS_LOGIN_PATH ? answer : undefined));
   const onMessage = vi.fn<(message: string | null) => void>();
   const store = configureStore({
     reducer: { auth: authReducer, [emptySplitApi.reducerPath]: emptySplitApi.reducer },
@@ -39,7 +45,7 @@ function setup(answer: MockAnswer & { delay?: number }, props: { rememberMe?: bo
       <WindowsSignIn rememberMe={props.rememberMe ?? false} hasNotice={props.hasNotice ?? false} onMessage={onMessage} />
     </Provider>,
   );
-  const windowsCalls = () => requests.filter((r) => new URL(r.url).pathname === "/api/auth/login/windows");
+  const windowsCalls = () => requests.filter((r) => new URL(r.url).pathname === WINDOWS_LOGIN_PATH);
   /** The messages it gave the login screen (null: an attempt started) */
   const messages = () => onMessage.mock.calls.map(([message]) => message);
   return { store, windowsCalls, messages };
@@ -116,9 +122,11 @@ describe("the Sign in with Windows button (VITE_WINDOWS_LOGIN=button)", () => {
     await waitFor(() => expect(messages()).toEqual([null, expect.stringContaining("username and password")]));
   });
 
-  it("nothing at all when off", () => {
+  it("nothing at all when off (also when VITE_WINDOWS_LOGIN_URL is missing): no button, no attempt", async () => {
     config.mode = "off";
-    setup(signedIn);
+    const { windowsCalls } = setup(signedIn);
     expect(screen.queryByRole("button", { name: /Sign in with Windows/ })).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(windowsCalls()).toHaveLength(0);
   });
 });

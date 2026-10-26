@@ -12,6 +12,10 @@ interface ImportMetaEnv {
   readonly VITE_IDP_SCOPE?: string;
   /** "off" (default), "button", or "auto" (tries Windows sign-in when the login page opens) */
   readonly VITE_WINDOWS_LOGIN?: string;
+  /** The API's Windows-login application (e.g. https://vmafs-fe02:8443/windows); required for button / auto */
+  readonly VITE_WINDOWS_LOGIN_URL?: string;
+  /** The Montra API (default https://localhost:5165) */
+  readonly VITE_API_BASE_URL?: string;
   /** The button's label (default "Sign in with Keycloak") */
   readonly VITE_IDP_LABEL?: string;
 }

@@ -8,7 +8,7 @@ import {
 import { isDemoToken } from "../features/auth/demoSession";
 import { refreshSession } from "../features/auth/session/refreshSession";
 import { currentLanguage } from "@platform/i18n/i18n";
-import { API_BASE_URL } from "./apiBase";
+import { API_BASE_URL, WINDOWS_LOGIN_URL } from "./apiBase";
 import { demoResponse } from "./demoBackend";
 import { isMissingEndpoint } from "./devFallback";
 import { isInvalidId, problemCode, PROBLEM } from "./problemCode";
@@ -64,6 +64,17 @@ const rawBaseQuery = fetchBaseQuery({
 });
 
 /**
+ * POST /api/auth/login/windows goes to the Windows-login application (WINDOWS_LOGIN_URL), every
+ * other request to the main API. Still anonymous (no bearer, no refresh-and-retry: a 401 there
+ * means Windows authentication failed) and with credentials (Negotiate handshake, refresh cookie).
+ * Not configured: not sent at all, never to the main API.
+ */
+function windowsLoginRequest(args: string | FetchArgs): string | FetchArgs | null {
+  if (!WINDOWS_LOGIN_URL) return null;
+  return typeof args === "string" ? `${WINDOWS_LOGIN_URL}${args}` : { ...args, url: `${WINDOWS_LOGIN_URL}${args.url}` };
+}
+
+/**
  * Every request: a 401 with code "token_expired" gets one silent refresh and retry; any other
  * 401, or one still there after the refresh, signs the user out (authSlice → login page), and so
  * does an invalid session token (ErrorCode ErrInvalidSessionToken).
@@ -75,6 +86,11 @@ const baseQuery: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  if (api.endpoint === "postApiAuthLoginWindows") {
+    const request = windowsLoginRequest(args);
+    if (!request) return { error: { status: "CUSTOM_ERROR", error: "VITE_WINDOWS_LOGIN_URL is not set" } };
+    return rawBaseQuery(request, api, extraOptions);
+  }
   let result = await rawBaseQuery(args, api, extraOptions);
   if (
     import.meta.env.DEV &&

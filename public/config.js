@@ -12,4 +12,5 @@ window.MONTRA_CONFIG = {
   // VITE_IDP_AUTHORITY: "https://sso.example.com/realms/montra",
   // VITE_IDP_CLIENT_ID: "montra-pos",
   // VITE_WINDOWS_LOGIN: "button",
+  // VITE_WINDOWS_LOGIN_URL: "https://api.example.com/windows",
 };
