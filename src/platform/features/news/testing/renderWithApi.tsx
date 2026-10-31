@@ -67,7 +67,8 @@ export const apiNews = (n: number, extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
+/** As GET /api/news/types answers (NewsTypeDto) */
 export const NEWS_TYPES = [
-  { id: 1, name: "Products" },
-  { id: 2, name: "Compliance" },
+  { id: 1, abbreviation: "Products", description: "News about products", isValid: true },
+  { id: 2, abbreviation: "Compliance", description: "News about compliance", isValid: true },
 ];

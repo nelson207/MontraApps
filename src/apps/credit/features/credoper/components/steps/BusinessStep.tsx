@@ -2,14 +2,12 @@ import { problemMessage } from "@platform/api/problemCode";
 import { selectCredoper, useAppDispatch, useAppSelector } from "@credit/store";
 import { useBusinessChoices } from "../../business/useBusinessChoices";
 import { patchCredoper, setInsurances } from "../../credoperSlice";
-import { businessOf, changeBusiness, type Business } from "../../model/business";
+import { assetTypesOf, businessOf, changeBusiness, type Business } from "../../model/business";
 import type { StepProps } from "../../wizard/stepTypes";
 
+// What the asset is comes after the company (Asset type); here, only what the business is
 const FEATURES = (b: Business) =>
-  [
-    b.equipment === "multiple" ? "Several vehicles" : b.equipment === "single" ? "One vehicle" : "No equipment",
-    b.financing ? "Financed" : "Not financed",
-  ].join(" · ");
+  [b.equipment === "multiple" ? "Several vehicles" : null, b.financing ? "Financed" : "Not financed"].filter(Boolean).join(" · ");
 
 // Step 0 of every quotation / proposal: the business (cards, from
 // GET /api/credit-operations/businesses: the configured companies' businesses), which decides the
@@ -25,7 +23,9 @@ function BusinessStep({ stage, errors, advance }: StepProps) {
   const choose = (business: Business) => {
     // Picking a business moves on to the next step (the same one again too)
     if (business.id === current?.id) return advance();
-    const { next, removed } = changeBusiness(op, business.id);
+    // The company is chosen again: the asset type stays if the business offers it in any
+    const offered = assetTypesOf(businesses?.find((b) => b.id === business.id), null).map((a) => a.id);
+    const { next, removed } = changeBusiness(op, business.id, offered);
     if (removed.length > 0 && !window.confirm(`Change to ${business.label}? This removes ${removed.join(" and ")}.`)) {
       return;
     }
@@ -33,6 +33,7 @@ function BusinessStep({ stage, errors, advance }: StepProps) {
       patchCredoper({
         aplBusinessId: next.aplBusinessId,
         financialProduct: next.financialProduct,
+        assetTypeId: next.assetTypeId,
         assets: next.assets,
         // The companies depend on the business: chosen (or decided) again
         aplCompanyId: undefined,

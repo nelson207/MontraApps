@@ -14,6 +14,9 @@ import reducer, {
   applyTemplate,
   updateInsurance,
   applyProductDefaults,
+  presetAssetType,
+  applyNewAsset,
+  presetCustomer,
 } from "./credoperSlice";
 
 const protection: CreditProtectionInsurance = {
@@ -124,7 +127,7 @@ describe("credoper slice business", () => {
   });
 });
 
-describe("credoper slice template (new-credoper only once the business is chosen)", () => {
+describe("credoper slice template (new-credoper once the asset type is decided)", () => {
   const blank = () => reducer(undefined, startBlank({ credOperStep: 1, creditIntermediaryStructNode: "tok-org", insurances: [] }));
   const template = { aplBusinessId: null, financialProduct: null, aplCompanyId: 0, conditions: [{ term: 60 }], creditIntermediaryStructNode: null };
 
@@ -151,5 +154,105 @@ describe("credoper slice template (new-credoper only once the business is chosen
 
   it("a template arriving for an operation that doesn't wait for one is ignored", () => {
     expect(reducer(started(), applyTemplate(template as never)).data?.conditions).toBeUndefined();
+  });
+});
+
+describe("credoper slice: what's typed before the template", () => {
+  const blank = () => reducer(undefined, startBlank({ credOperStep: 2, insurances: [] }));
+
+  it("the template goes under it item by item: typed values win, the template's rules and defaults fill the rest", () => {
+    let state = reducer(blank(), presetAssetType(1));
+    state = reducer(state, patchCredoper({ assets: [{ ...state.data!.assets![0], equipment: { brand: "Seat", netAmount: 20000 } }] }));
+    const ref = state.data!.assets![0].correlationID;
+    state = reducer(
+      state,
+      applyTemplate({
+        assets: [{ amount: 0, equipment: { brand: null, netAmount: 0, metadataResponse: [{ jsonName: "brand" }] } }],
+        conditions: [{ term: 60 }],
+      } as never),
+    );
+    expect(state.data?.assets).toEqual([
+      { correlationID: ref, assetType: 1, amount: 0, equipment: { brand: "Seat", netAmount: 20000, metadataResponse: [{ jsonName: "brand" }] } },
+    ]);
+    expect(state.data?.conditions).toEqual([{ term: 60 }]);
+  });
+
+  it("presetAssetType: decided for the user, not an edit; the first asset carries it", () => {
+    const state = reducer(blank(), presetAssetType(null));
+    expect(state.data).toMatchObject({ assetTypeId: null, assets: [{ assetType: null }] });
+    expect(state.isDirty).toBe(false);
+  });
+
+  it("presetCustomer: a blank proposal's customer, before its template, not an edit (once)", () => {
+    let state = reducer(blank(), presetCustomer({ credOperIntervType: 1 }));
+    expect(state.data?.interventions).toEqual([{ credOperIntervType: 1, correlationID: expect.any(String) }]);
+    expect(state.isDirty).toBe(false);
+    state = reducer(state, presetCustomer({ credOperIntervType: 9 }));
+    expect(state.data?.interventions).toHaveLength(1);
+  });
+});
+
+describe("credoper slice: the new asset of the asset type chosen", () => {
+  const blank = () => reducer(undefined, startBlank({ credOperStep: 1, insurances: [] }));
+
+  it("the whole asset goes under the first one (what it has wins: its ref, the asset type, typed values), without an edit", () => {
+    let state = reducer(blank(), presetAssetType(1));
+    state = reducer(state, patchCredoper({ assets: [{ ...state.data!.assets![0], equipment: { netAmount: 20000 } }] }));
+    const ref = state.data!.assets![0].correlationID;
+    const dirty = state.isDirty;
+    const asset = { assetType: 1, amount: 0, currencyId: "EUR", equipment: { netAmount: 0, currencyId: "EUR" } };
+    state = reducer(state, applyNewAsset({ assetType: 1, asset: asset as never }));
+    expect(state.data?.assets?.[0]).toEqual({
+      correlationID: ref,
+      assetType: 1,
+      amount: 0,
+      currencyId: "EUR",
+      equipment: { netAmount: 20000, currencyId: "EUR" },
+    });
+    expect(state.isDirty).toBe(dirty);
+  });
+
+  it("a building asset brings its building", () => {
+    const asset = { assetType: 2, currencyId: "EUR", building: { currencyId: "EUR" } };
+    const state = reducer(reducer(blank(), presetAssetType(2)), applyNewAsset({ assetType: 2, asset: asset as never }));
+    expect(state.data?.assets?.[0]).toMatchObject({ assetType: 2, currencyId: "EUR", building: { currencyId: "EUR" } });
+  });
+
+  it("is dropped when the asset type changed meanwhile", () => {
+    const asset = { assetType: 1, equipment: { currencyId: "EUR" } };
+    const state = reducer(reducer(blank(), presetAssetType(null)), applyNewAsset({ assetType: 1, asset: asset as never }));
+    expect(state.data?.assets?.[0]?.equipment).toBeUndefined();
+  });
+});
+
+describe("credoper slice: the template's asset is the first one", () => {
+  const blank = () => reducer(undefined, startBlank({ credOperStep: 1, insurances: [] }));
+  const template = { assets: [{ assetType: 1, equipment: { currencyId: "EUR", equipmentTypeId: 3 } }] };
+
+  it("of the asset type chosen: taken (what the user typed still wins)", () => {
+    let state = reducer(blank(), presetAssetType(1));
+    state = reducer(state, patchCredoper({ assets: [{ ...state.data!.assets![0], equipment: { equipmentTypeId: 9 } }] }));
+    state = reducer(state, applyTemplate(template as never));
+    expect(state.data?.assets?.[0]?.equipment).toEqual({ equipmentTypeId: 9, currencyId: "EUR" });
+  });
+
+  it("of another asset type (changed while it was coming): left out", () => {
+    const state = reducer(reducer(blank(), presetAssetType(2)), applyTemplate(template as never));
+    expect(state.data?.assets?.[0]).toMatchObject({ assetType: 2 });
+    expect(state.data?.assets?.[0]?.equipment).toBeUndefined();
+  });
+});
+
+describe("the financial product's version", () => {
+  const withVersion = () => reducer(undefined, loadExisting({ financialProduct: 1041, finProductVersion: 3 }));
+
+  it("is cleared when the product changes (also to none)", () => {
+    expect(reducer(withVersion(), patchCredoper({ financialProduct: 1021 })).data?.finProductVersion).toBeNull();
+    expect(reducer(withVersion(), patchCredoper({ financialProduct: null })).data?.finProductVersion).toBeNull();
+  });
+
+  it("stays when the product is the same or not part of the edit", () => {
+    expect(reducer(withVersion(), patchCredoper({ financialProduct: 1041 })).data?.finProductVersion).toBe(3);
+    expect(reducer(withVersion(), patchCredoper({ customerName: "Rui" })).data?.finProductVersion).toBe(3);
   });
 });

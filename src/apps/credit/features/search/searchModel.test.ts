@@ -43,10 +43,14 @@ describe("search filters", () => {
     expect(activeSearchFilters(fromSearchParams(params("step=Proposal")))).toEqual([]);
   });
 
-  it("labels the steps it knows", () => {
-    expect(stepLabel(1)).toBe("Quotation");
-    expect(stepLabel(2)).toBe("Proposal");
-    expect(stepLabel(12)).toBe("Step 12");
+  it("an unknown step in the URL isn't sent", () =>
+    expect(toSearchArgs(fromSearchParams(params("step=Bogus"))).step).toBeUndefined());
+
+  it("labels the steps by name", () => {
+    expect(stepLabel("Quotation")).toBe("Quotation");
+    expect(stepLabel("Proposal")).toBe("Proposal");
+    expect(stepLabel("MLAProposal")).toBe("MLA proposal");
+    expect(stepLabel("Loan")).toBe("Loan");
     expect(stepLabel(null)).toBeNull();
   });
 });

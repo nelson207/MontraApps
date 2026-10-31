@@ -879,6 +879,7 @@ export type EquipmentDto = {
   basePurchaseAmount?: number | null;
   purchaseAmount?: number | null;
   netAmount?: number | null;
+  quantity?: number | null;
   retakePercentage?: number | null;
   retakeAmount?: number | null;
   taxAmount?: number | null;
@@ -963,6 +964,7 @@ export type CredOperAssetDto = {
   status?: string | null;
   assetType?: number | null;
   isRelocation?: boolean;
+  amount?: number | null;
   baseAmount?: number | null;
   beginDate?: string | null;
   assetItem?: number | null;
@@ -1118,7 +1120,7 @@ export type EntityLegalDocFieldApiFieldMetadataDto = {
 export type EntityLegalDocDto = {
   id?: string | null;
   correlationID?: string;
-  /** App-only: the kind of document chosen in the form (1 ID card, 2 passport); never a record id */
+  /** App-only: the kind of document chosen in the form (LEGAL_DOCUMENT_TYPES in credoper/model/legalDocumentTypes); never a record id */
   legalDocTypeId?: number | null;
   status?: InstanceStatus;
   legalDocNumber?: string | null;
@@ -1855,7 +1857,7 @@ export type CredOperDto = {
   aplBusinessId?: number;
   credOperTypeId?: number;
   aplCompanyId?: number;
-  finProductVersion?: number;
+  finProductVersion?: number | null;
   aplBusinessPurposeTypeId?: number | null;
   credOperChannelId?: number;
   currencyId?: string | null;

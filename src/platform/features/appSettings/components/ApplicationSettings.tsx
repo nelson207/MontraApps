@@ -1,148 +1,161 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { APP_SETTINGS } from "@app/appSettings";
 import { problemMessage } from "@platform/api/problemCode";
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
-import { useGetNewsTypesQuery } from "@platform/features/news/api/newsTypesApi";
 import { useGetScreenCustomizationQuery, useSaveScreenCustomizationMutation } from "../api/appSettingsApi";
-import { sameSettings, type AppSettings } from "../appSettingsModel";
+import { sameSettings, SHARED_APPLICATION, type AppSettings } from "../appSettingsModel";
 import CompaniesSetting from "./CompaniesSetting";
-
-/** newsTypes: the news types to show (GET /api/news/types); none ticked = all */
-function NewsTypesSetting({ value, onChange }: { value: number[]; onChange: (next: number[]) => void }) {
-  const newsTypes = useGetNewsTypesQuery();
-  // Saved types the list doesn't have anymore stay visible (to untick)
-  const choices = [
-    ...(newsTypes.data ?? []).map((t) => ({ id: t.id, label: t.name })),
-    ...value.filter((v) => !newsTypes.data?.some((t) => t.id === v)).map((v) => ({ id: v, label: `Type ${v}` })),
-  ];
-  const toggle = (id: number) => onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
-
-  return (
-    <fieldset className="app-setting-option" aria-describedby="app-setting-newsTypes-help">
-      <div className="d-flex flex-wrap align-items-baseline gap-2 mb-1">
-        <legend className="h6 fw-semibold mb-0 float-none w-auto">News types to show</legend>
-        <span className="small text-body-secondary">{value.length === 0 ? "All" : `${value.length} of ${choices.length}`}</span>
-        <span className="ms-auto d-flex gap-2">
-          <button type="button" className="btn btn-link btn-sm p-0" onClick={() => onChange(choices.map((c) => c.id))}>
-            All
-          </button>
-          <button type="button" className="btn btn-link btn-sm p-0" onClick={() => onChange([])}>
-            None
-          </button>
-        </span>
-      </div>
-      <p id="app-setting-newsTypes-help" className="small text-body-secondary mb-2">
-        Only news of these types is shown. None selected = all.
-      </p>
-      {newsTypes.isLoading ? (
-        <div className="small text-body-secondary">
-          <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-          Loading…
-        </div>
-      ) : choices.length === 0 ? (
-        <div className="small text-body-secondary">Nothing to choose from yet.</div>
-      ) : (
-        <div className="app-setting-choices">
-          {choices.map((choice) => (
-            <div className="form-check" key={choice.id}>
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id={`app-setting-newsTypes-${choice.id}`}
-                checked={value.includes(choice.id)}
-                onChange={() => toggle(choice.id)}
-              />
-              <label className="form-check-label" htmlFor={`app-setting-newsTypes-${choice.id}`}>
-                {choice.label}
-              </label>
-            </div>
-          ))}
-        </div>
-      )}
-    </fieldset>
-  );
-}
+import EmailTypesSetting from "./EmailTypesSetting";
+import EquipmentSetting from "./EquipmentSetting";
+import NewsTypesSetting from "./NewsTypesSetting";
+import { LoadError, Loading } from "./settingsParts";
 
 type EmailTypes = AppSettings["emailTypes"];
+type SectionId = "companies" | "equipment" | "newsTypes" | "emailTypes";
 
-/** emailTypes: the e-mail type id of personal and of work addresses (EmailDto.entityEmailTypeId) */
-function EmailTypesSetting({ value, onChange }: { value: EmailTypes; onChange: (next: EmailTypes) => void }) {
-  const field = (key: keyof EmailTypes, label: string) => {
-    const id = `app-setting-emailTypes-${key}`;
-    return (
-      <div className="col-12 col-sm-6 col-lg-4">
-        <label htmlFor={id} className="form-label small">
-          {label}
-        </label>
-        <input
-          id={id}
-          type="number"
-          inputMode="numeric"
-          min={0}
-          step={1}
-          className="form-control"
-          placeholder="Not set"
-          value={value[key] ?? ""}
-          onChange={(e) => {
-            const n = e.target.value === "" ? null : Number(e.target.value);
-            onChange({ ...value, [key]: n !== null && Number.isInteger(n) && n >= 0 ? n : null });
-          }}
-        />
-      </div>
-    );
-  };
-  return (
-    <fieldset className="app-setting-option" aria-describedby="app-setting-emailTypes-help">
-      <legend className="h6 fw-semibold mb-1 float-none w-auto">E-mail types</legend>
-      <p id="app-setting-emailTypes-help" className="small text-body-secondary mb-2">
-        The e-mail type given to personal and to work addresses.
-      </p>
-      <div className="row g-3">
-        {field("personal", "Personal e-mail type")}
-        {field("work", "Work e-mail type")}
-      </div>
-    </fieldset>
-  );
-}
+const sameEmailTypes = (a: EmailTypes, b: EmailTypes) => a.personal === b.personal && a.work === b.work;
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-// Settings → Application (administrators): the app's sections of its screen customization
-// (APP_SETTINGS), typed by the API (ScreenCustomizationConfigurationDto). Nothing ticked in a list
-// = no restriction.
+// Settings → Application (administrators): the app's screen customization (APP_SETTINGS), one
+// section at a time from a menu with each section's summary, and a save bar while anything is
+// changed. Only what is ticked is offered. The e-mail types are shared by every app, so they're
+// read and saved in the shared settings (SHARED_APPLICATION), where the backend reads them.
 function ApplicationSettings() {
   const { identifier, sections } = APP_SETTINGS;
-  const { currentData, isFetching, isError, error, refetch } = useGetScreenCustomizationQuery(identifier);
+  const app = useGetScreenCustomizationQuery(identifier);
+  const sharesEmail = sections.includes("emailTypes") && identifier !== SHARED_APPLICATION;
+  const shared = useGetScreenCustomizationQuery(SHARED_APPLICATION, { skip: !sharesEmail });
   const [save, saveState] = useSaveScreenCustomizationMutation();
 
-  const saved = currentData?.settings;
   const [draft, setDraft] = useState<AppSettings | null>(null);
+  const [emailDraft, setEmailDraft] = useState<EmailTypes | null>(null);
+  const [saveError, setSaveError] = useState<unknown>(null);
+  const [justSaved, setJustSaved] = useState(false);
+
+  const saved = app.currentData?.settings;
   const settings = draft ?? saved;
-  const dirty = !!draft && !!saved && !sameSettings(draft, saved);
+  const savedEmail = sharesEmail ? shared.currentData?.settings.emailTypes : saved?.emailTypes;
+  const emailTypes = emailDraft ?? savedEmail;
+
+  const appDirty = !!draft && !!saved && !sameSettings(draft, saved);
+  const emailDirty = !!emailDraft && !!savedEmail && !sameEmailTypes(emailDraft, savedEmail);
+  const dirty = appDirty || emailDirty;
+
+  const menu: { id: SectionId; icon: string; label: string; summary: string; tag?: string }[] = settings
+    ? [
+        ...(sections.includes("companies")
+          ? [
+              { id: "companies" as const, icon: "bi-building", label: "Companies", summary: plural(settings.companies.length, "company", "companies") },
+              {
+                id: "equipment" as const,
+                icon: "bi-truck",
+                label: "Equipment",
+                summary: plural(new Set(settings.companies.flatMap((c) => c.equipmentTypes)).size, "type", "types"),
+              },
+            ]
+          : []),
+        ...(sections.includes("newsTypes")
+          ? [{ id: "newsTypes" as const, icon: "bi-newspaper", label: "News", summary: plural(settings.newsTypes.length, "type", "types") }]
+          : []),
+        ...(sections.includes("emailTypes")
+          ? [
+              {
+                id: "emailTypes" as const,
+                icon: "bi-envelope",
+                label: "E-mail",
+                summary: emailTypes && (emailTypes.personal !== null || emailTypes.work !== null) ? "Set" : "Not set",
+                tag: sharesEmail ? "All apps" : undefined,
+              },
+            ]
+          : []),
+      ]
+    : [];
+  const [active, setActive] = useState<SectionId | null>(null);
+  const current = menu.find((m) => m.id === active) ?? menu[0];
 
   const change = (changes: Partial<AppSettings>) => {
     if (!settings) return;
-    saveState.reset();
+    setJustSaved(false);
     setDraft({ ...settings, ...changes });
   };
-
+  const changeEmail = (next: EmailTypes) => {
+    setJustSaved(false);
+    if (sharesEmail) setEmailDraft(next);
+    else change({ emailTypes: next });
+  };
+  const discard = () => {
+    setDraft(null);
+    setEmailDraft(null);
+    setSaveError(null);
+  };
   const onSave = async () => {
-    if (!settings) return;
+    setSaveError(null);
     try {
-      await save({ identifier, settings }).unwrap();
+      if (appDirty && draft) await save({ identifier, settings: draft }).unwrap();
       setDraft(null);
-    } catch {
-      // shown below
+      if (emailDirty && emailDraft && shared.currentData) {
+        await save({ identifier: SHARED_APPLICATION, settings: { ...shared.currentData.settings, emailTypes: emailDraft } }).unwrap();
+      }
+      setEmailDraft(null);
+      setJustSaved(true);
+    } catch (error) {
+      setSaveError(error);
     }
   };
+
+  const loadError = app.isError ? app.error : shared.isError ? shared.error : null;
+  const retry = () => void (app.isError ? app.refetch() : shared.refetch());
+
+  let body: ReactNode;
+  if (sections.length === 0) body = <p className="text-body-secondary mb-0">There are no application settings for this app yet.</p>;
+  else if (loadError) body = <LoadError error={loadError} text="Couldn't load the application settings." onRetry={retry} />;
+  else if (!settings || !emailTypes || !current) body = <Loading />;
+  else
+    body = (
+      <div className="row g-4">
+        <nav className="col-12 col-lg-3" aria-label="Application settings sections">
+          <div className="nav nav-pills flex-lg-column flex-nowrap overflow-x-auto gap-1" role="tablist">
+            {menu.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={item.id === current.id}
+                className={`nav-link text-start d-flex align-items-center gap-2 flex-shrink-0 ${item.id === current.id ? "active" : ""}`}
+                onClick={() => setActive(item.id)}
+              >
+                <i className={`bi ${item.icon}`} aria-hidden="true" />
+                <span className="d-flex flex-column lh-sm">
+                  <span>
+                    {item.label}
+                    {item.tag && <span className="badge rounded-pill bg-body-secondary text-body-secondary ms-2 fw-normal">{item.tag}</span>}
+                  </span>
+                  <small className={item.id === current.id ? "opacity-75" : "text-body-secondary"}>{item.summary}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </nav>
+        <div className="col-12 col-lg-9" role="tabpanel">
+          {current.id === "companies" && <CompaniesSetting value={settings.companies} onChange={(companies) => change({ companies })} />}
+          {current.id === "equipment" && <EquipmentSetting value={settings.companies} onChange={(companies) => change({ companies })} />}
+          {current.id === "newsTypes" && <NewsTypesSetting value={settings.newsTypes} onChange={(newsTypes) => change({ newsTypes })} />}
+          {current.id === "emailTypes" && <EmailTypesSetting value={emailTypes} onChange={changeEmail} />}
+        </div>
+      </div>
+    );
+
+  const isSample = app.currentData?.isSample || shared.currentData?.isSample;
 
   return (
     <div className="card border-0 shadow-sm">
       <div className="card-header bg-body d-flex flex-wrap align-items-center gap-2 py-3">
         <h2 className="h6 mb-0 flex-grow-1">
           <i className="bi bi-sliders me-2 text-primary" aria-hidden="true" />
-          Application
+          Application settings
           <span className="ms-2 small fw-normal text-body-secondary font-monospace">{identifier}</span>
         </h2>
-        {currentData?.isSample && (
+        {isSample && (
           <span
             className="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border"
             title="The settings service isn't available yet: changes are kept in this browser."
@@ -152,61 +165,37 @@ function ApplicationSettings() {
         )}
       </div>
 
-      <div className="card-body d-flex flex-column gap-4">
-        {sections.length === 0 ? (
-          <p className="text-body-secondary mb-0">There are no application settings for this app yet.</p>
-        ) : isError ? (
-          <div className="alert alert-danger d-flex flex-wrap align-items-center gap-2 mb-0" role="alert">
-            <i className="bi bi-exclamation-triangle-fill" aria-hidden="true" />
-            <span className="flex-grow-1">
-              {problemMessage(error) ?? getApiErrorMessage(error) ?? "Couldn't load the application settings."}
-            </span>
-            <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => refetch()}>
-              Retry
-            </button>
-          </div>
-        ) : !settings ? (
-          isFetching && (
-            <div className="small text-body-secondary">
-              <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-              Loading…
-            </div>
-          )
-        ) : (
-          sections.map((section) =>
-            section === "companies" ? (
-              <CompaniesSetting key={section} value={settings.companies} onChange={(companies) => change({ companies })} />
-            ) : section === "newsTypes" ? (
-              <NewsTypesSetting key={section} value={settings.newsTypes} onChange={(newsTypes) => change({ newsTypes })} />
-            ) : (
-              <EmailTypesSetting key={section} value={settings.emailTypes} onChange={(emailTypes) => change({ emailTypes })} />
-            ),
-          )
-        )}
-      </div>
+      <div className="card-body">{body}</div>
 
-      {sections.length > 0 && settings && (
-        <div className="card-footer bg-body d-flex flex-wrap align-items-center gap-2 py-3">
-          {saveState.isError && (
+      {(dirty || justSaved || !!saveError) && (
+        <div className="card-footer bg-body d-flex flex-wrap align-items-center gap-2 py-3 app-setting-savebar">
+          {saveError ? (
             <span className="text-danger small flex-grow-1" role="alert">
-              {problemMessage(saveState.error) ?? getApiErrorMessage(saveState.error) ?? "Couldn't save the application settings."}
+              {problemMessage(saveError) ?? getApiErrorMessage(saveError) ?? "Couldn't save the application settings."}
             </span>
-          )}
-          {saveState.isSuccess && !dirty && (
+          ) : dirty ? (
+            <span className="small flex-grow-1">
+              <i className="bi bi-pencil me-1 text-warning" aria-hidden="true" />
+              Unsaved changes
+              {emailDirty && sharesEmail && <span className="text-body-secondary"> · the e-mail types apply to every app</span>}
+            </span>
+          ) : (
             <span className="text-success small flex-grow-1" role="status">
               <i className="bi bi-check-circle me-1" aria-hidden="true" />
               Saved.
             </span>
           )}
-          <div className="ms-auto d-flex gap-2">
-            <button type="button" className="btn btn-outline-secondary" disabled={!dirty || saveState.isLoading} onClick={() => setDraft(null)}>
-              Discard
-            </button>
-            <button type="button" className="btn btn-primary" disabled={!dirty || saveState.isLoading} onClick={onSave}>
-              {saveState.isLoading && <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />}
-              Save
-            </button>
-          </div>
+          {dirty && (
+            <div className="ms-auto d-flex gap-2">
+              <button type="button" className="btn btn-outline-secondary" disabled={saveState.isLoading} onClick={discard}>
+                Discard
+              </button>
+              <button type="button" className="btn btn-primary" disabled={saveState.isLoading} onClick={onSave}>
+                {saveState.isLoading && <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />}
+                Save
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

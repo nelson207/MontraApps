@@ -1,25 +1,33 @@
-import type { CreditOperationsSearchArgs } from "./api/creditOperationsSearchApi";
+import type { CreditOperationStep, GetApiCreditOperationsSearchApiArg } from "@platform/api/generated/MontraPOSApi";
 
-// Credit operations search: the filters (in the URL), what is sent, what is shown.
+// Credit operations search (GET /api/credit-operations/search): the filters (in the URL), what
+// is sent, what is shown.
 
 export const PAGE_SIZE = 50;
 
 /** The filters as kept in the URL ("" = any) */
 export type SearchFilters = { number: string; step: string; stateId: string; page: number };
 
-/** Steps searched by name (the API's CreditOperationStep names) */
-export const STEP_OPTIONS: { value: string; label: string }[] = [
+/** The steps searched (CreditOperationStep names) */
+export const STEP_OPTIONS: { value: CreditOperationStep; label: string }[] = [
   { value: "Quotation", label: "Quotation" },
   { value: "Proposal", label: "Proposal" },
   { value: "Contract", label: "Contract" },
 ];
 
-/** The step numbers the app knows (see stageOf: 1 quotation, 2 proposal) */
-const STEP_NAMES: Record<number, string> = { 1: "Quotation", 2: "Proposal" };
+/** Labels of the other steps a result may have */
+const STEP_LABELS: Partial<Record<CreditOperationStep, string>> = {
+  MLAProposal: "MLA proposal",
+  MLAContract: "MLA contract",
+  ExternalOperation: "External operation",
+};
 
-/** A result's step (a number in the answer) as a label */
-export const stepLabel = (step: number | null | undefined): string | null =>
-  step == null ? null : (STEP_NAMES[step] ?? `Step ${step}`);
+/** A result's step (its CreditOperationStep name) as a label */
+export const stepLabel = (step: CreditOperationStep | null | undefined): string | null =>
+  step ? (STEP_OPTIONS.find((o) => o.value === step)?.label ?? STEP_LABELS[step] ?? step) : null;
+
+/** The URL's step, if it's one that can be searched */
+const searchedStep = (step: string) => STEP_OPTIONS.find((o) => o.value === step)?.value;
 
 const FILTER_KEYS = ["number", "step", "stateId"] as const;
 
@@ -38,10 +46,10 @@ const wholeNumber = (value: string): number | undefined => (/^\d+$/.test(value.t
 /** Whether a typed operation number / state can be searched ("" counts: it means any) */
 export const isSearchableNumber = (value: string) => value.trim() === "" || wholeNumber(value) !== undefined;
 
-export function toSearchArgs(filters: SearchFilters): CreditOperationsSearchArgs {
+export function toSearchArgs(filters: SearchFilters): GetApiCreditOperationsSearchApiArg {
   return {
     number: wholeNumber(filters.number),
-    step: filters.step || undefined,
+    step: searchedStep(filters.step),
     stateId: wholeNumber(filters.stateId),
     page: filters.page,
     pageSize: PAGE_SIZE,

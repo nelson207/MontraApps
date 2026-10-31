@@ -5,9 +5,9 @@ import {
   type CreditOperationStep,
   type NewInterventionKind,
 } from "@platform/api/generated/MontraPOSApi";
-import type { CredOperDto, CredOperIntervDto, EquipmentDto } from "@platform/api/legacy/legacyApi";
+import type { CredOperAssetDto, CredOperDto, CredOperIntervDto } from "@platform/api/legacy/legacyApi";
 import type { AppDispatch } from "@credit/store";
-import { fromApiCredOper, toApiCredOper } from "./credOperMapping";
+import { assetKindOut, fromApiCredOper, toApiCredOper } from "./credOperMapping";
 
 // The credit-operation procedures of the new API (/api/credit-operations/…), for the wizard's
 // draft: requests are translated to the new CredOperDto and answers merged back over the draft
@@ -21,15 +21,28 @@ const interventionFromApi = (intervention: unknown): CredOperIntervDto => ({
   ...fromApiCredOper({ interventions: [intervention as never] }).interventions?.[0],
 });
 
-/** A blank operation for a quotation (step 1) or a proposal (step 2, with its customer) */
-export async function newCredOper(dispatch: AppDispatch, credOperStep: CreditOperationStep): Promise<CredOperDto> {
+/** The business and company a new object is for: the backend sets its values from them */
+export type NewFor = { businessId: number; companyId: number };
+
+/**
+ * A blank operation for a quotation or a proposal (with its customer), of a business in a company
+ * and its asset type (an AssetType id; null = no asset, e.g. a personal loan: none sent)
+ */
+export async function newCredOper(
+  dispatch: AppDispatch,
+  credOperStep: CreditOperationStep,
+  { businessId, companyId, assetType }: NewFor & { assetType: number | null },
+): Promise<CredOperDto> {
   const request = dispatch(
-    MontraPOSApi.endpoints.getApiCreditOperationsNewCredoper.initiate({ credOperStep }, { forceRefetch: true }),
+    MontraPOSApi.endpoints.getApiCreditOperationsNewCredoper.initiate(
+      { credOperStep, businessId, companyId, assetType: assetKindOut(assetType) },
+      { forceRefetch: true },
+    ),
   );
   try {
     const operation = fromApiCredOper(await request.unwrap());
     // A proposal starts with its customer to fill in
-    if (credOperStep === 2 && !operation.interventions?.length) {
+    if (credOperStep === "Proposal" && !operation.interventions?.length) {
       operation.interventions = [await newIntervention(dispatch, "Customer")];
     }
     return operation;
@@ -87,12 +100,16 @@ export function useFinancialProductDefaults() {
   return [run, state] as const;
 }
 
-/** A blank vehicle (GET /api/equipments/new), in the draft's field names */
-export async function newEquipment(dispatch: AppDispatch): Promise<EquipmentDto> {
-  const request = dispatch(MontraPOSApi.endpoints.getApiEquipmentsNew.initiate(undefined, { forceRefetch: true }));
+/**
+ * A blank asset of a business in a company, in the draft's field names: with its equipment
+ * (GET /api/equipments/new) or its building (GET /api/buildings/new), as the backend sets them
+ */
+export async function newAsset(dispatch: AppDispatch, kind: "equipment" | "building", ids: NewFor): Promise<CredOperAssetDto> {
+  const endpoint = kind === "equipment" ? MontraPOSApi.endpoints.getApiEquipmentsNew : MontraPOSApi.endpoints.getApiBuildingsNew;
+  const request = dispatch(endpoint.initiate(ids, { forceRefetch: true }));
   try {
-    const equipment = await request.unwrap();
-    return fromApiCredOper({ assets: [{ equipment }] }).assets?.[0]?.equipment ?? {};
+    const asset = await request.unwrap();
+    return fromApiCredOper({ assets: [asset] }).assets?.[0] ?? {};
   } finally {
     request.unsubscribe();
   }

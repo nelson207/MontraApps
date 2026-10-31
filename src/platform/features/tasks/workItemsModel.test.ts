@@ -86,10 +86,8 @@ describe("errors (ProblemDetails code)", () => {
 });
 
 describe("priority (Accipiens WorkItemPriorityKind)", () => {
-  it("reads the kind as the API writes it (name) or as its schema says (number)", () => {
-    expect(["Critical", "high", " Medium ", "Low"].map(priorityOf)).toEqual(["Critical", "High", "Medium", "Low"]);
-    expect([1, 2, 3, 4].map(priorityOf)).toEqual(["Critical", "High", "Medium", "Low"]);
-  });
+  it("reads the kind's name", () =>
+    expect(["Critical", "high", " Medium ", "Low"].map(priorityOf)).toEqual(["Critical", "High", "Medium", "Low"]));
 
   it("no kind, or an unknown one: no priority", () => {
     expect([null, undefined, 0, 9, "Urgent"].map(priorityOf)).toEqual([null, null, null, null, null]);
@@ -115,9 +113,9 @@ describe("due in words (calendar days, local time)", () => {
     expect(
       summarize(
         [
-          { id: "w1", dueMoment: "2026-10-22T10:00:00", priorityKind: 1 },
-          { id: "w2", dueMoment: "2026-10-23T18:00:00", priorityKind: 2 },
-          { id: "w3", dueMoment: null, priorityKind: 4 },
+          { id: "w1", dueMoment: "2026-10-22T10:00:00", priorityKind: "Critical" },
+          { id: "w2", dueMoment: "2026-10-23T18:00:00", priorityKind: "High" },
+          { id: "w3", dueMoment: null, priorityKind: "Low" },
         ],
         now,
       ),

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
 import {
   useGetEquipmentBrandsQuery,
@@ -11,8 +11,9 @@ import {
 import { labelOfCode } from "@platform/features/equipment/api/equipmentLists";
 import { nodeFromId } from "@platform/features/workContext/nodeLabels";
 import type { CodeAbbreviation } from "@platform/api/legacy/legacyApi";
+import { legalDocumentTypeName } from "../../model/legalDocumentTypes";
 import { money } from "../../hooks/useCalculation";
-import { businessOf, equipmentModeOf, hasEquipment } from "../../model/business";
+import { amountLabel, businessOf, equipmentModeOf, hasEquipment } from "../../model/business";
 import { useGetInsuranceTypesQuery } from "../../insurance/insuranceApi";
 import {
   insuredLabel,
@@ -258,7 +259,7 @@ export function PeopleCard({ op, ...card }: CardProps & { op: CredOperDraft }) {
       icon="bi-people"
       empty="No people added."
       items={(op.interventions ?? []).map((person, index) => {
-        const doc = person.entity?.legalDocs?.[0];
+        const docs = person.entity?.legalDocs ?? [];
         return {
           key: person.correlationID ?? String(index),
           label: `${interventionName(person)} · ${ROLE_LABELS[interventionRole(person)]}`,
@@ -267,8 +268,17 @@ export function PeopleCard({ op, ...card }: CardProps & { op: CredOperDraft }) {
               <Field label="Role" value={ROLE_LABELS[interventionRole(person)]} />
               <Field label="Name" value={person.entity?.fullName} />
               <Field label="Birth date" value={person.person?.birthDate?.slice(0, 10)} />
-              <Field label="Document" value={doc?.legalDocNumber} />
-              <Field label="Document expiry" value={doc?.validDate?.slice(0, 10)} />
+              {docs.length === 0 && <Field label="Document" value={null} />}
+              {docs.map((doc, docIndex) => {
+                // Untyped documents are told apart by their position
+                const name = doc.legalDocTypeId ? legalDocumentTypeName(doc.legalDocTypeId) : `Document ${docIndex + 1}`;
+                return (
+                  <Fragment key={doc.correlationID ?? docIndex}>
+                    <Field label={`${name} number`} value={doc.legalDocNumber} />
+                    <Field label={`${name} expiry`} value={doc.validDate?.slice(0, 10)} />
+                  </Fragment>
+                );
+              })}
               <Field label="E-mail" value={person.entityEmail?.email} />
               <Field label="Mobile" value={person.entityMobilePhone?.phoneNumber} />
             </Fields>
@@ -326,11 +336,11 @@ export function FinancingCard({
   const term = op.conditions?.[0]?.term;
   const renting = equipmentModeOf(op) === "multiple";
   const base = renting ? (op.assets ?? []).reduce((sum, a) => sum + (a.equipment?.netAmount ?? 0), 0) : equipment?.netAmount;
-  const baseLabel = renting ? "Total of the vehicles" : hasEquipment(op) ? "Equipment amount" : "Loan amount";
+  const baseLabel = renting ? "Total of the vehicles" : amountLabel(op);
   return (
     <ReviewCard title="Financing" icon="bi-cash-coin" {...card}>
       <Fields>
-        <Field label="Customer type" value={labelOf(options?.credOperClassifications, op.credOperClassification)} />
+        <Field label="Contract classification" value={labelOf(options?.credOperClassifications, op.credOperClassification)} />
         <Field label="Financial product" value={labelOf(options?.financialProducts, op.financialProduct)} />
         <Field label="Financed amount" value={op.amount != null ? money.format(op.amount) : null} />
         <Field label={baseLabel} value={base != null ? money.format(base) : null} />

@@ -389,23 +389,408 @@
     "/api/buildings/new": {
       "get": {
         "tags": ["Building"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "businessId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/BuildingDto"
+                  "$ref": "#/components/schemas/CredOperAssetDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BuildingDto"
+                  "$ref": "#/components/schemas/CredOperAssetDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BuildingDto"
+                  "$ref": "#/components/schemas/CredOperAssetDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/applications": {
+      "get": {
+        "tags": ["Catalog"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/companies": {
+      "get": {
+        "tags": ["Catalog"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/companies/{id}/businesses": {
+      "get": {
+        "tags": ["Catalog"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyBusinessDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyBusinessDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyBusinessDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/equipment": {
+      "get": {
+        "tags": ["Catalog"],
+        "parameters": [
+          {
+            "name": "includeInvalid",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentCatalogTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentCatalogTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentCatalogTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/equipment/category-types": {
+      "get": {
+        "tags": ["Catalog"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentCategoryTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentCategoryTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentCategoryTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/classifications": {
+      "get": {
+        "tags": ["Catalog"],
+        "parameters": [
+          {
+            "name": "includeInvalid",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CredOperClassificationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CredOperClassificationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CredOperClassificationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/asset-types": {
+      "get": {
+        "tags": ["Catalog"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssetTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssetTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssetTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/news-types": {
+      "get": {
+        "tags": ["Catalog"],
+        "parameters": [
+          {
+            "name": "includeInvalid",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/email-types": {
+      "get": {
+        "tags": ["Catalog"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmailTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmailTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmailTypeDto"
+                  }
                 }
               }
             }
@@ -416,6 +801,15 @@
     "/api/companies": {
       "get": {
         "tags": ["Company"],
+        "parameters": [
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MontraAplApplications"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -460,6 +854,20 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MontraAplApplications"
+            }
+          },
+          {
+            "name": "credOperStep",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CreditOperationStep"
             }
           }
         ],
@@ -532,6 +940,67 @@
         }
       }
     },
+    "/api/credit-operations/classifications": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MontraAplApplications"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "businessId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CredOperClassificationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CredOperClassificationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CredOperClassificationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/credit-operations/businesses": {
       "get": {
         "tags": ["CreditOperations"],
@@ -540,7 +1009,7 @@
             "name": "application",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/MontraAplApplications"
             }
           },
           {
@@ -788,6 +1257,31 @@
             "schema": {
               "$ref": "#/components/schemas/CreditOperationStep"
             }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "businessId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "assetType",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AssetTypeKind"
+            }
           }
         ],
         "responses": {
@@ -926,23 +1420,43 @@
     "/api/equipments/new": {
       "get": {
         "tags": ["Equipment"],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "businessId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/EquipmentDto"
+                  "$ref": "#/components/schemas/CredOperAssetDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EquipmentDto"
+                  "$ref": "#/components/schemas/CredOperAssetDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EquipmentDto"
+                  "$ref": "#/components/schemas/CredOperAssetDto"
                 }
               }
             }
@@ -958,7 +1472,7 @@
             "name": "application",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/MontraAplApplications"
             }
           },
           {
@@ -1027,7 +1541,7 @@
             "name": "application",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/MontraAplApplications"
             }
           },
           {
@@ -1271,6 +1785,42 @@
         }
       }
     },
+    "/api/equipments/states": {
+      "get": {
+        "tags": ["Equipment"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentClassDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/financial-products": {
       "get": {
         "tags": ["FinancialProduct"],
@@ -1445,6 +1995,51 @@
         }
       }
     },
+    "/api/news/types": {
+      "get": {
+        "tags": ["News"],
+        "parameters": [
+          {
+            "name": "portal",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MontraAplApplications"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NewsTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/news": {
       "get": {
         "tags": ["News"],
@@ -1453,7 +2048,7 @@
             "name": "portal",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/MontraAplApplications"
             }
           }
         ],
@@ -1498,7 +2093,7 @@
             "name": "portal",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/MontraAplApplications"
             }
           },
           {
@@ -1586,7 +2181,7 @@
             "name": "screenIdentifier",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/MontraAplApplications"
             }
           }
         ],
@@ -2721,19 +3316,46 @@
         "additionalProperties": false
       },
       "AplWorkItemInternalState": {
-        "enum": [10, 11, 12, 13, 14],
-        "type": "integer",
-        "format": "int32"
+        "enum": ["Initial", "Active", "Resolved", "Closed", "Canceled"],
+        "type": "string"
       },
       "AplWorkItemSortingType": {
-        "enum": [1, 2, 3, 4, 5],
-        "type": "integer",
-        "format": "int32"
+        "enum": [
+          "Worklist",
+          "Agenda",
+          "Creation",
+          "TypePriorityBegin",
+          "PriorityCreationDate"
+        ],
+        "type": "string"
+      },
+      "ApplicationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/MontraAplApplications"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AssetTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "AssetTypeKind": {
-        "enum": [1, 2],
-        "type": "integer",
-        "format": "int32"
+        "enum": ["Equipment", "Building"],
+        "type": "string"
       },
       "AvailableBusinessDto": {
         "type": "object",
@@ -2762,6 +3384,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AvailableFinancialProductDto"
+            },
+            "nullable": true
+          },
+          "assetTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssetTypeDto"
             },
             "nullable": true
           }
@@ -2957,6 +3586,33 @@
         },
         "additionalProperties": false
       },
+      "BusinessSettingsDto": {
+        "type": "object",
+        "properties": {
+          "businessId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "classifications": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "assetTypes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
       "CalculateCreditOperationRequest": {
         "type": "object",
         "properties": {
@@ -3093,6 +3749,13 @@
             "items": {
               "type": "integer",
               "format": "int32"
+            },
+            "nullable": true
+          },
+          "businessSettings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessSettingsDto"
             },
             "nullable": true
           }
@@ -3540,6 +4203,27 @@
         },
         "additionalProperties": false
       },
+      "CredOperClassificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isValid": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "CredOperDto": {
         "type": "object",
         "properties": {
@@ -3627,9 +4311,7 @@
             "nullable": true
           },
           "credOperStep": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "$ref": "#/components/schemas/CreditOperationStep"
           },
           "creditIntermediaryStructNodeId": {
             "type": "string",
@@ -4042,9 +4724,7 @@
             "nullable": true
           },
           "step": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "$ref": "#/components/schemas/CreditOperationStep"
           },
           "credOperTypeId": {
             "type": "integer",
@@ -4201,9 +4881,19 @@
         "additionalProperties": false
       },
       "CreditOperationStep": {
-        "enum": [1, 2, 3, 4, 5, 6, 7, 12, 13, 99],
-        "type": "integer",
-        "format": "int32"
+        "enum": [
+          "Quotation",
+          "Proposal",
+          "Contract",
+          "Cession",
+          "Loan",
+          "Projection",
+          "Agreement",
+          "MLAProposal",
+          "MLAContract",
+          "ExternalOperation"
+        ],
+        "type": "string"
       },
       "EmailConfirmationRequest": {
         "type": "object",
@@ -4257,6 +4947,24 @@
         },
         "additionalProperties": false
       },
+      "EmailTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "EmailTypesConfigurationDto": {
         "type": "object",
         "properties": {
@@ -4268,6 +4976,82 @@
           "work": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentCatalogCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isValid": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentCatalogTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isVehicle": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isValid": {
+            "type": "boolean"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EquipmentCatalogCategoryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentCategoryTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -6508,6 +7292,27 @@
         },
         "additionalProperties": false
       },
+      "NewsTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isValid": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "PhoneDto": {
         "type": "object",
         "properties": {
@@ -7081,9 +7886,8 @@
         "additionalProperties": false
       },
       "WorkItemPriorityKind": {
-        "enum": [1, 2, 3, 4],
-        "type": "integer",
-        "format": "int32"
+        "enum": ["Critical", "High", "Medium", "Low"],
+        "type": "string"
       }
     },
     "securitySchemes": {
@@ -7106,6 +7910,9 @@
     },
     {
       "name": "Building"
+    },
+    {
+      "name": "Catalog"
     },
     {
       "name": "Company"

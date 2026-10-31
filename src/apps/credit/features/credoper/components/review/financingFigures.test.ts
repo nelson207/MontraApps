@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { CredOperDraft } from "../../model/credOperDraft";
+import { EQUIPMENT_ASSET } from "../../model/business";
 import { financingFigures } from "./financingFigures";
 
 const op = (overrides: Partial<CredOperDraft> = {}): CredOperDraft => ({
   insurances: [],
   aplBusinessId: 4,
+  assetTypeId: EQUIPMENT_ASSET,
   amount: 18_000,
   assets: [{ equipment: { netAmount: 20_000, retakeAmount: 2_000, retakePercentage: 10 } }],
   conditions: [{ term: 60, implicitRate: 7.9, annualRate: 9.42, flows: [{ amount: 372.18 }] }],
@@ -42,5 +44,5 @@ describe("financingFigures", () => {
   });
 
   it("personal loan: the base is the loan", () =>
-    expect(financingFigures(op({ aplBusinessId: 2 })).baseLabel).toBe("Loan amount"));
+    expect(financingFigures(op({ aplBusinessId: 2, assetTypeId: null })).baseLabel).toBe("Loan amount"));
 });

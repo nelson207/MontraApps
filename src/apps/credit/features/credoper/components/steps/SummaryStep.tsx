@@ -33,7 +33,7 @@ const FIELD_LABELS: Record<string, string> = {
   netAmount: "Equipment amount",
   retakeAmount: "Initial entry amount",
   retakePercentage: "Initial entry percentage",
-  credOperClassification: "Customer type",
+  credOperClassification: "Contract classification",
   financialProduct: "Financial product",
   amount: "Financed amount",
   term: "Term",

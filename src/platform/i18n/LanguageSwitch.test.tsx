@@ -58,9 +58,9 @@ describe("choosing the language", () => {
   it("every request says which language is shown (Accept-Language)", async () => {
     const { requests } = mockFetch(() => ({ json: [] }));
     const store = makeStore();
-    await store.dispatch(MontraPOSApi.endpoints.getApiCompanies.initiate(undefined, { forceRefetch: true }));
+    await store.dispatch(MontraPOSApi.endpoints.getApiCompaniesCountries.initiate(undefined, { forceRefetch: true }));
     await setLanguage("pt-PT");
-    await store.dispatch(MontraPOSApi.endpoints.getApiCompanies.initiate(undefined, { forceRefetch: true }));
+    await store.dispatch(MontraPOSApi.endpoints.getApiCompaniesCountries.initiate(undefined, { forceRefetch: true }));
     expect(requests.map((r) => r.headers.get("accept-language"))).toEqual(["en", "pt-PT"]);
     expect(i18n.t("errors:forbidden")).toBe("Não tem permissão para fazer isto.");
   });

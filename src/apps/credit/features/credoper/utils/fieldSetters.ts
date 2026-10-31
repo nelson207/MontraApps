@@ -8,6 +8,7 @@ import type {
   FinConditionDto,
 } from "@platform/api/legacy/legacyApi";
 import { patchCredoper } from "../credoperSlice";
+import { withAssetAmount } from "../model/business";
 import { isEmptyValue } from "../validation/fieldRules";
 
 /** Empty → empty (e.g. a field reporting "" when it loads) is not a change. */
@@ -179,6 +180,17 @@ export const setCustomerVATField = <K extends keyof EntityLegalDocDto>(
       },
     } as Partial<CredOperDto>),
   );
+};
+
+/** The amount typed for an asset, with the amounts it fills (withAssetAmount). */
+export const setAssetAmount = (
+  dispatch: AppDispatch,
+  credoper: CredOperDto | null | undefined,
+  assetIndex: number,
+  amount: number | null | undefined,
+) => {
+  if (!credoper || credoper.assets?.[assetIndex]?.equipment?.netAmount === amount) return;
+  dispatch(patchCredoper({ assets: withAssetAmount(credoper, assetIndex, amount) }));
 };
 
 /** Several equipment fields in one edit (e.g. a new brand clears model and version). */

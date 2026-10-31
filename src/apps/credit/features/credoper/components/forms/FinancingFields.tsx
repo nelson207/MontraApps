@@ -5,12 +5,13 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DEFAULT_TERM_RESTRICTIONS } from "../../constants";
 import type { QuotationDataProps } from "../../types/credoperTypes";
 import {
+  setAssetAmount,
   setCredOperField,
   setEquipmentField,
   setFinConditionsField,
 } from "../../utils/fieldSetters";
 import { fieldRule, type FieldErrors } from "../../validation/fieldRules";
-import { businessOf, equipmentModeOf } from "../../model/business";
+import { amountLabel, equipmentModeOf } from "../../model/business";
 import OperationField from "../OperationField";
 
 type Props = Pick<
@@ -20,7 +21,7 @@ type Props = Pick<
   errors?: FieldErrors;
 };
 
-// Financing: customer type, product, equipment amount, initial entry (amount ⇄ %), term.
+// Financing: contract classification, product, equipment amount, initial entry (amount ⇄ %), term.
 // Shared by the quotation and the proposal Financial data step.
 function FinancingFields({
   dispatchCredOper,
@@ -38,7 +39,7 @@ function FinancingFields({
 
   // What the initial entry is a share of: the vehicle (or loan) amount; Renting: all vehicles
   const renting = !!credoper && equipmentModeOf(credoper) === "multiple";
-  const personalLoan = !!credoper && businessOf(credoper)?.equipment === "none";
+  const baseLabel = credoper ? amountLabel(credoper) : "Equipment amount";
   const financedBase = renting
     ? (credoper?.assets ?? []).reduce(
         (sum, a) => sum + (a.equipment?.netAmount ?? 0),
@@ -143,9 +144,15 @@ function FinancingFields({
         >
           {(field) => (
             <SelectField
-              label="Customer type"
+              label="Contract classification"
               id="credoper.credoperClassification"
               isLoading={fetchingOptions.credOperClassifications}
+              // None offered: the app's settings list no classification for this business
+              placeholder={
+                !fetchingOptions.credOperClassifications && !options?.credOperClassifications?.length
+                  ? "Nothing configured for this business"
+                  : undefined
+              }
               value={credoper?.credOperClassification ?? undefined}
               options={options?.credOperClassifications?.map((coc) => ({
                 value: coc.code,
@@ -213,7 +220,7 @@ function FinancingFields({
           >
             {(field) => (
               <InputField
-                label={personalLoan ? "Loan amount" : "Equipment amount"}
+                label={baseLabel}
                 id="credoper.equipmentAmount"
                 type="number"
                 placeholder="0.00"
@@ -221,7 +228,7 @@ function FinancingFields({
                 step={0.01}
                 value={equipment?.netAmount ?? ""}
                 onChange={(e) =>
-                  setEquipment("netAmount", Number(e.target.value) as never)
+                  setAssetAmount(dispatchCredOper, credoper, 0, Number(e.target.value))
                 }
                 inputGroupSpan="€"
                 {...field}

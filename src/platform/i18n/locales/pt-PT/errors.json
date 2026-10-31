@@ -2,6 +2,7 @@
   "codes": {
     "validation_failed": "Alguns valores não são válidos. Verifique o formulário e tente novamente.",
     "user_management_forbidden": "Não pode gerir este utilizador.",
+    "settings_forbidden": "Só os administradores podem alterar as definições da aplicação.",
     "user_has_no_entity": "O seu utilizador não tem registo de contactos.",
     "invalid_email_confirmation_code": "Esta ligação é inválida ou expirou.",
     "backend_unavailable": "O serviço está temporariamente indisponível. Tente novamente mais tarde."

@@ -1,4 +1,5 @@
 import { newId } from "@platform/utils/newId";
+import type { CreditOperationStep } from "@platform/api/generated/MontraPOSApi";
 import type {
   CredOperAssetDto,
   CredOperDto,
@@ -39,14 +40,24 @@ export type CarInsurance = {
 
 export type Insurance = CreditProtectionInsurance | CarInsurance;
 
-export type CredOperDraft = CredOperDto & { insurances: Insurance[] };
+export type CredOperDraft = CredOperDto & {
+  insurances: Insurance[];
+  /**
+   * What the operation finances (model/business.ts AssetTypeId; app-only, its assets carry it
+   * too): null = no asset; undefined = to be chosen
+   */
+  assetTypeId?: number | null;
+};
 
 /** Server payloads may or may not carry insurances. */
-export type CredOperInput = CredOperDto & { insurances?: Insurance[] };
+export type CredOperInput = CredOperDto & { insurances?: Insurance[]; assetTypeId?: number | null };
 
 export type Stage = "quotation" | "proposal";
 
 export const STEP_OF_STAGE: Record<Stage, number> = { quotation: 1, proposal: 2 };
+
+/** The step as the new API names it (CreditOperationStep) */
+export const API_STEP_OF_STAGE: Record<Stage, CreditOperationStep> = { quotation: "Quotation", proposal: "Proposal" };
 
 export const stageOf = (op: CredOperDto): Stage => (op.credOperStep === 2 ? "proposal" : "quotation");
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AUTO_INSURANCE_BUSINESS_ID } from "../model/business";
+import { AUTO_INSURANCE_BUSINESS_ID, EQUIPMENT_ASSET } from "../model/business";
 import type { CredOperDraft } from "../model/credOperDraft";
 import { validateCustomer } from "../customer/customerRules";
 import {
@@ -36,7 +36,7 @@ describe("step validation", () => {
   });
 
   it("registration date in the future (equipment step)", () => {
-    const op = { ...validOperation(), aplBusinessId: 4 };
+    const op = { ...validOperation(), aplBusinessId: 4, assetTypeId: EQUIPMENT_ASSET };
     op.assets![0].equipment!.registrationDate = "2026-10-06";
     expect(validateEquipment(op, today)).toEqual({
       "assets.0.equipment.registrationDate": "Registration date can't be in the future.",
@@ -53,6 +53,14 @@ describe("step validation", () => {
     const op = validOperation();
     op.interventions![0].entity!.legalDocs![0].validDate = "2026-10-04";
     expect(validateInterventions(op, today)["interventions.c1.entity.legalDocs.0.validDate"]).toBe(
+      "Identification document has expired.",
+    );
+  });
+
+  it("validates every legal document", () => {
+    const op = validOperation();
+    op.interventions![0].entity!.legalDocs!.push({ legalDocNumber: "VAT-123", validDate: "2026-10-04" });
+    expect(validateInterventions(op, today)["interventions.c1.entity.legalDocs.1.validDate"]).toBe(
       "Identification document has expired.",
     );
   });
@@ -113,6 +121,7 @@ describe("vehicles by business", () => {
     insurances: [],
     credOperStep,
     aplBusinessId,
+    assetTypeId: aplBusinessId === 2 ? null : EQUIPMENT_ASSET,
     assets,
   });
 

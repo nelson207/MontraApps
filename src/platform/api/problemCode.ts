@@ -9,6 +9,7 @@ export const PROBLEM = {
   tokenExpired: "token_expired",
   validationFailed: "validation_failed",
   userManagementForbidden: "user_management_forbidden",
+  settingsForbidden: "settings_forbidden",
   userHasNoEntity: "user_has_no_entity",
   invalidEmailConfirmationCode: "invalid_email_confirmation_code",
   backendUnavailable: "backend_unavailable",

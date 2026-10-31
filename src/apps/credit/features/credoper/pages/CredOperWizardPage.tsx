@@ -16,19 +16,21 @@ import {
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 import DiscardPrompt from "../components/wizard/DiscardPrompt";
 import OperationHeader from "../components/wizard/OperationHeader";
+import ProductDefaultsPrompt from "../components/wizard/ProductDefaultsPrompt";
 import Stepper from "../components/wizard/Stepper";
 import SummaryPanel from "../components/wizard/SummaryPanel";
 import WizardActions from "../components/wizard/WizardActions";
 import { DEFAULT_TERM_RESTRICTIONS } from "../constants";
 import { useBusinessChoices } from "../business/useBusinessChoices";
 import { useCompanyChoices } from "../business/useCompanyChoices";
-import { loadExisting, markSaved, presetBusiness, presetCompany } from "../credoperSlice";
+import { loadExisting, markSaved, presetAssetType, presetBusiness, presetCompany } from "../credoperSlice";
+import { useAssetTypeChoices } from "../business/useAssetTypeChoices";
+import { assetTypeLabel, assetTypeOf } from "../model/business";
 import useFinancialProductSync from "../hooks/useFinancialProductSync";
+import { useNewAsset } from "../hooks/useNewAsset";
 import { useCredOperTemplate } from "../hooks/useCredOperTemplate";
-import useQuotationBootstrap from "../hooks/useQuotationBootstrap";
 import { useQuotationOptions } from "../hooks/useQuotationOptions";
 import {
-  STEP_OF_STAGE,
   stageOf,
   type CredOperDraft,
   type Stage,
@@ -82,10 +84,29 @@ function Wizard({
     if (onlyCompany && operation.aplCompanyId !== onlyCompany.id)
       dispatch(presetCompany(onlyCompany.id));
   }, [onlyCompany, operation.aplCompanyId, dispatch]);
+  // What the business finances in the company (any company's, until it's known): one = decided
+  // for the user, several = the Asset type step (also while they're loading)
+  const assetTypeChoices = useAssetTypeChoices(stage, operation);
+  const onlyAssetType = assetTypeChoices.data?.length === 1 ? assetTypeChoices.data[0] : null;
+  const currentAssetType = assetTypeOf(operation);
+  useEffect(() => {
+    if (onlyAssetType && currentAssetType !== onlyAssetType.id)
+      dispatch(presetAssetType(onlyAssetType.id));
+  }, [onlyAssetType, currentAssetType, dispatch]);
   const steps = stepsFor(stage, operation, {
     chooseBusiness: !onlyBusiness,
     chooseCompany: !!operation.aplBusinessId && !onlyCompany,
+    chooseAssetType: !!operation.aplBusinessId && !onlyAssetType,
   });
+  // The tag under the title: Company · Business · Asset type
+  const business = businesses?.find((b) => b.id === operation.aplBusinessId);
+  const headerLabels = {
+    company: business?.offers.find((o) => o.companyId === operation.aplCompanyId)?.companyLabel,
+    assetType:
+      currentAssetType === undefined
+        ? undefined
+        : (assetTypeChoices.data?.find((a) => a.id === currentAssetType)?.label ?? assetTypeLabel(currentAssetType)),
+  };
   // Steps come and go with the business: track the position by step id
   const [currentId, setCurrentId] = useState<StepId>(() => steps[0].id);
   const [visited, setVisited] = useState<StepId[]>(() => [steps[0].id]);
@@ -94,8 +115,9 @@ function Wizard({
   const index =
     found !== -1
       ? found
-      : currentId === "company"
-        ? Math.max(0, steps.findIndex((s) => s.id !== "business")) // the company was decided: the step after Business
+      : currentId === "company" || currentId === "assetType"
+        ? // the company or the asset type was decided: the step after those
+          Math.max(0, steps.findIndex((s) => s.id !== "business" && s.id !== "company"))
         : currentId === "customer" ||
           currentId === "quotation" ||
           currentId === "business"
@@ -115,20 +137,18 @@ function Wizard({
   const [convert, convertState] =
     usePostApiCreditOperationsQuotationToProposalMutation();
 
-  // Options for the operation fields; financial products depend on the business
-  const { options, loadingFinancialProducts } = useQuotationOptions({
-    business: businesses?.find((b) => b.id === operation.aplBusinessId),
+  // Options for the operation fields; financial products and classifications depend on the business
+  const { options, loadingFinancialProducts, loadingClassifications } = useQuotationOptions({
+    business,
     companyId: operation.aplCompanyId,
     loadingBusinesses,
   });
-  const bootstrap = useQuotationBootstrap();
-  // The server's blank operation, fetched once the business is chosen
+  // The server's blank operation, fetched once the asset type is decided (chosen or set for the user); the
+  // product's defaults come after it (they'd have nothing to land on before)
   const template = useCredOperTemplate(stage, operation);
-  const { financialProduct } = useFinancialProductSync(
-    operation,
-    STEP_OF_STAGE[stage],
-    !template.isPending,
-  );
+  const { conflicts, resolveConflicts } = useFinancialProductSync(operation, !template.awaiting);
+  // A new equipment or building when the asset type, business or company changes (the first is the template's)
+  const newAsset = useNewAsset(operation, template);
 
   const validation = validateStages(steps, operation, todayLocal());
   const visibleInvalid = validation.invalidSteps.filter((id) =>
@@ -214,6 +234,8 @@ function Wizard({
             stage={stage}
             operation={operation}
             isDirty={isDirty}
+            companyLabel={headerLabels.company}
+            assetTypeLabel={headerLabels.assetType}
           />
           <Stepper
             steps={steps}
@@ -246,7 +268,7 @@ function Wizard({
                   template.error ? (
                     <div className="text-center py-4" role="alert">
                       <i className="bi bi-exclamation-triangle display-6 text-warning" aria-hidden="true" />
-                      <h4 className="h6 mt-3">Couldn't start a new {stage}</h4>
+                      <h4 className="h6 mt-3">Couldn't load the {stage}'s customer</h4>
                       <p className="text-body-secondary">
                         {getApiErrorMessage(template.error) ?? "Please try again."}
                       </p>
@@ -261,6 +283,29 @@ function Wizard({
                     </div>
                   )
                 ) : (
+                <>
+                {!!newAsset.error && (step.id === "equipment" || step.id === "building") && (
+                  <div className="alert alert-warning d-flex align-items-center gap-2" role="alert">
+                    <span className="flex-grow-1">
+                      Couldn't prepare the new {step.id === "building" ? "building" : "equipment"}:{" "}
+                      {getApiErrorMessage(newAsset.error) ?? "please try again."}
+                    </span>
+                    <button type="button" className="btn btn-sm btn-outline-warning" onClick={newAsset.retry}>
+                      Retry
+                    </button>
+                  </div>
+                )}
+                {/* The server's blank operation failed (after the product was chosen): the step stays usable */}
+                {!!template.error && step.id !== "business" && (
+                  <div className="alert alert-warning d-flex align-items-center gap-2" role="alert">
+                    <span className="flex-grow-1">
+                      Couldn't prepare the {stage}: {getApiErrorMessage(template.error) ?? "please try again."}
+                    </span>
+                    <button type="button" className="btn btn-sm btn-outline-warning" onClick={template.retry}>
+                      Retry
+                    </button>
+                  </div>
+                )}
                 <StepComponent
                   stage={stage}
                   errors={
@@ -275,14 +320,13 @@ function Wizard({
                     options,
                     fetchingOptions: {
                       financialProducts: loadingFinancialProducts,
-                      credOperClassifications:
-                        bootstrap.fetchingCredoperClassifications,
+                      credOperClassifications: loadingClassifications,
                     },
                     termTicks,
                     dispatchCredOper: dispatch,
-                    financialProduct,
                   }}
                 />
+                </>
                 )}
               </StepTransition>
             </div>
@@ -315,6 +359,10 @@ function Wizard({
           </div>
         )}
       </div>
+      {conflicts.length > 0 && (
+        // Keyed by the conflicts: a newer product's question starts with its own choices
+        <ProductDefaultsPrompt key={conflicts.map((c) => c.field).join()} conflicts={conflicts} onResolve={resolveConflicts} />
+      )}
     </div>
   );
 }

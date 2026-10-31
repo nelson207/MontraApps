@@ -1,6 +1,6 @@
-import type { CredOperDto as ApiCredOperDto } from "@platform/api/generated/MontraPOSApi";
+import type { CredOperDto as ApiCredOperDto, CreditOperationStep } from "@platform/api/generated/MontraPOSApi";
 import type { CredOperDto, CredOperIntervDto } from "@platform/api/legacy/legacyApi";
-import { fromApiCredOper, toApiCredOper } from "../features/credoper/api/credOperMapping";
+import { fromApiCredOper, stepName, stepNumber, toApiCredOper } from "../features/credoper/api/credOperMapping";
 import { BUSINESSES } from "../features/credoper/model/business";
 import { registerDemoHandlers, type DemoRequest } from "@platform/api/demoBackend";
 import { demoCalculate } from "./demoCalculation";
@@ -40,10 +40,18 @@ const PRODUCTS: Record<number, ReturnType<typeof product>[]> = {
 const ALL_PRODUCTS = Object.entries(PRODUCTS).flatMap(([business, list]) => list.map((p) => ({ ...p, business: Number(business) })));
 const productById = (id: unknown) => ALL_PRODUCTS.find((p) => p.code === String(id));
 
+/** Contract classifications (CredOperClassificationDto) */
+/** GET /api/catalog/asset-types: no asset (null), equipment (1), building (2) */
+const ASSET_TYPES = [
+  { id: null, abbreviation: "No asset" },
+  { id: 1, abbreviation: "Equipment" },
+  { id: 2, abbreviation: "Building" },
+];
+
 const CLASSIFICATIONS = [
-  { code: "1", abbreviation: "Private", description: "Private customer" },
-  { code: "2", abbreviation: "Self-employed", description: "Self-employed customer" },
-  { code: "3", abbreviation: "Company", description: "Company" },
+  { id: 1, abbreviation: "Private", description: "Private customer", isValid: true },
+  { id: 2, abbreviation: "Self-employed", description: "Self-employed customer", isValid: true },
+  { id: 3, abbreviation: "Company", description: "Company", isValid: true },
 ];
 
 const customerTemplate = (): CredOperIntervDto => ({
@@ -119,7 +127,14 @@ const apiOperationIn = (request: DemoRequest) => fromApiCredOper((request.body ?
 
 registerDemoHandlers({
   // --- New API (/api/credit-operations/…): same answers, in the new shapes ----------------
-  "GET /api/credit-operations/new-credoper": () => toApiCredOper(newOperation(false)),
+  // The "new" objects carry the values the backend sets for the business in the company (the
+  // currency among them): the app sets none the user doesn't see
+  "GET /api/credit-operations/new-credoper": ({ params }) => ({
+    ...toApiCredOper(newOperation(false)),
+    aplBusinessId: Number(params.businessId) || null,
+    aplCompanyId: Number(params.companyId) || null,
+    currencyId: "EUR",
+  }),
 
   "GET /api/credit-operations/new-intervention": (request) =>
     toApiCredOper({ interventions: [{ ...customerTemplate(), credOperIntervType: INTERVENTION_TYPES[request.params.kind] ?? 1 }] })
@@ -147,15 +162,14 @@ registerDemoHandlers({
     { id: "FRA", abbreviation: "France", alpha2Code: "FR", phonePrefix: 33 },
   ],
 
-  "GET /api/companies": () => [
+  // Settings → Application: the catalog's companies and each one's businesses (the same ones in the demo)
+  "GET /api/catalog/companies": () => [
     { id: 1, abbreviation: "Montra Lisboa", currencyId: "EUR" },
     { id: 2, abbreviation: "Montra Porto", currencyId: "EUR" },
   ],
-
-  // Settings → Application: each company's businesses (the same ones in the demo)
   ...Object.fromEntries(
     [1, 2].map((companyId) => [
-      `GET /api/companies/${companyId}/businesses`,
+      `GET /api/catalog/companies/${companyId}/businesses`,
       () => BUSINESSES.map((b) => ({ id: b.id, abbreviation: b.label, description: b.description })),
     ]),
   ),
@@ -176,25 +190,36 @@ registerDemoHandlers({
           description,
           importerIds: [],
         })),
+        // As Settings → Application would have them: Financial leasing asks (equipment or a
+        // building), a personal loan has no asset, the others finance equipment
+        assetTypes: b.id === 1 ? [ASSET_TYPES[1], ASSET_TYPES[2]] : b.equipment === "none" ? [ASSET_TYPES[0]] : [ASSET_TYPES[1]],
       })),
     ),
 
-  "GET /api/equipments/new": () => ({}),
+  "GET /api/catalog/asset-types": () => ASSET_TYPES,
 
-  "GET /api/credit-operations/search": (request) => {
-    const steps: Record<string, number> = { Quotation: 1, Proposal: 2 };
-    const step = request.params.step ? steps[request.params.step] ?? -1 : null;
-    const number = request.params.number ? Number(request.params.number) : null;
+  // A new asset with its equipment or building, as the backend sets them
+  "GET /api/equipments/new": () => ({ assetType: "Equipment", currencyId: "EUR", equipment: { currencyId: "EUR" } }),
+  "GET /api/buildings/new": ({ params }) => ({
+    assetType: "Building",
+    currencyId: "EUR",
+    building: { currencyId: "EUR", aplCompanyId: Number(params.companyId) || null },
+  }),
+
+  // The step by name (CreditOperationStep); the saved drafts keep its number
+  "GET /api/credit-operations/search": ({ params }) => {
+    const step = params.Step ? (stepNumber(params.Step as CreditOperationStep) ?? -1) : null;
+    const number = params.Number ? Number(params.Number) : null;
     const all = [...[...saved.values()].reverse(), ...sampleSearch()].filter(
       (op) => (step == null || (op.credOperStep ?? 1) === step) && (number == null || op.credOperNumber === number),
     );
-    const page = Number(request.params.page) || 1;
-    const pageSize = Number(request.params.pageSize) || 50;
+    const page = Number(params.Page) || 1;
+    const pageSize = Number(params.PageSize) || 50;
     return {
       items: all.slice((page - 1) * pageSize, page * pageSize).map((op) => ({
         id: op.id,
         number: op.credOperNumber,
-        step: op.credOperStep ?? 1,
+        step: stepName(op.credOperStep ?? 1),
         financialProductId: op.financialProduct,
         stateId: op.autUserStateId,
         beginDate: op.beginDate,
@@ -225,9 +250,11 @@ registerDemoHandlers({
     messages: [],
   }),
 
-  // --- Legacy placeholders (platform/api/legacy) -------------------------------------------
-  "POST /api/BasicLists/FetchCredOperClassification": () => CLASSIFICATIONS,
+  // Contract classifications: every one, for the operation and for Settings → Application
+  "GET /api/credit-operations/classifications": () => CLASSIFICATIONS,
+  "GET /api/catalog/classifications": () => CLASSIFICATIONS,
 
+  // --- Legacy placeholders (platform/api/legacy) -------------------------------------------
   "POST /api/Simulations/GetFinancialProductDetails": (request) => {
     const { finProductId } = (body(request).financialProductDetailsRequest ?? body(request)) as { finProductId?: number };
     const found = productById(finProductId);

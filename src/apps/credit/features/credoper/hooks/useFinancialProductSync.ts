@@ -1,84 +1,85 @@
-import { useEffect, useState } from "react";
-import type {
-  CredOperDto,
-  FinancialProductDto,
-} from "@platform/api/legacy/legacyApi";
-import { applyProductDefaults } from "../credoperSlice";
-import { useAppDispatch } from "@credit/store";
-import useQuotationBootstrap from "./useQuotationBootstrap";
+import { useEffect, useRef, useState } from "react";
+import type { CredOperDto } from "@platform/api/legacy/legacyApi";
+import { applyProductDefaults, patchCredoper, setCredoper } from "../credoperSlice";
+import { selectCredoperRevision, useAppDispatch, useAppSelector } from "@credit/store";
 import { useFinancialProductDefaults } from "../api/credOperApi";
+import { DEFAULT_TERM_RESTRICTIONS } from "../constants";
+import { splitProductDefaults, withAcceptedDefaults, type DefaultConflict } from "../model/productDefaults";
 
+// Every time the user changes the financial product, its defaults are loaded: blank values take
+// them, values on screen the product would change wait for the user (`conflicts`, field by field).
+// An operation opened with its product isn't touched: only a change brings defaults. Values the
+// user doesn't see are only the backend's (the defaults' answer): the app sets none itself.
 export default function useFinancialProductSync(
   credoper: CredOperDto | null,
-  creoperStep: number | undefined,
   /** False while the operation has no server template yet: its defaults would have nothing to land on */
   enabled = true,
 ) {
   const dispatch = useAppDispatch();
-  const [financialProduct, setFinancialProduct] =
-    useState<FinancialProductDto>();
+  const revision = useAppSelector(selectCredoperRevision);
+  /** The values on screen the new product would change, until the user decides */
+  const [conflicts, setConflicts] = useState<DefaultConflict[]>([]);
 
-  const { GetFinancialProductDetail } = useQuotationBootstrap();
-  // New API: POST /api/credit-operations/financial-product-defaults
+  // New API: POST /api/financial-products/defaults
   const [getProductDefaults] = useFinancialProductDefaults();
+
+  // The product whose defaults the operation has (the one it was opened with, for an existing one)
+  const settledProduct = useRef(credoper?.financialProduct ?? null);
+  /** settledProduct, for rendering */
+  const [settled, setSettled] = useState(credoper?.financialProduct ?? null);
+
+  // No term once the product's defaults are in (none, or the operation was opened without one):
+  // the slider's first point, which it shows, is the operation's, so it's calculated and saved
+  const term = credoper?.conditions?.[0]?.term;
+  const hasConditions = !!credoper?.conditions?.length;
+  useEffect(() => {
+    if (!enabled || !settled || settled !== credoper?.financialProduct || term != null) return;
+    const firstTerm = DEFAULT_TERM_RESTRICTIONS.minValue;
+    dispatch(applyProductDefaults(hasConditions ? { firstCondition: { term: firstTerm } } : { conditions: [{ term: firstTerm }] }));
+  }, [enabled, settled, credoper?.financialProduct, term, hasConditions, dispatch]);
 
   useEffect(() => {
     const financialProductId = credoper?.financialProduct;
 
-    if (!financialProductId || !enabled) {
+    if (!financialProductId || !enabled || financialProductId === settledProduct.current) {
       return;
     }
 
+    const oldFinancialProductId = settledProduct.current;
     let cancelled = false;
+    setConflicts([]);
 
-    void GetFinancialProductDetail({
-      financialProductDetailsRequest: {
-        finProductId: financialProductId,
-      },
-    })
-      .unwrap()
-      .then(async (data) => {
-        if (cancelled) return;
-        setFinancialProduct(data);
-        // Only the product-derived fields: the rest of the operation may have
-        // changed while the request was in flight
-        const derived: Partial<CredOperDto> = {
-          // The company chosen (or decided) after the business wins over the product's
-          aplCompanyId: credoper?.aplCompanyId || data.aplCompanyId || 0,
-          currencyId: data.currencyId ?? null,
-          finProductVersion: data.finProductVersion ?? 0,
-          credOperTypeId: data.OperType ?? 0,
-          credOperStep: creoperStep ?? 1,
-          credOperChannelId: 1,
-        };
-        dispatch(applyProductDefaults(derived));
+    const sync = async () => {
+      // Only what the backend answers is set: the app derives nothing from the product itself
+      const sent = credoper!;
+      const defaults = await getProductDefaults(sent, oldFinancialProductId);
+      if (cancelled) return;
+      settledProduct.current = financialProductId;
+      setSettled(financialProductId);
+      const split = splitProductDefaults(sent, defaults);
+      // Ignored by the store when the user changed something meanwhile
+      dispatch(setCredoper(split.silent, revision));
+      setConflicts(split.conflicts);
+    };
 
-        const defaults = await getProductDefaults({ ...credoper, ...derived });
-        if (!cancelled && defaults != null) {
-          dispatch(
-            applyProductDefaults({
-              firstCondition: defaults.conditions?.at(0) ?? {},
-            }),
-          );
-        }
-      })
-      .catch((error: unknown) => {
-        // Product details are optional enrichment; the summary shows its own errors
-        console.warn("Couldn't load financial product details", error);
-      });
+    sync().catch((error: unknown) => {
+      // The product stays chosen; the calculation shows its own errors
+      console.warn("Couldn't load financial product defaults", error);
+    });
 
     return () => {
       cancelled = true;
     };
-
-    // void GetFinancialProductTermRestriction({
-    //   credOperDto: credoper,
-    // })
-    //   .unwrap()
-    //   .then((data) => {
-    //     setTermRestrictions(data);
-    //   });
   }, [credoper?.financialProduct, enabled]);
 
-  return { financialProduct };
+  /** The user's answer: the defaults they accepted replace their values (an edit), the rest stay */
+  const resolveConflicts = (accepted: DefaultConflict[]) => {
+    setConflicts([]);
+    if (accepted.length && credoper) {
+      const { assets, conditions } = withAcceptedDefaults(credoper, accepted);
+      dispatch(patchCredoper({ assets, conditions }));
+    }
+  };
+
+  return { conflicts, resolveConflicts };
 }

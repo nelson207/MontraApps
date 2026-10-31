@@ -1,9 +1,11 @@
-import { businessOf, equipmentModeOf, hasEquipment, hasFinancing, isAutoInsurance } from "../model/business";
+import { businessOf, equipmentModeOf, hasBuilding, hasEquipment, hasFinancing, isAutoInsurance } from "../model/business";
 import { convertedFromQuotation, type CredOperDraft, type Stage } from "../model/credOperDraft";
 import type { FieldErrors } from "../validation/fieldRules";
 import { validateCustomer } from "../customer/customerRules";
 import type { LocalDate } from "../validation/localDate";
 import {
+  validateAssetType,
+  validateBuilding,
   validateBusiness,
   validateCompany,
   validateEquipment,
@@ -12,15 +14,17 @@ import {
   validateInterventions,
 } from "../validation/stepValidation";
 
-// Wizard configuration (spec §2): the steps of a quotation / proposal depend on its business
-// (model/business.ts): with or without equipment, financed or not (Auto insurance).
+// Wizard configuration (spec §2): the steps of a quotation / proposal depend on its business and
+// asset type (model/business.ts): equipment, a building or no asset; financed or not (Auto insurance).
 
 export type StepId =
   | "business"
   | "company"
+  | "assetType"
   | "quotation"
   | "customer"
   | "equipment"
+  | "building"
   | "financial"
   | "interventions"
   | "insurances"
@@ -37,6 +41,9 @@ export type StepDef = {
 const business: StepDef = { id: "business", label: "Business", icon: "bi-grid", validate: validateBusiness };
 /** Only when the business can be done with several companies */
 const company: StepDef = { id: "company", label: "Company", icon: "bi-building", validate: validateCompany };
+/** Only when the business offers several asset types in the company (otherwise it's decided) */
+const assetType: StepDef = { id: "assetType", label: "Asset type", icon: "bi-boxes", validate: validateAssetType };
+const building: StepDef = { id: "building", label: "Building detail", icon: "bi-house", validate: validateBuilding };
 const customer: StepDef = { id: "customer", label: "Customer", icon: "bi-person", validate: validateCustomer };
 /** Converted proposal, step 1: the source quotation, read-only (nothing to fix there). */
 const quotation: StepDef = { id: "quotation", label: "Quotation", icon: "bi-file-earmark-text", validate: () => ({}) };
@@ -68,12 +75,15 @@ export type StepOptions = {
   chooseBusiness?: boolean;
   /** True when the chosen business can be done with several companies (otherwise it's decided) */
   chooseCompany?: boolean;
+  /** True when the business offers several asset types in the company (otherwise it's decided) */
+  chooseAssetType?: boolean;
 };
 
 /**
  * The steps of an operation:
- *   [Business] → [Company] → Customer (or the read-only Quotation of a converted proposal)
- *   → Equipment (businesses with equipment) → Financial data (financed businesses)
+ *   [Business] → [Company] → [Asset type] → Customer (or the read-only Quotation of a converted
+ *   proposal) → Equipment (asset type equipment) or Building (asset type building; none for no
+ *   asset) → Financial data (financed businesses)
  *   → Interventions (proposal) → Insurances (proposal; Auto insurance: also the quotation)
  *   → Summary.
  * Until a business is chosen there's only the Business step. A converted proposal keeps
@@ -82,15 +92,17 @@ export type StepOptions = {
 export function stepsFor(
   stage: Stage,
   op: CredOperDraft,
-  { chooseBusiness = true, chooseCompany = false }: StepOptions = {},
+  { chooseBusiness = true, chooseCompany = false, chooseAssetType = false }: StepOptions = {},
 ): StepDef[] {
   if (!businessOf(op)) return [business];
   const converted = convertedFromQuotation(op);
   const steps: StepDef[] = [];
   if (chooseBusiness && !converted) steps.push(business);
   if (chooseCompany && !converted) steps.push(company);
+  if (chooseAssetType && !converted) steps.push(assetType);
   steps.push(converted ? quotation : customer);
   if (hasEquipment(op)) steps.push(equipmentStep(op));
+  if (hasBuilding(op)) steps.push(building);
   if (hasFinancing(op)) steps.push(financial);
   if (stage === "proposal") steps.push(interventions);
   if (stage === "proposal" || isAutoInsurance(op)) steps.push(insurancesStep(op));

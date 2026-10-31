@@ -86,7 +86,7 @@ export function useCredOperSession(stage: Stage) {
     if (!createsNew || !contextSettled || startedFor.current === runId) return;
     startedFor.current = runId;
     // A blank operation: the server's (GET /api/credit-operations/new-credoper) is only asked
-    // for once the business is chosen (useCredOperTemplate)
+    // for once the business, company and asset type are decided (useCredOperTemplate)
     dispatch(
       startBlank({
         ...applyWorkContextDefaults({ credOperStep: STEP_OF_STAGE[stage] }, workContext.selection),

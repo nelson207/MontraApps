@@ -15,6 +15,7 @@ import {
   type CredOperInput,
   type Insurance,
 } from "./model/credOperDraft";
+import { assetTypeOf, changeAssetType } from "./model/business";
 
 type CredoperState = {
   data: CredOperDraft | null;
@@ -68,9 +69,27 @@ function setLoaded(state: CredoperState, op: CredOperInput) {
   state.awaitingTemplate = false;
 }
 
-/** The fields that have a value (the template must not overwrite what was already chosen) */
-const withValues = (op: CredOperDraft): Partial<CredOperDraft> =>
-  Object.fromEntries(Object.entries(op).filter(([, value]) => value !== undefined && value !== null)) as Partial<CredOperDraft>;
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === "object" && !Array.isArray(value);
+
+/**
+ * `chosen` over `template`: what has a value in `chosen` wins, at any depth; lists go item by
+ * item (by position), as many as `chosen` has (an empty or missing one takes the template's).
+ * The template must not overwrite what was already chosen or typed.
+ */
+function underlay(template: unknown, chosen: unknown): unknown {
+  if (chosen === undefined || chosen === null) return template ?? chosen;
+  if (Array.isArray(chosen)) {
+    if (!chosen.length) return Array.isArray(template) ? template : chosen;
+    return chosen.map((item, i) => underlay(Array.isArray(template) ? template[i] : undefined, item));
+  }
+  if (isPlainObject(chosen) && isPlainObject(template)) {
+    const out: Record<string, unknown> = { ...template };
+    for (const [key, value] of Object.entries(chosen)) out[key] = underlay(template[key], value);
+    return out;
+  }
+  return chosen;
+}
 
 const credoperSlice = createSlice({
   name: "credoper",
@@ -86,20 +105,49 @@ const credoperSlice = createSlice({
       setLoaded(state, action.payload);
     },
 
-    /** A fresh operation without the server's template yet: it comes once the business is chosen */
+    /** A fresh operation without the server's template yet: it comes once the asset type is decided */
     startBlank(state, action: PayloadAction<CredOperInput>) {
       setLoaded(state, action.payload);
       state.awaitingTemplate = true;
     },
 
     /**
-     * The server's blank operation (new-credoper) under what was already chosen (business,
-     * product, work context…): not an edit, so the dirty flag stays as it is.
+     * The server's blank operation (new-credoper) under what was already chosen or typed
+     * (business, company, asset, product, work context, vehicle, customer…; item by item): not
+     * an edit, so the dirty flag stays as it is.
      */
     applyTemplate(state, action: PayloadAction<CredOperInput>) {
       if (!state.data || !state.awaitingTemplate) return;
-      state.data = ensureRefs({ ...action.payload, ...withValues(state.data) });
+      // Its asset is the first one, unless it's of another asset type than the one chosen
+      // meanwhile (that one comes from useNewAsset)
+      const kind = action.payload.assets?.[0]?.assetType;
+      const template = kind != null && kind !== assetTypeOf(state.data) ? { ...action.payload, assets: undefined } : action.payload;
+      state.data = ensureRefs(underlay(template, state.data) as CredOperInput);
       state.awaitingTemplate = false;
+    },
+
+    /** A blank proposal's customer (new-intervention), before its template: not an edit */
+    presetCustomer(state, action: PayloadAction<CredOperIntervDto>) {
+      if (!state.data || state.data.interventions?.length) return;
+      state.data.interventions = [{ ...action.payload, correlationID: action.payload.correlationID || newId() }];
+    },
+
+    /**
+     * The new asset of the asset type chosen (GET /api/equipments/new, /api/buildings/new: the
+     * asset with its equipment or building) under the first asset, item by item (what it already
+     * has wins): not an edit. Dropped when the asset type changed meanwhile.
+     */
+    applyNewAsset(state, action: PayloadAction<{ assetType: number; asset: CredOperAssetDto }>) {
+      if (!state.data || assetTypeOf(state.data) !== action.payload.assetType) return;
+      const [first = {}, ...rest] = state.data.assets ?? [];
+      const asset = underlay(action.payload.asset, first) as CredOperAssetDto;
+      state.data = ensureRefs({ ...state.data, assets: [asset, ...rest] });
+    },
+
+    /** The only asset type the business offers: decided for the user, not an edit */
+    presetAssetType(state, action: PayloadAction<number | null>) {
+      if (!state.data) return;
+      state.data = ensureRefs(changeAssetType(state.data, action.payload).next);
     },
 
     /** An existing operation (Search, conversion result). */
@@ -145,9 +193,11 @@ const credoperSlice = createSlice({
       state.error = action.payload;
     },
 
-    patchCredoper(state, action: PayloadAction<Partial<CredOperDto>>) {
+    /** A different financial product clears the previous one's version (its defaults bring the new one's) */
+    patchCredoper(state, action: PayloadAction<Partial<CredOperInput>>) {
       if (!state.data) return;
-      state.data = { ...state.data, ...action.payload };
+      const productChanged = "financialProduct" in action.payload && action.payload.financialProduct !== state.data.financialProduct;
+      state.data = { ...state.data, ...action.payload, ...(productChanged ? { finProductVersion: null } : {}) };
       edited(state);
     },
 
@@ -304,6 +354,9 @@ export const {
   addIntervention,
   presetBusiness,
   presetCompany,
+  presetAssetType,
+  applyNewAsset,
+  presetCustomer,
   setConditions,
   updateConditionAt,
   addCondition,

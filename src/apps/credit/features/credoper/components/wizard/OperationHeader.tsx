@@ -11,19 +11,28 @@ function formatEntryDate(value?: string) {
   return date && !Number.isNaN(date.getTime()) ? dateFormat.format(date) : null;
 }
 
-type Props = { stage: Stage; operation: CredOperDraft; isDirty: boolean };
+type Props = {
+  stage: Stage;
+  operation: CredOperDraft;
+  isDirty: boolean;
+  /** The operation's company and asset type, by name (once known) */
+  companyLabel?: string;
+  assetTypeLabel?: string;
+};
 
-// "New quotation" / "Quotation #n" / "Proposal #n", save state, business, and where it belongs.
-function OperationHeader({ stage, operation, isDirty }: Props) {
+// "New quotation" / "Quotation #n" / "Proposal #n", save state, company · business · asset type,
+// and where it belongs.
+function OperationHeader({ stage, operation, isDirty, companyLabel, assetTypeLabel }: Props) {
   const number = operation.credOperNumber ?? operation.id;
   const isSaved = operation.id != null;
   const title = isSaved ? `${STAGE_LABELS[stage]} #${number}` : `New ${STAGE_LABELS[stage].toLowerCase()}`;
 
-  const badge = isDirty
-    ? { label: "Unsaved changes", className: "bg-warning-subtle text-warning-emphasis border-warning-subtle" }
-    : isSaved
-      ? { label: "Saved", className: "bg-success-subtle text-success-emphasis border-success-subtle" }
-      : { label: "Draft", className: "bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" };
+  // "Unsaved changes" only once there is a saved version to differ from; until the first save it is "New".
+  const badge = !isSaved
+    ? { label: "New", className: "bg-success text-white border-success" }
+    : isDirty
+      ? { label: "Unsaved changes", className: "bg-warning-subtle text-warning-emphasis border-warning-subtle" }
+      : { label: "Saved", className: "bg-success-subtle text-success-emphasis border-success-subtle" };
 
   const network = [
     nodeFromId("organization", operation.creditIntermediaryStructNode)?.name,
@@ -40,7 +49,7 @@ function OperationHeader({ stage, operation, isDirty }: Props) {
       {business && (
         <span className="badge rounded-pill bg-body-tertiary text-body border">
           <i className={`bi ${business.icon} me-1`} aria-hidden="true" />
-          {business.label}
+          {[companyLabel, business.label, assetTypeLabel].filter(Boolean).join(" · ")}
         </span>
       )}
       {(network.length > 0 || created) && (

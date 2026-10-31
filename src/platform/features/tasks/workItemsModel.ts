@@ -118,17 +118,10 @@ export function formatMoment(iso: string | null | undefined, format: DateFormat)
 export const PRIORITIES = ["Low", "Medium", "High", "Critical"] as const;
 export type Priority = (typeof PRIORITIES)[number];
 
-/** Accipiens WorkItemPriorityKind: Critical = 1, High = 2, Medium = 3, Low = 4 */
-const PRIORITY_KINDS: Record<number, Priority> = { 1: "Critical", 2: "High", 3: "Medium", 4: "Low" };
-
-/**
- * The item's priority (priorityKind), or null when it has none. The API writes the kind's
- * name ("Critical"), although its schema says number: both are read.
- */
+/** The item's priority (priorityKind, the WorkItemPriorityKind name: "Critical"…), or null when it has none */
 export function priorityOf(kind: unknown): Priority | null {
-  if (typeof kind === "number") return PRIORITY_KINDS[kind] ?? null;
-  if (typeof kind === "string") return PRIORITIES.find((p) => p.toLowerCase() === kind.trim().toLowerCase()) ?? null;
-  return null;
+  if (typeof kind !== "string") return null;
+  return PRIORITIES.find((p) => p.toLowerCase() === kind.trim().toLowerCase()) ?? null;
 }
 
 /** Results-view tone per priority (Critical red, High orange, Medium yellow, Low green) */
@@ -169,19 +162,19 @@ export function workItemsProblem(error: unknown): WorkItemsProblem | null {
 // ---------------------------------------------------------------- search
 
 export const WORK_ITEM_STATES: { value: AplWorkItemInternalState; name: string; label: string }[] = [
-  { value: 10, name: "initial", label: "Initial" },
-  { value: 11, name: "active", label: "Active" },
-  { value: 12, name: "resolved", label: "Resolved" },
-  { value: 13, name: "closed", label: "Closed" },
-  { value: 14, name: "canceled", label: "Canceled" },
+  { value: "Initial", name: "initial", label: "Initial" },
+  { value: "Active", name: "active", label: "Active" },
+  { value: "Resolved", name: "resolved", label: "Resolved" },
+  { value: "Closed", name: "closed", label: "Closed" },
+  { value: "Canceled", name: "canceled", label: "Canceled" },
 ];
 
 export const WORK_ITEM_SORTS: { value: AplWorkItemSortingType; name: string; label: string }[] = [
-  { value: 1, name: "worklist", label: "Worklist" },
-  { value: 2, name: "agenda", label: "Agenda" },
-  { value: 3, name: "creation", label: "Creation" },
-  { value: 4, name: "type-priority", label: "Type, priority, begin" },
-  { value: 5, name: "priority-creation", label: "Priority, creation date" },
+  { value: "Worklist", name: "worklist", label: "Worklist" },
+  { value: "Agenda", name: "agenda", label: "Agenda" },
+  { value: "Creation", name: "creation", label: "Creation" },
+  { value: "TypePriorityBegin", name: "type-priority", label: "Type, priority, begin" },
+  { value: "PriorityCreationDate", name: "priority-creation", label: "Priority, creation date" },
 ];
 
-export const DEFAULT_SORT: AplWorkItemSortingType = 1;
+export const DEFAULT_SORT: AplWorkItemSortingType = "Worklist";

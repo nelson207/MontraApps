@@ -1,4 +1,4 @@
-import { equipmentModeOf, hasEquipment } from "../../model/business";
+import { amountLabel, equipmentModeOf } from "../../model/business";
 import type { CredOperDraft } from "../../model/credOperDraft";
 
 export type FinancingFigures = {
@@ -28,7 +28,7 @@ export function financingFigures(op: CredOperDraft): FinancingFigures {
     monthly,
     financed: op.amount ?? null,
     base: renting ? (op.assets ?? []).reduce((sum, a) => sum + (a.equipment?.netAmount ?? 0), 0) : (first?.netAmount ?? null),
-    baseLabel: renting ? "Total of the vehicles" : hasEquipment(op) ? "Equipment amount" : "Loan amount",
+    baseLabel: renting ? "Total of the vehicles" : amountLabel(op),
     initialEntry: first?.retakeAmount ?? null,
     initialEntryPercentage: first?.retakePercentage ?? null,
     term: condition?.term ?? null,

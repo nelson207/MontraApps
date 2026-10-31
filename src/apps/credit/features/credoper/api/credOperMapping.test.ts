@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CredOperDto as DraftDto } from "@platform/api/legacy/legacyApi";
-import { fromApiCredOper, toApiCredOper } from "./credOperMapping";
+import { assetKindOut, fromApiCredOper, stepNumber, toApiCredOper } from "./credOperMapping";
 
 const draft = (): DraftDto => ({
   id: "AQ7c2L0xOper7",
@@ -100,4 +100,45 @@ describe("fromApiCredOper", () => {
     expect(back.assets?.[0]?.equipment).toMatchObject({ brand: "VW", odometer: 12000, correlationID: "e-1" });
     expect(back.interventions?.[0]).toMatchObject({ correlationID: "i-1", person: { birthDate: "1990-05-01" } });
   });
+});
+
+describe("the step: a number in the draft, a name in the new API", () => {
+  it("is sent by name and read back as the number", () => {
+    expect(toApiCredOper({ credOperStep: 2 }).credOperStep).toBe("Proposal");
+    expect(fromApiCredOper({ credOperStep: "Quotation" }).credOperStep).toBe(1);
+    expect(fromApiCredOper(toApiCredOper({ credOperStep: 13 })).credOperStep).toBe(13);
+  });
+
+  it("isn't added when the draft has none, and an answer without one keeps the draft's", () => {
+    expect("credOperStep" in toApiCredOper({ amount: 1 })).toBe(false);
+    expect(fromApiCredOper({ amount: 1 }, { credOperStep: 2 }).credOperStep).toBe(2);
+  });
+
+  it("every name has its number", () =>
+    expect(["Quotation", "Proposal", "Contract", "MLAContract", "ExternalOperation"].map((s) => stepNumber(s as never))).toEqual([
+      1, 2, 3, 13, 99,
+    ]));
+});
+
+describe("the asset type: an id in the draft (1 = equipment, 2 = building), a kind in the new API", () => {
+  it("is sent as the kind (none for no asset) and read back as the id", () => {
+    const api = toApiCredOper({ assets: [{ assetType: 2 }, { assetType: 1 }, { assetType: null }] });
+    expect(api.assets?.map((a) => a.assetType)).toEqual(["Building", "Equipment", undefined]);
+    expect(fromApiCredOper(api).assets?.map((a) => a.assetType)).toEqual([2, 1, undefined]);
+  });
+
+  it("an answer without it keeps the draft's; the operation's choice stays in the app", () => {
+    expect(fromApiCredOper({ assets: [{ amount: 1 }] }, { assets: [{ assetType: 2 }] }).assets?.[0]?.assetType).toBe(2);
+    expect("assetTypeId" in toApiCredOper({ assetTypeId: 1 } as never)).toBe(false);
+  });
+});
+
+describe("assetKindOut (new-credoper's asset type)", () => {
+  it("equipment and building by kind; no asset: none sent", () =>
+    expect([1, 2, null, undefined].map(assetKindOut)).toEqual(["Equipment", "Building", undefined, undefined]));
+});
+
+describe("assetItem: the asset's position, from 1", () => {
+  it("is renumbered on every send, whatever the draft had (vehicles added and removed)", () =>
+    expect(toApiCredOper({ assets: [{ assetItem: 2 }, {}, { assetItem: 1 }] }).assets?.map((a) => a.assetItem)).toEqual([1, 2, 3]));
 });

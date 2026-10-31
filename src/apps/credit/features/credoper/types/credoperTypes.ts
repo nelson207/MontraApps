@@ -2,7 +2,6 @@ import type { AppDispatch } from "@credit/store";
 import type {
   CodeAbbreviation,
   CredOperIntervDto,
-  FinancialProductDto,
 } from "@platform/api/legacy/legacyApi";
 import type { AvailableBusiness } from "../model/business";
 
@@ -12,7 +11,6 @@ export type QuotationDataProps = {
   fetchingOptions: Partial<Record<keyof OptionsState, boolean>>;
   termTicks?: number[];
   dispatchCredOper: AppDispatch;
-  financialProduct: FinancialProductDto | undefined;
 };
 
 export type QuotationProps = {

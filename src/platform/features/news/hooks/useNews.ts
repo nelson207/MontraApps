@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useGetNewsFeedQuery } from "../api/newsApi";
-import { useGetNewsTypesQuery } from "../api/newsTypesApi";
+import { useNewsTypes } from "../api/newsTypesApi";
 import { byNewest, toNewsItem, type NewsItem } from "../newsModel";
 
 /**
@@ -10,7 +10,7 @@ import { byNewest, toNewsItem, type NewsItem } from "../newsModel";
 export function useNews() {
   const feed = useGetNewsFeedQuery();
   // Names of the news types (NewsDto only has the id); without them a type shows as "Type n"
-  const types = useGetNewsTypesQuery();
+  const types = useNewsTypes();
   const { data, isError, error, refetch } = feed;
   const isLoading = feed.isLoading || types.isLoading;
 

@@ -8,7 +8,7 @@ import ResultsFooter from "@platform/components/results/ResultsFooter";
 import ResultsPanel from "@platform/components/results/ResultsPanel";
 import ResultsToolbar from "@platform/components/results/ResultsToolbar";
 import { useUrlFilters } from "@platform/hooks/useUrlFilters";
-import { useSearchCreditOperationsQuery } from "../api/creditOperationsSearchApi";
+import { useGetApiCreditOperationsSearchQuery } from "@platform/api/generated/MontraPOSApi";
 import {
   activeSearchFilters,
   CLEAR_FILTERS,
@@ -31,7 +31,7 @@ function SearchOperations() {
   const { get, set } = useUrlFilters();
   const filters = fromSearchParams({ get });
   const numberIsValid = isSearchableNumber(filters.number);
-  const { currentData, isFetching, isError, error, refetch } = useSearchCreditOperationsQuery(
+  const { currentData, isFetching, isError, error, refetch } = useGetApiCreditOperationsSearchQuery(
     numberIsValid ? toSearchArgs(filters) : skipToken,
   );
   /** What the Filters popover shows (applied with Apply) */
@@ -154,7 +154,7 @@ function SearchOperations() {
         <ResultList label="Operations">
           {items.map((result, i) => {
             const step = stepLabel(result.step);
-            const tone = result.step === 2 ? "info" : result.step === 1 ? "primary" : "secondary";
+            const tone = result.step === "Proposal" ? "info" : result.step === "Quotation" ? "primary" : "secondary";
             return (
               <ResultRow
                 key={result.id ?? `row-${i}`}

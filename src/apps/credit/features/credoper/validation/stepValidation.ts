@@ -1,6 +1,15 @@
 import { validateInsurances } from "../insurance/insuranceRules";
 import type { EquipmentDto } from "@platform/api/legacy/legacyApi";
-import { businessOf, equipmentModeOf, hasEquipment, hasFinancing, isAutoInsurance } from "../model/business";
+import {
+  assetTypeOf,
+  buildingOf,
+  businessOf,
+  equipmentModeOf,
+  hasBuilding,
+  hasEquipment,
+  hasFinancing,
+  isAutoInsurance,
+} from "../model/business";
 import { customerOf, interventionRole, isCompany, type CredOperDraft } from "../model/credOperDraft";
 import { isAdult, notAfterToday, notBeforeToday } from "./dateRules";
 import { addError as add, checkRequired, fieldRule, type FieldErrors } from "./fieldRules";
@@ -15,6 +24,24 @@ export function validateBusiness(op: CredOperDraft, _today: LocalDate): FieldErr
 
 export function validateCompany(op: CredOperDraft, _today: LocalDate): FieldErrors {
   return op.aplCompanyId ? {} : { aplCompanyId: "Choose the company." };
+}
+
+export function validateAssetType(op: CredOperDraft, _today: LocalDate): FieldErrors {
+  return assetTypeOf(op) !== undefined ? {} : { assetTypeId: "Choose what is financed." };
+}
+
+/** The building (asset type 2): amounts not negative, built and bought by today */
+export function validateBuilding(op: CredOperDraft, today: LocalDate): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!hasBuilding(op)) return errors;
+  const building = buildingOf(op.assets?.[0]) ?? {};
+  const prefix = "assets.0.building.";
+  add(errors, `${prefix}purchaseAmount`, notNegative(building.purchaseAmount, "Purchase amount"));
+  add(errors, `${prefix}purchaseDate`, notAfterToday(building.purchaseDate, today, "Purchase date"));
+  if (building.buildingYear != null && building.buildingYear > Number(today.slice(0, 4))) {
+    add(errors, `${prefix}buildingYear`, "Building year can't be in the future.");
+  }
+  return errors;
 }
 
 const notNegative = (value: number | null | undefined, label: string) =>
@@ -120,15 +147,14 @@ export function validateInterventions(op: CredOperDraft, today: LocalDate): Fiel
       }
     }
 
-    const doc = intervention.entity?.legalDocs?.[0];
-    if (doc) {
-      const docPrefix = `${prefix}entity.legalDocs.0.`;
+    intervention.entity?.legalDocs?.forEach((doc, documentIndex) => {
+      const docPrefix = `${prefix}entity.legalDocs.${documentIndex}.`;
       checkRequired(errors, doc.metadataResponse, "legalDocNumber", `${docPrefix}legalDocNumber`, doc.legalDocNumber);
       checkRequired(errors, doc.metadataResponse, "validDate", `${docPrefix}validDate`, doc.validDate);
       if (fieldRule(doc.metadataResponse, "validDate").visible) {
         add(errors, `${docPrefix}validDate`, notBeforeToday(doc.validDate, today, "Identification document"));
       }
-    }
+    });
   });
 
   return errors;

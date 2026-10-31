@@ -339,7 +339,7 @@ function TaskList({ mode, state, extraTabs = [], viewAll = false }: TaskListProp
                 id="tasks-filter-sort"
                 className="form-select"
                 value={view.sort}
-                onChange={(e) => update({ sort: Number(e.target.value) as TaskView["sort"] })}
+                onChange={(e) => update({ sort: e.target.value as TaskView["sort"] })}
               >
                 {WORK_ITEM_SORTS.map((sort) => (
                   <option key={sort.value} value={sort.value}>
@@ -357,9 +357,9 @@ function TaskList({ mode, state, extraTabs = [], viewAll = false }: TaskListProp
           groups={[
             {
               label: "State",
-              options: WORK_ITEM_STATES.map((s) => ({ value: String(s.value), label: s.label })),
-              selected: selectedStates.map(String),
-              onChange: (next) => update({ states: next.map(Number) as TaskView["states"] }),
+              options: WORK_ITEM_STATES.map((s) => ({ value: s.value, label: s.label })),
+              selected: selectedStates,
+              onChange: (next) => update({ states: next as TaskView["states"] }),
             },
           ]}
         />

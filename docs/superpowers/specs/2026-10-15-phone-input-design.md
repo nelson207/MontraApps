@@ -12,7 +12,7 @@ Reorganize the Credit customer files like `insurance/`.
 
 | Topic | Decision |
 |---|---|
-| Countries | `GET /api/Countries/Phone` (placeholder endpoint, injected) → `PhoneCountry[]`; dev sample: Portugal only |
+| Countries | `GET /api/companies/countries` (CountryDto: `alpha2Code`, `abbreviation`, `phonePrefix`), in the backend's order, the first one the default; grouping and digit limits are generic (the API has none); no sample list |
 | PhoneCountry | `{ code, name, dialCode, groups: number[], minDigits, maxDigits, examples: { mobile, landline } }` |
 | Look | "PT +351" in the main colour inside the field (input-group addon/button); searchable country list |
 | Value | E.164 (`+351912345678`) in and out; "" when empty |

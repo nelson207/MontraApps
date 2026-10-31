@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { problemMessage } from "@platform/api/problemCode";
 import { selectCredoper, useAppDispatch, useAppSelector } from "@credit/store";
-import { newEquipment } from "../../api/credOperApi";
+import { newAsset } from "../../api/credOperApi";
 import { addAsset, removeAssetAt, removeInsurance } from "../../credoperSlice";
 import { money } from "../../hooks/useCalculation";
-import { equipmentModeOf } from "../../model/business";
+import { EQUIPMENT_ASSET, equipmentModeOf } from "../../model/business";
 import { assetLabel } from "../../model/credOperDraft";
 import type { StepProps } from "../../wizard/stepTypes";
 import VehicleEditor from "../forms/VehicleEditor";
@@ -28,18 +28,24 @@ function EquipmentStep({ errors }: StepProps) {
   const total = assets.reduce((sum, a) => sum + (a.equipment?.netAmount ?? 0), 0);
   const hasErrors = (index: number) => Object.keys(errors).some((key) => key.startsWith(`assets.${index}.`));
 
-  // A new vehicle starts from the API's blank equipment (GET /api/equipments/new)
+  // A new vehicle is the API's blank asset of the business in the company, with its equipment
+  // (GET /api/equipments/new; both chosen before this step)
   const addVehicle = async () => {
     setAdding(true);
     setAddError(null);
     try {
-      const equipment = await newEquipment(dispatch);
+      const asset = await newAsset(dispatch, "equipment", { businessId: op.aplBusinessId ?? 0, companyId: op.aplCompanyId ?? 0 });
       dispatch(
         addAsset({
+          ...asset,
           correlationID: newId(),
-          // Same server field rules as the first vehicle
-          metadataResponse: assets[0]?.metadataResponse,
-          equipment: { ...equipment, metadataResponse: assets[0]?.equipment?.metadataResponse },
+          assetType: EQUIPMENT_ASSET,
+          // The server's field rules; the first vehicle's when it sends none
+          metadataResponse: asset.metadataResponse ?? assets[0]?.metadataResponse,
+          equipment: {
+            ...asset.equipment,
+            metadataResponse: asset.equipment?.metadataResponse ?? assets[0]?.equipment?.metadataResponse,
+          },
         }),
       );
     } catch (error) {

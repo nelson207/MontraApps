@@ -167,10 +167,10 @@ describe("task search (GET /api/work-items/search)", () => {
     await screen.findByText("Task 1");
 
     const params = lists("/api/work-items/search")[0];
-    expect(params.getAll("States")).toEqual(["12", "13"]);
+    expect(params.getAll("States")).toEqual(["Resolved", "Closed"]);
     expect(params.get("PositionId")).toBe("pBack30");
     expect(params.get("Number")).toBe("1001");
-    expect(params.get("Sort")).toBe("2");
+    expect(params.get("Sort")).toBe("Agenda");
   });
 
   it("all states: none sent; no state selected: nothing asked", async () => {

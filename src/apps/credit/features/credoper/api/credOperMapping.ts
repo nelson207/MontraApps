@@ -1,5 +1,5 @@
-import type { CredOperDto as ApiCredOperDto } from "@platform/api/generated/MontraPOSApi";
-import type { CredOperDto as DraftDto } from "@platform/api/legacy/legacyApi";
+import type { CredOperDto as ApiCredOperDto, AssetTypeKind, CreditOperationStep } from "@platform/api/generated/MontraPOSApi";
+import type { CredOperDto as DraftDto, CreditOperationStep as DraftStep } from "@platform/api/legacy/legacyApi";
 
 // The Credit wizard's draft (the previous API's shape, platform/api/legacy) ⇄ the new API's
 // CredOperDto, at the boundary of the new credit-operation endpoints (credOperApi.ts).
@@ -41,7 +41,17 @@ const APP_ONLY_OPERATION = [
   "customerLandLine",
   // The app's insurances (kinds, linked people/vehicles) aren't the API's insurance policies
   "insurances",
+  // The asset type chosen: the assets carry it (assetType)
+  "assetTypeId",
 ];
+
+/** The draft's asset type (an AssetType id: 1 = equipment, 2 = building) ⇄ the API's AssetTypeKind */
+const ASSET_KINDS: [number, AssetTypeKind][] = [
+  [1, "Equipment"],
+  [2, "Building"],
+];
+export const assetKindOut = (assetType: unknown): AssetTypeKind | undefined => ASSET_KINDS.find(([id]) => id === assetType)?.[1];
+const assetKindIn = (kind: unknown): number | null => ASSET_KINDS.find(([, name]) => name === kind)?.[0] ?? null;
 const APP_ONLY_CONDITION = ["period", "dueRegime", "annualRate"];
 const APP_ONLY_INTERVENTION = [
   "person",
@@ -79,6 +89,26 @@ function inward(item: AnyRecord | null | undefined, names: [string, string][], b
 
 const list = <T>(items: T[] | null | undefined) => (Array.isArray(items) ? items : undefined);
 
+/** The new API names the step (CreditOperationStep); the draft keeps the previous API's number */
+const STEP_NUMBERS: Record<CreditOperationStep, DraftStep> = {
+  Quotation: 1,
+  Proposal: 2,
+  Contract: 3,
+  Cession: 4,
+  Loan: 5,
+  Projection: 6,
+  Agreement: 7,
+  MLAProposal: 12,
+  MLAContract: 13,
+  ExternalOperation: 99,
+};
+
+export const stepName = (step: number | null | undefined): CreditOperationStep | undefined =>
+  (Object.keys(STEP_NUMBERS) as CreditOperationStep[]).find((name) => STEP_NUMBERS[name] === step);
+
+export const stepNumber = (step: CreditOperationStep | null | undefined): DraftStep | undefined =>
+  step ? STEP_NUMBERS[step] : undefined;
+
 /** The draft as the new API takes it */
 export function toApiCredOper(draft: DraftDto): ApiCredOperDto {
   const op = outward(draft as AnyRecord, OPERATION_NAMES, [
@@ -87,14 +117,19 @@ export function toApiCredOper(draft: DraftDto): ApiCredOperDto {
     "assets",
     "interventions",
   ])!;
+  if ("credOperStep" in op) op.credOperStep = stepName(draft.credOperStep);
   return {
     ...op,
     conditions: list(draft.conditions)?.map((c) => ({
       ...outward(c as AnyRecord, [], [...APP_ONLY_CONDITION, "flows"]),
       flows: list(c.flows)?.map((f) => outward(f as AnyRecord, [], [])),
     })),
-    assets: list(draft.assets)?.map((a) => ({
+    assets: list(draft.assets)?.map((a, i) => ({
       ...outward(a as AnyRecord, [], ["equipment"]),
+      // No asset: no kind (the API's are equipment and building)
+      assetType: assetKindOut(a.assetType),
+      // Numbered by position (1, 2, 3…) on every send: no gaps after a vehicle is added or removed
+      assetItem: i + 1,
       equipment: outward(a.equipment as AnyRecord, EQUIPMENT_NAMES, APP_ONLY_EQUIPMENT),
     })),
     interventions: list(draft.interventions)?.map((i) => outward(i as AnyRecord, [], APP_ONLY_INTERVENTION)),
@@ -107,6 +142,7 @@ export function toApiCredOper(draft: DraftDto): ApiCredOperDto {
  */
 export function fromApiCredOper(api: ApiCredOperDto, base?: DraftDto | null): DraftDto {
   const op = inward(api as AnyRecord, OPERATION_NAMES, base as AnyRecord);
+  if (api.credOperStep !== undefined) op.credOperStep = stepNumber(api.credOperStep) ?? base?.credOperStep;
   const baseConditions = list(base?.conditions) ?? [];
   const baseAssets = list(base?.assets) ?? [];
   const baseInterventions = list(base?.interventions) ?? [];
@@ -124,6 +160,7 @@ export function fromApiCredOper(api: ApiCredOperDto, base?: DraftDto | null): Dr
   if (api.assets !== undefined) {
     op.assets = list(api.assets)?.map((a, i) => ({
       ...inward(a as AnyRecord, [], baseAssets[i] as AnyRecord),
+      assetType: a.assetType !== undefined ? assetKindIn(a.assetType) : baseAssets[i]?.assetType,
       equipment: inward(a.equipment as AnyRecord, EQUIPMENT_NAMES, baseAssets[i]?.equipment as AnyRecord),
     })) ?? null;
   }

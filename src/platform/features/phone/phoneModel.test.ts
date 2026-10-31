@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dialCodeCountry, formatPhone, isValidPhone, parsePhone, phoneDigits, toE164, type PhoneCountry } from "./phoneModel";
+import { dialCodeCountry, formatPhone, isValidPhone, parsePhone, phoneDigits, toE164, toPhoneCountries, type PhoneCountry } from "./phoneModel";
 
 const PT: PhoneCountry = {
   code: "PT",
@@ -63,5 +63,34 @@ describe("dialCodeCountry", () => {
     expect(dialCodeCountry("+351", COUNTRIES)).toBe(PT);
     expect(dialCodeCountry("+34 6", COUNTRIES)).toBe(ES);
     expect(dialCodeCountry("912", COUNTRIES)).toBeNull();
+  });
+});
+
+describe("toPhoneCountries (GET /api/companies/countries)", () => {
+  it("alpha-2 code, name and phone prefix, in the API's order (the first is the default)", () =>
+    expect(
+      toPhoneCountries([
+        { id: "ESP", abbreviation: "Espanha", alpha2Code: "es", phonePrefix: 34 },
+        { id: "PRT", abbreviation: "Portugal", alpha2Code: "PT", phonePrefix: 351 },
+      ]).map((c) => [c.code, c.name, c.dialCode, c.maxDigits]),
+    ).toEqual([
+      ["ES", "Espanha", "34", 13],
+      ["PT", "Portugal", "351", 12],
+    ]));
+
+  it("leaves out countries without a code or a prefix; a missing name is the code", () => {
+    const countries = toPhoneCountries([
+      { alpha2Code: "PT", phonePrefix: null },
+      { alpha2Code: null, phonePrefix: 34 },
+      { alpha2Code: "FR", phonePrefix: 33, abbreviation: " " },
+    ]);
+    expect(countries.map((c) => [c.code, c.name])).toEqual([["FR", "FR"]]);
+    expect(toPhoneCountries(undefined)).toEqual([]);
+  });
+
+  it("works with the rest of the phone rules: +33 picks France, shown as the API's prefix", () => {
+    const countries = toPhoneCountries([{ alpha2Code: "PT", phonePrefix: 351 }, { alpha2Code: "FR", phonePrefix: 33 }]);
+    expect(parsePhone("+33612345678", countries, countries[0])).toMatchObject({ country: { code: "FR" }, digits: "612345678" });
+    expect(toE164("612345678", countries[1])).toBe("+33612345678");
   });
 });

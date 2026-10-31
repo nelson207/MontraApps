@@ -84,3 +84,31 @@ describe("news search (GET /api/news/search)", () => {
     expect(screen.getByText("New answer")).toBeTruthy();
   });
 });
+
+describe("news search: the type filter (GET /api/news/types?portal=)", () => {
+  it("asks for the app's types (portal), never the catalog, and offers them", async () => {
+    const { requests } = mockFetch((url) => {
+      if (url.pathname === "/api/news/search") return page([]);
+      if (url.pathname === "/api/news/types") return { json: NEWS_TYPES };
+      return undefined;
+    });
+    renderWithApi(<NewsSearch />, { route: "/news" });
+
+    expect(await screen.findByRole("button", { name: "Compliance" })).toBeTruthy();
+    const urls = requests.map((r) => new URL(r.url));
+    const types = urls.filter((u) => u.pathname === "/api/news/types");
+    expect(types.map((u) => u.searchParams.get("portal"))).toEqual(["MONTRA_APPLICATION_CREDIT"]);
+    expect(urls.some((u) => u.pathname.startsWith("/api/catalog/"))).toBe(false);
+  });
+
+  it("no types (the app isn't configured for news): the 'nothing configured' empty state", async () => {
+    mockFetch((url) => {
+      if (url.pathname === "/api/news/search") return page([]);
+      if (url.pathname === "/api/news/types") return { json: [] };
+      return undefined;
+    });
+    renderWithApi(<NewsSearch />, { route: "/news" });
+
+    expect(await screen.findByText(/Nothing configured for this application/)).toBeTruthy();
+  });
+});

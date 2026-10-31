@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import type { NewsDto } from "@platform/api/generated/MontraPOSApi";
-import { useGetNewsTypesQuery } from "../api/newsTypesApi";
+import { useNewsTypes } from "../api/newsTypesApi";
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 import { NewsCategoryBadge, NewsStatusBadge } from "../components/NewsBadges";
 import NewsImage from "../components/NewsImage";
@@ -54,7 +54,7 @@ function NewsArticle() {
   // comes with the row's data. A shared link to such a news can't be shown: there's no
   // "news by id" endpoint.
   const fromSearch = (useLocation().state as { news?: NewsDto } | null)?.news;
-  const types = useGetNewsTypesQuery();
+  const types = useNewsTypes();
   const searched = useMemo(() => {
     if (!fromSearch || fromSearch.id !== id) return null;
     return toNewsItem(fromSearch, new Map((types.data ?? []).map((t) => [t.id, t.name])));

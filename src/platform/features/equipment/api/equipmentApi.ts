@@ -21,6 +21,8 @@ import {
 //   GET /api/equipments/brands?equipmentTypeId=&categoryId=
 //   GET /api/equipments/models?equipmentTypeId=&categoryId=&brand=          (brand code)
 //   GET /api/equipments/versions?equipmentTypeId=&categoryId=&brand=&model= (model code)
+//   GET /api/equipments/states
+// (Settings → Application reads the whole catalog instead: GET /api/catalog/equipment.)
 
 type BaseQuery = (arg: FetchArgs) => unknown;
 
@@ -67,15 +69,9 @@ const equipmentApi = emptySplitApi.injectEndpoints({
       queryFn: (params, _api, _extra, baseQuery) =>
         fetchList({ url: "/api/equipments/versions", params }, "versions", () => sampleVersions(params.model), baseQuery as BaseQuery),
     }),
-    // TODO: placeholder endpoint (not in the new API yet)
     getEquipmentStates: build.query<CodeItem[], void>({
       queryFn: (_arg, _api, _extra, baseQuery) =>
-        fetchList(
-          { url: "/api/BasicLists/FetchEquipmentState", method: "POST", body: {} },
-          "equipment states",
-          () => SAMPLE_STATES,
-          baseQuery as BaseQuery,
-        ),
+        fetchList({ url: "/api/equipments/states" }, "equipment states", () => SAMPLE_STATES, baseQuery as BaseQuery),
     }),
   }),
 });

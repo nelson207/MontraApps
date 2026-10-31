@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { AUTO_INSURANCE_BUSINESS_ID } from "../model/business";
+import { AUTO_INSURANCE_BUSINESS_ID, BUILDING_ASSET, EQUIPMENT_ASSET } from "../model/business";
 import type { CredOperDraft } from "../model/credOperDraft";
 import { interventionTabOfErrorKey, issuesByStep, stepsFor, validateStages } from "./steps";
 
 const today = "2026-10-05";
 
+// The asset type each business had before asset types were configured: personal loan none, the others equipment
 const op = (aplBusinessId: number | undefined, credOperStep = 1, extra: Partial<CredOperDraft> = {}): CredOperDraft => ({
   insurances: [],
   aplBusinessId,
   credOperStep,
+  assetTypeId: aplBusinessId === 2 ? null : EQUIPMENT_ASSET,
   ...extra,
 });
 const ids = (stage: "quotation" | "proposal", o: CredOperDraft, chooseBusiness = true) =>
@@ -137,5 +139,40 @@ describe("Company step", () => {
     const company = stepsFor("quotation", op(4), { chooseCompany: true })[1];
     expect(company.validate(op(4), today)).toEqual({ aplCompanyId: "Choose the company." });
     expect(company.validate(op(4, 1, { aplCompanyId: 2 }), today)).toEqual({});
+  });
+});
+
+describe("Asset type step, and the asset's detail", () => {
+  const ids = (o: CredOperDraft, chooseAssetType = false) => stepsFor("quotation", o, { chooseCompany: true, chooseAssetType }).map((s) => s.id);
+
+  it("only when the business offers several asset types in the company, right after Company", () => {
+    expect(ids(op(4), true).slice(0, 4)).toEqual(["business", "company", "assetType", "customer"]);
+    expect(ids(op(4))).not.toContain("assetType");
+  });
+
+  it("equipment: Equipment detail; building: Building detail; no asset: neither", () => {
+    expect(ids(op(4, 1, { assetTypeId: EQUIPMENT_ASSET }))).toEqual(["business", "company", "customer", "equipment", "financial", "summary"]);
+    expect(ids(op(4, 1, { assetTypeId: BUILDING_ASSET }))).toEqual(["business", "company", "customer", "building", "financial", "summary"]);
+    expect(ids(op(4, 1, { assetTypeId: null }))).toEqual(["business", "company", "customer", "financial", "summary"]);
+    // Not chosen yet: no detail either
+    expect(ids(op(4, 1, { assetTypeId: undefined }), true)).toEqual(["business", "company", "assetType", "customer", "financial", "summary"]);
+  });
+
+  it("needs an asset type (no asset is one)", () => {
+    const step = stepsFor("quotation", op(4), { chooseAssetType: true }).find((s) => s.id === "assetType")!;
+    expect(step.validate(op(4, 1, { assetTypeId: undefined }), today)).toEqual({ assetTypeId: "Choose what is financed." });
+    expect(step.validate(op(4, 1, { assetTypeId: null }), today)).toEqual({});
+  });
+
+  it("the building: amounts not negative, built and bought by today", () => {
+    const building = (b: Record<string, unknown>) =>
+      op(4, 1, { assetTypeId: BUILDING_ASSET, assets: [{ assetType: BUILDING_ASSET, building: b } as never] });
+    const step = stepsFor("quotation", building({})).find((s) => s.id === "building")!;
+    expect(step.validate(building({ purchaseAmount: -1, purchaseDate: "2026-10-06", buildingYear: 2027 }), today)).toEqual({
+      "assets.0.building.purchaseAmount": "Purchase amount can't be negative.",
+      "assets.0.building.purchaseDate": "Purchase date can't be in the future.",
+      "assets.0.building.buildingYear": "Building year can't be in the future.",
+    });
+    expect(step.validate(building({ purchaseAmount: 1, purchaseDate: "2020-01-01", buildingYear: 1990 }), today)).toEqual({});
   });
 });

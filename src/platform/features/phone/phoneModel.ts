@@ -1,3 +1,5 @@
+import type { CountryDto } from "@platform/api/generated/MontraPOSApi";
+
 // Phone numbers in every Montra app: a country (from the API) + its local digits, exchanged as
 // E.164 ("+351912345678"). Formatting and the validity check follow the country's data.
 
@@ -16,6 +18,34 @@ export type PhoneCountry = {
 };
 
 export type PhoneType = keyof PhoneCountry["examples"];
+
+/** E.164: at most 15 digits, dial code included */
+const E164_MAX_DIGITS = 15;
+
+/**
+ * GET /api/companies/countries → the phone countries, in the API's order (the backend orders
+ * them; the first is the default). Only countries with an alpha-2 code and a phone prefix. The API
+ * doesn't say how each country groups or counts its digits: grouped in threes, from 6 digits up to
+ * what E.164 allows after the dial code, no placeholder.
+ */
+export function toPhoneCountries(countries: CountryDto[] | null | undefined): PhoneCountry[] {
+  return (countries ?? []).flatMap((c) => {
+    const code = c.alpha2Code?.trim().toUpperCase();
+    if (!code || typeof c.phonePrefix !== "number" || c.phonePrefix <= 0) return [];
+    const dialCode = String(c.phonePrefix);
+    return [
+      {
+        code,
+        name: c.abbreviation?.trim() || code,
+        dialCode,
+        groups: [3, 3, 3],
+        minDigits: 6,
+        maxDigits: E164_MAX_DIGITS - dialCode.length,
+        examples: { mobile: "", landline: "" },
+      },
+    ];
+  });
+}
 
 /** The typed text reduced to digits, at most the country's maximum */
 export const phoneDigits = (text: string, country: PhoneCountry) =>

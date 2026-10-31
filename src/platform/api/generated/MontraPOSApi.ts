@@ -103,13 +103,95 @@ const injectedRtkApi = api.injectEndpoints({
       GetApiBuildingsNewApiResponse,
       GetApiBuildingsNewApiArg
     >({
-      query: () => ({ url: `/api/buildings/new` }),
+      query: (queryArg) => ({
+        url: `/api/buildings/new`,
+        params: {
+          companyId: queryArg.companyId,
+          businessId: queryArg.businessId,
+        },
+      }),
+    }),
+    getApiCatalogApplications: build.query<
+      GetApiCatalogApplicationsApiResponse,
+      GetApiCatalogApplicationsApiArg
+    >({
+      query: () => ({ url: `/api/catalog/applications` }),
+    }),
+    getApiCatalogCompanies: build.query<
+      GetApiCatalogCompaniesApiResponse,
+      GetApiCatalogCompaniesApiArg
+    >({
+      query: () => ({ url: `/api/catalog/companies` }),
+    }),
+    getApiCatalogCompaniesByIdBusinesses: build.query<
+      GetApiCatalogCompaniesByIdBusinessesApiResponse,
+      GetApiCatalogCompaniesByIdBusinessesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/catalog/companies/${queryArg.id}/businesses`,
+      }),
+    }),
+    getApiCatalogEquipment: build.query<
+      GetApiCatalogEquipmentApiResponse,
+      GetApiCatalogEquipmentApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/catalog/equipment`,
+        params: {
+          includeInvalid: queryArg.includeInvalid,
+        },
+      }),
+    }),
+    getApiCatalogEquipmentCategoryTypes: build.query<
+      GetApiCatalogEquipmentCategoryTypesApiResponse,
+      GetApiCatalogEquipmentCategoryTypesApiArg
+    >({
+      query: () => ({ url: `/api/catalog/equipment/category-types` }),
+    }),
+    getApiCatalogClassifications: build.query<
+      GetApiCatalogClassificationsApiResponse,
+      GetApiCatalogClassificationsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/catalog/classifications`,
+        params: {
+          includeInvalid: queryArg.includeInvalid,
+        },
+      }),
+    }),
+    getApiCatalogAssetTypes: build.query<
+      GetApiCatalogAssetTypesApiResponse,
+      GetApiCatalogAssetTypesApiArg
+    >({
+      query: () => ({ url: `/api/catalog/asset-types` }),
+    }),
+    getApiCatalogNewsTypes: build.query<
+      GetApiCatalogNewsTypesApiResponse,
+      GetApiCatalogNewsTypesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/catalog/news-types`,
+        params: {
+          includeInvalid: queryArg.includeInvalid,
+        },
+      }),
+    }),
+    getApiCatalogEmailTypes: build.query<
+      GetApiCatalogEmailTypesApiResponse,
+      GetApiCatalogEmailTypesApiArg
+    >({
+      query: () => ({ url: `/api/catalog/email-types` }),
     }),
     getApiCompanies: build.query<
       GetApiCompaniesApiResponse,
       GetApiCompaniesApiArg
     >({
-      query: () => ({ url: `/api/companies` }),
+      query: (queryArg) => ({
+        url: `/api/companies`,
+        params: {
+          application: queryArg.application,
+        },
+      }),
     }),
     getApiCompaniesByIdBusinesses: build.query<
       GetApiCompaniesByIdBusinessesApiResponse,
@@ -117,6 +199,10 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/api/companies/${queryArg.id}/businesses`,
+        params: {
+          application: queryArg.application,
+          credOperStep: queryArg.credOperStep,
+        },
       }),
     }),
     getApiCompaniesCountries: build.query<
@@ -124,6 +210,19 @@ const injectedRtkApi = api.injectEndpoints({
       GetApiCompaniesCountriesApiArg
     >({
       query: () => ({ url: `/api/companies/countries` }),
+    }),
+    getApiCreditOperationsClassifications: build.query<
+      GetApiCreditOperationsClassificationsApiResponse,
+      GetApiCreditOperationsClassificationsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/credit-operations/classifications`,
+        params: {
+          application: queryArg.application,
+          companyId: queryArg.companyId,
+          businessId: queryArg.businessId,
+        },
+      }),
     }),
     getApiCreditOperationsBusinesses: build.query<
       GetApiCreditOperationsBusinessesApiResponse,
@@ -181,6 +280,9 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/credit-operations/new-credoper`,
         params: {
           credOperStep: queryArg.credOperStep,
+          companyId: queryArg.companyId,
+          businessId: queryArg.businessId,
+          assetType: queryArg.assetType,
         },
       }),
     }),
@@ -215,7 +317,13 @@ const injectedRtkApi = api.injectEndpoints({
       GetApiEquipmentsNewApiResponse,
       GetApiEquipmentsNewApiArg
     >({
-      query: () => ({ url: `/api/equipments/new` }),
+      query: (queryArg) => ({
+        url: `/api/equipments/new`,
+        params: {
+          companyId: queryArg.companyId,
+          businessId: queryArg.businessId,
+        },
+      }),
     }),
     getApiEquipmentsCategories: build.query<
       GetApiEquipmentsCategoriesApiResponse,
@@ -284,6 +392,12 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
+    getApiEquipmentsStates: build.query<
+      GetApiEquipmentsStatesApiResponse,
+      GetApiEquipmentsStatesApiArg
+    >({
+      query: () => ({ url: `/api/equipments/states` }),
+    }),
     getApiFinancialProducts: build.query<
       GetApiFinancialProductsApiResponse,
       GetApiFinancialProductsApiArg
@@ -315,6 +429,17 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.credOperDto,
         params: {
           oldFinancialProductId: queryArg.oldFinancialProductId,
+        },
+      }),
+    }),
+    getApiNewsTypes: build.query<
+      GetApiNewsTypesApiResponse,
+      GetApiNewsTypesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/news/types`,
+        params: {
+          portal: queryArg.portal,
         },
       }),
     }),
@@ -608,22 +733,72 @@ export type PostApiAuthPasswordChangeRequiredApiResponse =
 export type PostApiAuthPasswordChangeRequiredApiArg = {
   requiredPasswordChangeRequest: RequiredPasswordChangeRequest;
 };
-export type GetApiBuildingsNewApiResponse = /** status 200 OK */ BuildingDto;
-export type GetApiBuildingsNewApiArg = void;
+export type GetApiBuildingsNewApiResponse =
+  /** status 200 OK */ CredOperAssetDto;
+export type GetApiBuildingsNewApiArg = {
+  companyId: number;
+  businessId: number;
+};
+export type GetApiCatalogApplicationsApiResponse =
+  /** status 200 OK */ ApplicationDto[];
+export type GetApiCatalogApplicationsApiArg = void;
+export type GetApiCatalogCompaniesApiResponse =
+  /** status 200 OK */ CompanyDto[];
+export type GetApiCatalogCompaniesApiArg = void;
+export type GetApiCatalogCompaniesByIdBusinessesApiResponse =
+  /** status 200 OK */ CompanyBusinessDto[];
+export type GetApiCatalogCompaniesByIdBusinessesApiArg = {
+  id: number;
+};
+export type GetApiCatalogEquipmentApiResponse =
+  /** status 200 OK */ EquipmentCatalogTypeDto[];
+export type GetApiCatalogEquipmentApiArg = {
+  includeInvalid?: boolean;
+};
+export type GetApiCatalogEquipmentCategoryTypesApiResponse =
+  /** status 200 OK */ EquipmentCategoryTypeDto[];
+export type GetApiCatalogEquipmentCategoryTypesApiArg = void;
+export type GetApiCatalogClassificationsApiResponse =
+  /** status 200 OK */ CredOperClassificationDto[];
+export type GetApiCatalogClassificationsApiArg = {
+  includeInvalid?: boolean;
+};
+export type GetApiCatalogAssetTypesApiResponse =
+  /** status 200 OK */ AssetTypeDto[];
+export type GetApiCatalogAssetTypesApiArg = void;
+export type GetApiCatalogNewsTypesApiResponse =
+  /** status 200 OK */ NewsTypeDto[];
+export type GetApiCatalogNewsTypesApiArg = {
+  includeInvalid?: boolean;
+};
+export type GetApiCatalogEmailTypesApiResponse =
+  /** status 200 OK */ EmailTypeDto[];
+export type GetApiCatalogEmailTypesApiArg = void;
 export type GetApiCompaniesApiResponse = /** status 200 OK */ CompanyDto[];
-export type GetApiCompaniesApiArg = void;
+export type GetApiCompaniesApiArg = {
+  application?: MontraAplApplications;
+};
 export type GetApiCompaniesByIdBusinessesApiResponse =
   /** status 200 OK */ CompanyBusinessDto[];
 export type GetApiCompaniesByIdBusinessesApiArg = {
   id: number;
+  application?: MontraAplApplications;
+  credOperStep?: CreditOperationStep;
 };
 export type GetApiCompaniesCountriesApiResponse =
   /** status 200 OK */ CountryDto[];
 export type GetApiCompaniesCountriesApiArg = void;
+export type GetApiCreditOperationsClassificationsApiResponse =
+  /** status 200 OK */ CredOperClassificationDto[];
+export type GetApiCreditOperationsClassificationsApiArg = {
+  application?: MontraAplApplications;
+  companyId?: number;
+  businessId?: number;
+};
 export type GetApiCreditOperationsBusinessesApiResponse =
   /** status 200 OK */ AvailableBusinessDto[];
 export type GetApiCreditOperationsBusinessesApiArg = {
-  application?: string;
+  application?: MontraAplApplications;
   companyId?: number;
   businessId?: number;
   importerId?: string | null;
@@ -654,6 +829,9 @@ export type GetApiCreditOperationsNewCredoperApiResponse =
   /** status 200 OK */ CredOperDto;
 export type GetApiCreditOperationsNewCredoperApiArg = {
   credOperStep?: CreditOperationStep;
+  companyId: number;
+  businessId: number;
+  assetType?: AssetTypeKind;
 };
 export type GetApiCreditOperationsNewInterventionApiResponse =
   /** status 200 OK */ CredOperIntervDto;
@@ -668,12 +846,16 @@ export type PostApiCreditOperationsCalculateCredoperApiResponse =
 export type PostApiCreditOperationsCalculateCredoperApiArg = {
   credOperDto: CredOperDto;
 };
-export type GetApiEquipmentsNewApiResponse = /** status 200 OK */ EquipmentDto;
-export type GetApiEquipmentsNewApiArg = void;
+export type GetApiEquipmentsNewApiResponse =
+  /** status 200 OK */ CredOperAssetDto;
+export type GetApiEquipmentsNewApiArg = {
+  companyId: number;
+  businessId: number;
+};
 export type GetApiEquipmentsCategoriesApiResponse =
   /** status 200 OK */ EquipmentClassDto[];
 export type GetApiEquipmentsCategoriesApiArg = {
-  application?: string;
+  application?: MontraAplApplications;
   companyId?: number;
   equipmentTypeId?: number;
   financialProductId?: number;
@@ -681,7 +863,7 @@ export type GetApiEquipmentsCategoriesApiArg = {
 export type GetApiEquipmentsTypesApiResponse =
   /** status 200 OK */ EquipmentClassDto[];
 export type GetApiEquipmentsTypesApiArg = {
-  application?: string;
+  application?: MontraAplApplications;
   companyId?: number;
   financialProductId?: number;
   purposeTypeId?: number;
@@ -707,6 +889,9 @@ export type GetApiEquipmentsVersionsApiArg = {
   brand?: string;
   model?: string;
 };
+export type GetApiEquipmentsStatesApiResponse =
+  /** status 200 OK */ EquipmentClassDto[];
+export type GetApiEquipmentsStatesApiArg = void;
 export type GetApiFinancialProductsApiResponse =
   /** status 200 OK */ FinancialProductDto[];
 export type GetApiFinancialProductsApiArg = {
@@ -727,14 +912,18 @@ export type PostApiFinancialProductsDefaultsApiArg = {
   oldFinancialProductId?: number;
   credOperDto: CredOperDto;
 };
+export type GetApiNewsTypesApiResponse = /** status 200 OK */ NewsTypeDto[];
+export type GetApiNewsTypesApiArg = {
+  portal?: MontraAplApplications;
+};
 export type GetApiNewsApiResponse = /** status 200 OK */ NewsDto[];
 export type GetApiNewsApiArg = {
-  portal?: string;
+  portal?: MontraAplApplications;
 };
 export type GetApiNewsSearchApiResponse =
   /** status 200 OK */ NewsDtoPagedResult;
 export type GetApiNewsSearchApiArg = {
-  portal?: string;
+  portal?: MontraAplApplications;
   search?: string;
   newsTypeId?: number;
   page?: number;
@@ -747,7 +936,7 @@ export type GetApiNewsByIdImageApiArg = {
 export type GetApiParametrizationScreenCustomizationsApiResponse =
   /** status 200 OK */ ScreenCustomizationDto;
 export type GetApiParametrizationScreenCustomizationsApiArg = {
-  screenIdentifier?: string;
+  screenIdentifier?: MontraAplApplications;
 };
 export type PostApiParametrizationScreenCustomizationsApiResponse =
   /** status 200 OK */ ScreenCustomizationDto;
@@ -921,6 +1110,181 @@ export type RequiredPasswordChangeRequest = {
   oldPassword?: string | null;
   newPassword?: string | null;
 };
+export type AssetTypeKind = "Equipment" | "Building";
+export type EquipmentDto = {
+  accessoriesAmount?: number | null;
+  accessoriesMarketValue?: number | null;
+  aplCompanyId?: number | null;
+  assetDepreciationId?: number | null;
+  assetDepreciationPurposeId?: number | null;
+  assetOriginId?: number | null;
+  assetPurposeId?: number | null;
+  assetRetakeBaseCalcModeId?: number | null;
+  autUserStateId?: number | null;
+  automatonId?: number | null;
+  baseMarketValue?: number | null;
+  baseNetAmount?: number | null;
+  basePurchaseAmount?: number | null;
+  bodyCode?: string | null;
+  cO2Emission?: number | null;
+  cabinSize?: string | null;
+  calculationDate?: string | null;
+  carConfiguratorId?: string | null;
+  colour?: string | null;
+  consumption?: number | null;
+  currencyId?: string | null;
+  depreciationDate?: string | null;
+  descr?: string | null;
+  driveTrainTypeId?: number | null;
+  emissionStandardId?: number | null;
+  engineNumber?: string | null;
+  engineSize?: number | null;
+  equipMonth?: number | null;
+  equipVariant?: string | null;
+  equipVariantDescr?: string | null;
+  equipVersion?: string | null;
+  equipYear?: number | null;
+  equipmentBrand?: string | null;
+  equipmentCategoryId?: number | null;
+  equipmentKey?: string | null;
+  equipmentModel?: string | null;
+  equipmentSegmentId?: number | null;
+  equipmentStateId?: number | null;
+  equipmentSupplierAffectRuleId?: number | null;
+  equipmentTypeId?: number | null;
+  faceliftGeneration?: string | null;
+  fiscalC02Emissions?: number | null;
+  fiscalCategory?: string | null;
+  fiscalHorsePower?: number | null;
+  frontTyreType?: string | null;
+  fuelCardDiscount?: number | null;
+  fuelCardLimitAmount?: number | null;
+  fuelCardLimitTypeId?: number | null;
+  fuelCardOperTypeId?: number | null;
+  fuelTypeId?: number | null;
+  gearbox?: number | null;
+  grantsAmount?: number | null;
+  hasCatalyst?: boolean | null;
+  hasFuelCard?: boolean | null;
+  hasGasInstalation?: boolean | null;
+  hasMicroprocessor?: boolean | null;
+  hasPaymentCalendar?: boolean | null;
+  hasTPMS?: boolean | null;
+  hasTollCard?: boolean | null;
+  hasVATChargedPurchaser?: boolean | null;
+  highwayFuelConsumption?: number | null;
+  homologationClassId?: number | null;
+  horsePower?: number | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  interiorColour?: string | null;
+  isCertified?: boolean | null;
+  isManualValidation?: boolean | null;
+  isMobile?: boolean | null;
+  isOptionsMarketValueDefinedByUser?: boolean | null;
+  isProvisory?: boolean | null;
+  isReimported?: boolean | null;
+  isRenovated?: boolean | null;
+  isSpecialVehicle?: boolean | null;
+  isStandard?: boolean | null;
+  licenceDate?: string | null;
+  licencePlate?: string | null;
+  licencePlateAddressState?: string | null;
+  licencePlateAddressStateCode?: string | null;
+  licencePlateCouncil?: string | null;
+  licencePlateCouncilCode?: number | null;
+  licencePlateCountryId?: string | null;
+  licencePlateDistrict?: string | null;
+  licencePlateDistrictCode?: number | null;
+  licencePlateTypeId?: number | null;
+  /** Protected id (opaque token). */
+  locationStructNodeId?: string | null;
+  mandatoryInspectionDate?: string | null;
+  mandatoryInspectionNumber?: string | null;
+  manufacturer?: string | null;
+  manufacturerKeyNumber?: string | null;
+  marketBuyValue?: number | null;
+  marketNetValueIfNew?: number | null;
+  marketValue?: number | null;
+  marketValueIfNew?: number | null;
+  maxLoadCapacity?: number | null;
+  maxPower?: string | null;
+  maximumWeight?: number | null;
+  modelCode?: string | null;
+  modelLine?: string | null;
+  modelYear?: number | null;
+  netAmount?: number | null;
+  /** Protected id (opaque token). */
+  newRelatedConditionsId?: string | null;
+  numOfAxles?: number | null;
+  numOfAxlesDriven?: number | null;
+  numOfDoors?: number | null;
+  numOfSeats?: number | null;
+  numberOfCarKeys?: number | null;
+  optionsAmount?: number | null;
+  optionsMarketValue?: number | null;
+  orderDate?: string | null;
+  orderReference?: string | null;
+  /** Protected id (opaque token). */
+  originalEquipmentId?: string | null;
+  otherSerialNumber?: string | null;
+  othersOptionsAmount?: number | null;
+  ownerAplBusinessId?: number | null;
+  ownerHasMultipleFinConditions?: boolean | null;
+  paintTypeId?: number | null;
+  paymentCurrencyId?: string | null;
+  paymentForexPercentage?: number | null;
+  paymentForexRateId?: number | null;
+  paymentForexValue?: number | null;
+  preModelCode?: string | null;
+  preModelCodeInputModeId?: number | null;
+  previousAssetPurposeId?: number | null;
+  productionDate?: string | null;
+  purchaseAmount?: number | null;
+  purchaseDate?: string | null;
+  purchaseInvoice?: string | null;
+  quantity?: number | null;
+  rearTyreType?: string | null;
+  retakeAmount?: number | null;
+  retakePercentage?: number | null;
+  retakeSyncModeId?: number | null;
+  revisionsRange?: string | null;
+  rimDimensions?: string | null;
+  saleAmount?: number | null;
+  saleDate?: string | null;
+  saleInvoice?: number | null;
+  saleTaxAmount?: number | null;
+  serialNumber?: string | null;
+  serialNumberIdSector?: string | null;
+  /** Protected id (opaque token). */
+  sourceEquipmentId?: string | null;
+  stateDate?: string | null;
+  supplierDiscountAmount?: number | null;
+  supplierDiscountGrandTotal?: number | null;
+  supplierDiscountNetGrandTotal?: number | null;
+  supplierDiscountPercentage?: number | null;
+  /** Protected id (opaque token). */
+  supplierEntityId?: string | null;
+  suspensionTypeId?: number | null;
+  taxAmount?: number | null;
+  taxClassifierId?: number | null;
+  taxTypeId?: number | null;
+  techExamDueDate?: string | null;
+  tollFuelCardOperTypeId?: number | null;
+  topSpeed?: number | null;
+  totalOtherSupplierCostsPurchaseAmount?: number | null;
+  trimLine?: string | null;
+  tylaCode?: string | null;
+  typeKeyNumber?: string | null;
+  urbanFuelConsumption?: number | null;
+  usageReservationManagementId?: number | null;
+  useModelList?: boolean | null;
+  vehicleTaxAmount?: number | null;
+  vehicleTaxAmountCalc?: number | null;
+  vehicleTransmissionTypeId?: number | null;
+  warrantyEndDate?: string | null;
+  weight?: number | null;
+};
 export type BuildingDto = {
   aplCompanyId?: number | null;
   assetDepreciationId?: number | null;
@@ -957,6 +1321,88 @@ export type BuildingDto = {
   taxAmount?: number | null;
   taxTypeId?: number | null;
 };
+export type CredOperAssetDto = {
+  advancedClientAmount?: number | null;
+  amount?: number | null;
+  annualAssetUsage?: number | null;
+  assetExpenseAmount?: number | null;
+  assetItem?: number | null;
+  assetSituationTypeId?: number | null;
+  assetState?: number | null;
+  assetType?: AssetTypeKind;
+  assetUsage?: number | null;
+  assetUsageInputId?: number | null;
+  baseAmount?: number | null;
+  baseResidualValue?: number | null;
+  baseResidualValueCalcStateId?: number | null;
+  baseResidualValuePercentage?: number | null;
+  beginDate?: string | null;
+  companyForexPercentage?: number | null;
+  companyForexRateId?: number | null;
+  companyForexValue?: number | null;
+  credOperAssetDeliverTypeId?: number | null;
+  credOperAssetStateAbrev?: string | null;
+  /** Protected id (opaque token). */
+  credOperId?: string | null;
+  currencyId?: string | null;
+  deliverAddressCountryZipCode?: string | null;
+  /** Protected id (opaque token). */
+  deliverAddressId?: string | null;
+  deliverMoment?: string | null;
+  /** Protected id (opaque token). */
+  deliverStructNodeId?: string | null;
+  devolutionDate?: string | null;
+  /** Protected id (opaque token). */
+  disposableAssetId?: string | null;
+  /** Protected id (opaque token). */
+  driverEntityId?: string | null;
+  /** Protected id (opaque token). */
+  driverStructNodeId?: string | null;
+  endDate?: string | null;
+  /** Protected id (opaque token). */
+  entityCostCenterId?: string | null;
+  externalContractNumber?: string | null;
+  finSymbolProdId?: number | null;
+  /** Protected id (opaque token). */
+  firstRelatedAssetRegistrationId?: string | null;
+  hasOtherUsualDriver?: boolean | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  isDelivered?: boolean | null;
+  isDisposable?: boolean | null;
+  isRelocation?: boolean | null;
+  /** Protected id (opaque token). */
+  newAssetId?: string | null;
+  /** Protected id (opaque token). */
+  newRelatedAssetRegistrationId?: string | null;
+  numOfAssetsToNextStep?: number | null;
+  oldAdjustmentAmount?: number | null;
+  oldAdjustmentExpenseTypeId?: number | null;
+  oldAssetExpenseAmount?: number | null;
+  otherCapitalAmount?: number | null;
+  /** Protected id (opaque token). */
+  parentCredOperAssetId?: string | null;
+  previousDeliverMoment?: string | null;
+  purchaseOptionId?: number | null;
+  receivingPerson?: string | null;
+  recoveredAmount?: number | null;
+  /** Protected id (opaque token). */
+  relatedAssetId?: string | null;
+  remarketingCosts?: number | null;
+  residualValue?: number | null;
+  residualValueFactorPercentage?: number | null;
+  residualValuePercentage?: number | null;
+  subCredOperItem?: number | null;
+  term?: number | null;
+  totalGrossAmount?: number | null;
+  /** Protected id (opaque token). */
+  assetId?: string | null;
+  equipment?: EquipmentDto;
+  building?: BuildingDto;
+};
+export type ApplicationDto = {
+  name?: MontraAplApplications;
+};
 export type CompanyDto = {
   id?: number;
   abbreviation?: string | null;
@@ -967,6 +1413,58 @@ export type CompanyBusinessDto = {
   abbreviation?: string | null;
   description?: string | null;
 };
+export type EquipmentCatalogCategoryDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+  categoryTypeId?: number | null;
+  isValid?: boolean;
+};
+export type EquipmentCatalogTypeDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+  isVehicle?: boolean | null;
+  isValid?: boolean;
+  categories?: EquipmentCatalogCategoryDto[] | null;
+};
+export type EquipmentCategoryTypeDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+};
+export type CredOperClassificationDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+  isValid?: boolean;
+};
+export type AssetTypeDto = {
+  id?: number | null;
+  abbreviation?: string | null;
+};
+export type NewsTypeDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+  isValid?: boolean;
+};
+export type EmailTypeDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+};
+export type CreditOperationStep =
+  | "Quotation"
+  | "Proposal"
+  | "Contract"
+  | "Cession"
+  | "Loan"
+  | "Projection"
+  | "Agreement"
+  | "MLAProposal"
+  | "MLAContract"
+  | "ExternalOperation";
 export type CountryDto = {
   id?: string | null;
   abbreviation?: string | null;
@@ -991,13 +1489,13 @@ export type AvailableBusinessDto = {
   abbreviation?: string | null;
   description?: string | null;
   financialProducts?: AvailableFinancialProductDto[] | null;
+  assetTypes?: AssetTypeDto[] | null;
 };
-export type CreditOperationStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 12 | 13 | 99;
 export type CredOperSummaryDto = {
   /** Protected id (opaque token). */
   id?: string;
   number?: number | null;
-  step?: number | null;
+  step?: CreditOperationStep;
   credOperTypeId?: number | null;
   financialProductId?: number | null;
   stateId?: number | null;
@@ -1208,260 +1706,6 @@ export type FinConditionsDto = {
   transferDateFinDateMatrixId?: number | null;
   valueDate?: string | null;
   flows?: FinConditionsFlowDto[] | null;
-};
-export type AssetTypeKind = 1 | 2;
-export type EquipmentDto = {
-  accessoriesAmount?: number | null;
-  accessoriesMarketValue?: number | null;
-  aplCompanyId?: number | null;
-  assetDepreciationId?: number | null;
-  assetDepreciationPurposeId?: number | null;
-  assetOriginId?: number | null;
-  assetPurposeId?: number | null;
-  assetRetakeBaseCalcModeId?: number | null;
-  autUserStateId?: number | null;
-  automatonId?: number | null;
-  baseMarketValue?: number | null;
-  baseNetAmount?: number | null;
-  basePurchaseAmount?: number | null;
-  bodyCode?: string | null;
-  cO2Emission?: number | null;
-  cabinSize?: string | null;
-  calculationDate?: string | null;
-  carConfiguratorId?: string | null;
-  colour?: string | null;
-  consumption?: number | null;
-  currencyId?: string | null;
-  depreciationDate?: string | null;
-  descr?: string | null;
-  driveTrainTypeId?: number | null;
-  emissionStandardId?: number | null;
-  engineNumber?: string | null;
-  engineSize?: number | null;
-  equipMonth?: number | null;
-  equipVariant?: string | null;
-  equipVariantDescr?: string | null;
-  equipVersion?: string | null;
-  equipYear?: number | null;
-  equipmentBrand?: string | null;
-  equipmentCategoryId?: number | null;
-  equipmentKey?: string | null;
-  equipmentModel?: string | null;
-  equipmentSegmentId?: number | null;
-  equipmentStateId?: number | null;
-  equipmentSupplierAffectRuleId?: number | null;
-  equipmentTypeId?: number | null;
-  faceliftGeneration?: string | null;
-  fiscalC02Emissions?: number | null;
-  fiscalCategory?: string | null;
-  fiscalHorsePower?: number | null;
-  frontTyreType?: string | null;
-  fuelCardDiscount?: number | null;
-  fuelCardLimitAmount?: number | null;
-  fuelCardLimitTypeId?: number | null;
-  fuelCardOperTypeId?: number | null;
-  fuelTypeId?: number | null;
-  gearbox?: number | null;
-  grantsAmount?: number | null;
-  hasCatalyst?: boolean | null;
-  hasFuelCard?: boolean | null;
-  hasGasInstalation?: boolean | null;
-  hasMicroprocessor?: boolean | null;
-  hasPaymentCalendar?: boolean | null;
-  hasTPMS?: boolean | null;
-  hasTollCard?: boolean | null;
-  hasVATChargedPurchaser?: boolean | null;
-  highwayFuelConsumption?: number | null;
-  homologationClassId?: number | null;
-  horsePower?: number | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  interiorColour?: string | null;
-  isCertified?: boolean | null;
-  isManualValidation?: boolean | null;
-  isMobile?: boolean | null;
-  isOptionsMarketValueDefinedByUser?: boolean | null;
-  isProvisory?: boolean | null;
-  isReimported?: boolean | null;
-  isRenovated?: boolean | null;
-  isSpecialVehicle?: boolean | null;
-  isStandard?: boolean | null;
-  licenceDate?: string | null;
-  licencePlate?: string | null;
-  licencePlateAddressState?: string | null;
-  licencePlateAddressStateCode?: string | null;
-  licencePlateCouncil?: string | null;
-  licencePlateCouncilCode?: number | null;
-  licencePlateCountryId?: string | null;
-  licencePlateDistrict?: string | null;
-  licencePlateDistrictCode?: number | null;
-  licencePlateTypeId?: number | null;
-  /** Protected id (opaque token). */
-  locationStructNodeId?: string | null;
-  mandatoryInspectionDate?: string | null;
-  mandatoryInspectionNumber?: string | null;
-  manufacturer?: string | null;
-  manufacturerKeyNumber?: string | null;
-  marketBuyValue?: number | null;
-  marketNetValueIfNew?: number | null;
-  marketValue?: number | null;
-  marketValueIfNew?: number | null;
-  maxLoadCapacity?: number | null;
-  maxPower?: string | null;
-  maximumWeight?: number | null;
-  modelCode?: string | null;
-  modelLine?: string | null;
-  modelYear?: number | null;
-  netAmount?: number | null;
-  /** Protected id (opaque token). */
-  newRelatedConditionsId?: string | null;
-  numOfAxles?: number | null;
-  numOfAxlesDriven?: number | null;
-  numOfDoors?: number | null;
-  numOfSeats?: number | null;
-  numberOfCarKeys?: number | null;
-  optionsAmount?: number | null;
-  optionsMarketValue?: number | null;
-  orderDate?: string | null;
-  orderReference?: string | null;
-  /** Protected id (opaque token). */
-  originalEquipmentId?: string | null;
-  otherSerialNumber?: string | null;
-  othersOptionsAmount?: number | null;
-  ownerAplBusinessId?: number | null;
-  ownerHasMultipleFinConditions?: boolean | null;
-  paintTypeId?: number | null;
-  paymentCurrencyId?: string | null;
-  paymentForexPercentage?: number | null;
-  paymentForexRateId?: number | null;
-  paymentForexValue?: number | null;
-  preModelCode?: string | null;
-  preModelCodeInputModeId?: number | null;
-  previousAssetPurposeId?: number | null;
-  productionDate?: string | null;
-  purchaseAmount?: number | null;
-  purchaseDate?: string | null;
-  purchaseInvoice?: string | null;
-  quantity?: number | null;
-  rearTyreType?: string | null;
-  retakeAmount?: number | null;
-  retakePercentage?: number | null;
-  retakeSyncModeId?: number | null;
-  revisionsRange?: string | null;
-  rimDimensions?: string | null;
-  saleAmount?: number | null;
-  saleDate?: string | null;
-  saleInvoice?: number | null;
-  saleTaxAmount?: number | null;
-  serialNumber?: string | null;
-  serialNumberIdSector?: string | null;
-  /** Protected id (opaque token). */
-  sourceEquipmentId?: string | null;
-  stateDate?: string | null;
-  supplierDiscountAmount?: number | null;
-  supplierDiscountGrandTotal?: number | null;
-  supplierDiscountNetGrandTotal?: number | null;
-  supplierDiscountPercentage?: number | null;
-  /** Protected id (opaque token). */
-  supplierEntityId?: string | null;
-  suspensionTypeId?: number | null;
-  taxAmount?: number | null;
-  taxClassifierId?: number | null;
-  taxTypeId?: number | null;
-  techExamDueDate?: string | null;
-  tollFuelCardOperTypeId?: number | null;
-  topSpeed?: number | null;
-  totalOtherSupplierCostsPurchaseAmount?: number | null;
-  trimLine?: string | null;
-  tylaCode?: string | null;
-  typeKeyNumber?: string | null;
-  urbanFuelConsumption?: number | null;
-  usageReservationManagementId?: number | null;
-  useModelList?: boolean | null;
-  vehicleTaxAmount?: number | null;
-  vehicleTaxAmountCalc?: number | null;
-  vehicleTransmissionTypeId?: number | null;
-  warrantyEndDate?: string | null;
-  weight?: number | null;
-};
-export type CredOperAssetDto = {
-  advancedClientAmount?: number | null;
-  amount?: number | null;
-  annualAssetUsage?: number | null;
-  assetExpenseAmount?: number | null;
-  assetItem?: number | null;
-  assetSituationTypeId?: number | null;
-  assetState?: number | null;
-  assetType?: AssetTypeKind;
-  assetUsage?: number | null;
-  assetUsageInputId?: number | null;
-  baseAmount?: number | null;
-  baseResidualValue?: number | null;
-  baseResidualValueCalcStateId?: number | null;
-  baseResidualValuePercentage?: number | null;
-  beginDate?: string | null;
-  companyForexPercentage?: number | null;
-  companyForexRateId?: number | null;
-  companyForexValue?: number | null;
-  credOperAssetDeliverTypeId?: number | null;
-  credOperAssetStateAbrev?: string | null;
-  /** Protected id (opaque token). */
-  credOperId?: string | null;
-  currencyId?: string | null;
-  deliverAddressCountryZipCode?: string | null;
-  /** Protected id (opaque token). */
-  deliverAddressId?: string | null;
-  deliverMoment?: string | null;
-  /** Protected id (opaque token). */
-  deliverStructNodeId?: string | null;
-  devolutionDate?: string | null;
-  /** Protected id (opaque token). */
-  disposableAssetId?: string | null;
-  /** Protected id (opaque token). */
-  driverEntityId?: string | null;
-  /** Protected id (opaque token). */
-  driverStructNodeId?: string | null;
-  endDate?: string | null;
-  /** Protected id (opaque token). */
-  entityCostCenterId?: string | null;
-  externalContractNumber?: string | null;
-  finSymbolProdId?: number | null;
-  /** Protected id (opaque token). */
-  firstRelatedAssetRegistrationId?: string | null;
-  hasOtherUsualDriver?: boolean | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  isDelivered?: boolean | null;
-  isDisposable?: boolean | null;
-  isRelocation?: boolean | null;
-  /** Protected id (opaque token). */
-  newAssetId?: string | null;
-  /** Protected id (opaque token). */
-  newRelatedAssetRegistrationId?: string | null;
-  numOfAssetsToNextStep?: number | null;
-  oldAdjustmentAmount?: number | null;
-  oldAdjustmentExpenseTypeId?: number | null;
-  oldAssetExpenseAmount?: number | null;
-  otherCapitalAmount?: number | null;
-  /** Protected id (opaque token). */
-  parentCredOperAssetId?: string | null;
-  previousDeliverMoment?: string | null;
-  purchaseOptionId?: number | null;
-  receivingPerson?: string | null;
-  recoveredAmount?: number | null;
-  /** Protected id (opaque token). */
-  relatedAssetId?: string | null;
-  remarketingCosts?: number | null;
-  residualValue?: number | null;
-  residualValueFactorPercentage?: number | null;
-  residualValuePercentage?: number | null;
-  subCredOperItem?: number | null;
-  term?: number | null;
-  totalGrossAmount?: number | null;
-  /** Protected id (opaque token). */
-  assetId?: string | null;
-  equipment?: EquipmentDto;
-  building?: BuildingDto;
 };
 export type CredOperIntervRole =
   | "Customer"
@@ -1678,7 +1922,7 @@ export type CredOperDto = {
   entryDate?: string | null;
   autUserStateId?: number | null;
   stateDate?: string | null;
-  credOperStep?: number | null;
+  credOperStep?: CreditOperationStep;
   /** Protected id (opaque token). */
   creditIntermediaryStructNodeId?: string | null;
   /** Protected id (opaque token). */
@@ -1735,12 +1979,19 @@ export type NewsDtoPagedResult = {
   pageSize?: number;
   totalCount?: number;
 };
+export type BusinessSettingsDto = {
+  businessId?: number;
+  classifications?: number[] | null;
+  assetTypes?: (number | null)[] | null;
+  [key: string]: any;
+};
 export type CompanyConfigurationDto = {
   companyId?: number;
   businesses?: number[] | null;
   proposalBusinesses?: number[] | null;
   equipmentCategories?: number[] | null;
   equipmentTypes?: number[] | null;
+  businessSettings?: BusinessSettingsDto[] | null;
   [key: string]: any;
 };
 export type EmailTypesConfigurationDto = {
@@ -1928,7 +2179,7 @@ export type WorkItemPositionDto = {
   name?: string | null;
   isSelf?: boolean;
 };
-export type WorkItemPriorityKind = 1 | 2 | 3 | 4;
+export type WorkItemPriorityKind = "Critical" | "High" | "Medium" | "Low";
 export type WorkItemDto = {
   /** Protected id (opaque token). */
   id?: string;
@@ -1965,8 +2216,14 @@ export type WorkItemDtoPagedResult = {
   pageSize?: number;
   totalCount?: number;
 };
-export type AplWorkItemInternalState = 10 | 11 | 12 | 13 | 14;
-export type AplWorkItemSortingType = 1 | 2 | 3 | 4 | 5;
+export type AplWorkItemInternalState =
+  "Initial" | "Active" | "Resolved" | "Closed" | "Canceled";
+export type AplWorkItemSortingType =
+  | "Worklist"
+  | "Agenda"
+  | "Creation"
+  | "TypePriorityBegin"
+  | "PriorityCreationDate";
 export const {
   usePostApiAuthLoginMutation,
   usePostApiAuthLoginWindowsMutation,
@@ -1980,9 +2237,19 @@ export const {
   usePostApiAuthPasswordChangeMutation,
   usePostApiAuthPasswordChangeRequiredMutation,
   useGetApiBuildingsNewQuery,
+  useGetApiCatalogApplicationsQuery,
+  useGetApiCatalogCompaniesQuery,
+  useGetApiCatalogCompaniesByIdBusinessesQuery,
+  useGetApiCatalogEquipmentQuery,
+  useGetApiCatalogEquipmentCategoryTypesQuery,
+  useGetApiCatalogClassificationsQuery,
+  useGetApiCatalogAssetTypesQuery,
+  useGetApiCatalogNewsTypesQuery,
+  useGetApiCatalogEmailTypesQuery,
   useGetApiCompaniesQuery,
   useGetApiCompaniesByIdBusinessesQuery,
   useGetApiCompaniesCountriesQuery,
+  useGetApiCreditOperationsClassificationsQuery,
   useGetApiCreditOperationsBusinessesQuery,
   useGetApiCreditOperationsSearchQuery,
   usePostApiCreditOperationsCalculateMutation,
@@ -1996,8 +2263,10 @@ export const {
   useGetApiEquipmentsBrandsQuery,
   useGetApiEquipmentsModelsQuery,
   useGetApiEquipmentsVersionsQuery,
+  useGetApiEquipmentsStatesQuery,
   useGetApiFinancialProductsQuery,
   usePostApiFinancialProductsDefaultsMutation,
+  useGetApiNewsTypesQuery,
   useGetApiNewsQuery,
   useGetApiNewsSearchQuery,
   useGetApiNewsByIdImageQuery,

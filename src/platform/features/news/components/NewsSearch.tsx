@@ -8,7 +8,7 @@ import ResultsToolbar from "@platform/components/results/ResultsToolbar";
 import ActiveFilters from "@platform/components/results/ActiveFilters";
 import { useUrlFilters } from "@platform/hooks/useUrlFilters";
 import { useSearchNewsQuery } from "../api/newsApi";
-import { useGetNewsTypesQuery } from "../api/newsTypesApi";
+import { useNewsTypes } from "../api/newsTypesApi";
 import {
   DEFAULT_PAGE_SIZE,
   newsSearchFromUrl,
@@ -30,7 +30,7 @@ const bodySnippet = (item: NewsItem, query: string) =>
     : null;
 
 // /news: every news (valid now or not), searched, filtered by type and paged by the server
-// (GET /api/news/search). State lives in the URL (?q=&type=&page=) so it survives Back and can
+// (GET /api/news/search). The type filter offers the app's types (GET /api/news/types?portal=). State lives in the URL (?q=&type=&page=) so it survives Back and can
 // be shared. Only the answer to the latest request is shown (currentData), so a slow older
 // answer never replaces a newer one.
 function NewsSearch() {
@@ -39,7 +39,7 @@ function NewsSearch() {
   const state = newsSearchFromUrl({ get: (key) => get(key) || null });
   const params = newsSearchParams(state, APP_SETTINGS.identifier, DEFAULT_PAGE_SIZE);
   const { currentData, isFetching, isError, error, refetch } = useSearchNewsQuery(params);
-  const types = useGetNewsTypesQuery();
+  const types = useNewsTypes();
 
   const update = (next: NewsSearchState) => set(newsSearchToUrl(next));
   const clear = () => update({ q: "", typeId: null, page: 1 });
@@ -104,9 +104,13 @@ function NewsSearch() {
         errorText: "Couldn't load the news.",
         onRetry: () => refetch(),
         isEmpty: !!currentData && items.length === 0,
-        empty: hasFilters
-          ? { icon: "bi-search", text: "No news matches your search.", onClear: clear }
-          : { icon: "bi-newspaper", text: "No news yet. When news is published for your network, it will appear here." },
+        // No news types: the app's settings offer no news at all
+        empty:
+          types.data?.length === 0
+            ? { icon: "bi-newspaper", text: "Nothing configured for this application: no news types are offered." }
+            : hasFilters
+              ? { icon: "bi-search", text: "No news matches your search.", onClear: clear }
+              : { icon: "bi-newspaper", text: "No news yet. When news is published for your network, it will appear here." },
       }}
       skeletonRows={4}
       footer={

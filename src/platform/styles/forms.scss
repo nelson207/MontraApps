@@ -405,9 +405,18 @@
 
 // --- Settings → Application (features/appSettings) ----------------------------
 
-.app-setting-option + .app-setting-option {
-  padding-top: map-get($spacers, 4);
-  border-top: 1px solid var(--#{$prefix}border-color-translucent);
+// The equipment types: about a hundred, so the list scrolls instead of the page
+.app-setting-scroll {
+  max-height: 32rem;
+  overflow-y: auto;
+}
+
+// Save / discard stay in view while there are changes
+.app-setting-savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, 0.06);
 }
 
 // Checkbox choices in columns
