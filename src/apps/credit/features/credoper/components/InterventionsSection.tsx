@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { selectEntityLookup, useAppSelector } from "@credit/store";
+import EntityLookupGate from "../entityLookup/EntityLookupGate";
+import { isLookupPending } from "../entityLookup/entityLookup";
 import InterventionAddressForm from "./forms/InterventionAddressForm";
 import InterventionDetailsForm from "./forms/InterventionDetailsForm";
 import InterventionLegalDocForm from "./forms/InterventionLegalDocForm";
@@ -55,20 +58,28 @@ export function InterventionsSection({
     },
   ];
 
+  const lookup = useAppSelector(selectEntityLookup(intervention?.correlationID));
+  const pending = isLookupPending(intervention, lookup);
+
   const currentStep = steps.find((s) => s.id === step);
   const CurrentStepComponent = currentStep?.component;
 
   return (
     <>
-      <InterventionWizard
-        steps={steps.map(({ id, label, icon }) => ({ label, icon, hasError: errorTabs.has(id as 1 | 2 | 3 | 4) }))}
-        currentStep={step}
-        onStepClick={setStep}
-      />
+      {intervention && <EntityLookupGate intervention={intervention} />}
 
-      {CurrentStepComponent && (
-        <CurrentStepComponent index={index} intervention={intervention} errors={errors} />
-      )}
+      {/* A new person: everything else waits for the NIF lookup (or "Fill in manually") */}
+      <div className={pending ? "app-entity-locked" : undefined} inert={pending} aria-disabled={pending || undefined}>
+        <InterventionWizard
+          steps={steps.map(({ id, label, icon }) => ({ label, icon, hasError: errorTabs.has(id as 1 | 2 | 3 | 4) }))}
+          currentStep={step}
+          onStepClick={setStep}
+        />
+
+        {CurrentStepComponent && (
+          <CurrentStepComponent index={index} intervention={intervention} errors={errors} />
+        )}
+      </div>
     </>
   );
 }

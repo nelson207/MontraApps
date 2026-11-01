@@ -175,12 +175,12 @@ function NewsGallery() {
       </div>
 
       {isGallery && (
-        <div className="app-news-dots">
+        <div className="app-page-dots">
           {Array.from({ length: pages }, (_, i) => (
             <button
               key={i}
               type="button"
-              className={`app-news-dot ${i === current ? "is-current" : ""}`}
+              className={`app-page-dot ${i === current ? "is-current" : ""}`}
               aria-label={`News page ${i + 1} of ${pages}`}
               aria-current={i === current ? "true" : undefined}
               onClick={() => setPage(i)}

@@ -16,8 +16,8 @@ const calculationInputs = (op: CredOperDraft) =>
     op.financialProduct,
     op.conditions?.[0]?.term,
     op.assets?.[0]?.equipment?.netAmount,
+    // The percentage isn't sent: it follows the amount
     op.assets?.[0]?.equipment?.retakeAmount,
-    op.assets?.[0]?.equipment?.retakePercentage,
   ]);
 
 /** Calculate + term stepper shared by the side panel and the Summary step. */
@@ -28,7 +28,11 @@ export function useCalculation(operation: CredOperDraft) {
   const [calculate, { isLoading, error: requestError, reset }] = useCalculateCredOper();
   const [failure, setFailure] = useState<unknown>(null);
   const error = requestError ?? failure;
-  const [calculatedFor, setCalculatedFor] = useState<string | null>(null);
+  // A saved operation opened with its monthly payment is up to date until edited; a new one
+  // isn't, whatever its template brings (its flows may come with an amount)
+  const [calculatedFor, setCalculatedFor] = useState<string | null>(() =>
+    operation.id != null && !!operation.conditions?.[0]?.flows?.[0]?.amount ? calculationInputs(operation) : null,
+  );
 
   const condition = operation.conditions?.[0];
   const term = condition?.term ?? null;
@@ -54,11 +58,15 @@ export function useCalculation(operation: CredOperDraft) {
     }
   };
 
+  const isStale = calculatedFor !== null && calculatedFor !== calculationInputs(operation);
+
   return {
     condition,
     term,
     monthly: condition?.flows?.[0]?.amount,
-    isStale: calculatedFor !== null && calculatedFor !== calculationInputs(operation),
+    isStale,
+    /** Not calculated yet, or values changed since: the Financial data step can't be left forward */
+    needsCalculation: calculatedFor === null || isStale,
     termStep: stepValue,
     canDecrease: term != null && term > minValue,
     canIncrease: term != null && term < maxValue,

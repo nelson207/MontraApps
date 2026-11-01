@@ -208,6 +208,57 @@ export function withAssetAmount(op: CredOperDto, index: number, amount: number |
   return assets;
 }
 
+/** What the initial entry is a share of: the first vehicle's (or the loan's) amount; Renting: all vehicles */
+export const retakeBaseOf = (op: CredOperDto): number | null =>
+  equipmentModeOf(op) === "multiple"
+    ? (op.assets ?? []).reduce((sum, a) => sum + (a.equipment?.netAmount ?? 0), 0)
+    : (op.assets?.[0]?.equipment?.netAmount ?? null);
+
+const round2 = (value: number) => Math.round(value * 100) / 100;
+
+/** The share `amount` is of `base`, in % (2 decimals, up to 100); none without a base */
+export const retakePercentageOf = (amount: number | null | undefined, base: number | null | undefined): number | null => {
+  if (amount == null) return null;
+  if (!base || base <= 0) return null;
+  return round2(Math.min(100, Math.max(0, (amount / base) * 100)));
+};
+
+/** `percentage` % of `base` (cents, up to the base); none without a base */
+export const retakeAmountOf = (percentage: number | null | undefined, base: number | null | undefined): number | null => {
+  if (percentage == null) return null;
+  if (!base || base <= 0) return null;
+  return round2((Math.min(100, Math.max(0, percentage)) * base) / 100);
+};
+
+/** `op` with the first vehicle's equipment changed (none without assets, e.g. a personal loan) */
+const withFirstEquipment = (op: CredOperDto, changes: Partial<EquipmentDto>): CredOperDto => {
+  if (!op.assets?.length) return op;
+  const [first, ...rest] = op.assets;
+  return { ...op, assets: [{ ...first, equipment: { ...first?.equipment, ...changes } }, ...rest] };
+};
+
+// The initial entry: the amount is what's sent (and calculated); the percentage only helps type it
+// and always follows the amount (or, typed, sets it).
+
+/** `op` with the initial entry `amount`, and its percentage of the operation's base */
+export const withRetakeAmount = (op: CredOperDto, amount: number | null | undefined): CredOperDto =>
+  withFirstEquipment(op, { retakeAmount: amount, retakePercentage: retakePercentageOf(amount, retakeBaseOf(op)) });
+
+/** `op` with the initial entry `percentage`, and the amount it is of the operation's base */
+export const withRetakePercentage = (op: CredOperDto, percentage: number | null | undefined): CredOperDto =>
+  withFirstEquipment(op, { retakePercentage: percentage, retakeAmount: retakeAmountOf(percentage, retakeBaseOf(op)) });
+
+/**
+ * `op` with its initial entry in line with its base (e.g. after the base amount changed): the
+ * percentage stays and the amount follows; with no percentage yet (no base before), the amount sets it.
+ */
+export const withRetakeInLine = (op: CredOperDto): CredOperDto => {
+  const equipment = op.assets?.[0]?.equipment;
+  if (equipment?.retakePercentage != null) return withRetakePercentage(op, equipment.retakePercentage);
+  if (equipment?.retakeAmount != null) return withRetakeAmount(op, equipment.retakeAmount);
+  return op;
+};
+
 /** The fields that describe the vehicle itself (not its financing) */
 const VEHICLE_FIELDS: (keyof EquipmentDto)[] = [
   "equipmentTypeId",

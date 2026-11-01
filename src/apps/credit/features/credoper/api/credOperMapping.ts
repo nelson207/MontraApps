@@ -63,7 +63,11 @@ const APP_ONLY_INTERVENTION = [
   "entityMobilePhone",
   "entityLandlinePhone",
 ];
-const APP_ONLY_EQUIPMENT = ["odometer"];
+const APP_ONLY_EQUIPMENT = [
+  "odometer",
+  // The initial entry is sent as its amount: the percentage only helps type it (a product's default still comes in)
+  "retakePercentage",
+];
 
 /** `item` without `drop`, with names renamed draft → API */
 function outward(item: AnyRecord | null | undefined, names: [string, string][], drop: string[]): AnyRecord | undefined {

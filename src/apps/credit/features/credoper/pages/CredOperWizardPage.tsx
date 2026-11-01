@@ -16,9 +16,11 @@ import {
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 import DiscardPrompt from "../components/wizard/DiscardPrompt";
 import OperationHeader from "../components/wizard/OperationHeader";
+import ProductDefaultsLoading from "../components/wizard/ProductDefaultsLoading";
 import ProductDefaultsPrompt from "../components/wizard/ProductDefaultsPrompt";
 import Stepper from "../components/wizard/Stepper";
 import SummaryPanel from "../components/wizard/SummaryPanel";
+import { useCalculation } from "../hooks/useCalculation";
 import WizardActions from "../components/wizard/WizardActions";
 import { DEFAULT_TERM_RESTRICTIONS } from "../constants";
 import { useBusinessChoices } from "../business/useBusinessChoices";
@@ -146,7 +148,7 @@ function Wizard({
   // The server's blank operation, fetched once the asset type is decided (chosen or set for the user); the
   // product's defaults come after it (they'd have nothing to land on before)
   const template = useCredOperTemplate(stage, operation);
-  const { conflicts, resolveConflicts } = useFinancialProductSync(operation, !template.awaiting);
+  const { conflicts, resolveConflicts, isLoading: loadingProductDefaults } = useFinancialProductSync(operation, !template.awaiting);
   // A new equipment or building when the asset type, business or company changes (the first is the template's)
   const newAsset = useNewAsset(operation, template);
 
@@ -156,6 +158,9 @@ function Wizard({
   );
   const step = steps[index];
   const StepComponent = STEP_COMPONENTS[step.id];
+  // The Financial data step is left forward only once calculated with the values on screen
+  const calc = useCalculation(operation);
+  const awaitingCalculation = step.id === "financial" && calc.needsCalculation;
 
   const goTo = (id: StepId) => {
     if (!steps.some((s) => s.id === id)) return;
@@ -175,6 +180,7 @@ function Wizard({
   const next = () => {
     setShownFor((s) => [...new Set([...s, step.id])]);
     if (validation.invalidSteps.includes(step.id)) return focusFirstInvalid();
+    if (awaitingCalculation) return;
     goTo(steps[index + 1].id);
   };
 
@@ -227,7 +233,8 @@ function Wizard({
     : {};
 
   return (
-    <div className="d-flex flex-column gap-3 app-credoper">
+    // Blocked while a new product's values load: nothing to type, calculate or leave meanwhile
+    <div className="d-flex flex-column gap-3 app-credoper" inert={loadingProductDefaults} aria-busy={loadingProductDefaults || undefined}>
       <div className="card border-0 shadow-sm">
         <div className="card-body d-flex flex-column gap-3">
           <OperationHeader
@@ -243,7 +250,7 @@ function Wizard({
             maxVisited={maxVisited}
             invalid={visibleInvalid}
             incomplete={validation.invalidSteps}
-            onSelect={(i) => goTo(steps[i].id)}
+            onSelect={(i) => (i > index && awaitingCalculation ? undefined : goTo(steps[i].id))}
           />
         </div>
       </div>
@@ -337,6 +344,7 @@ function Wizard({
                 isLast={index === steps.length - 1 && step.id !== "business"}
                 onBack={() => goTo(steps[Math.max(0, index - 1)].id)}
                 onNext={next}
+                nextHint={awaitingCalculation ? (calc.isStale ? "Values changed: calculate again before moving on." : "Calculate before moving on.") : undefined}
                 onSave={onSave}
                 isSaving={saveState.isLoading}
                 showConvert={stage === "quotation" && step.id === "summary"}
@@ -355,7 +363,7 @@ function Wizard({
         </div>
         {showCalculation && (
           <div className="col-12 col-lg-4">
-            <SummaryPanel operation={operation} />
+            <SummaryPanel operation={operation} calc={calc} />
           </div>
         )}
       </div>
@@ -363,6 +371,7 @@ function Wizard({
         // Keyed by the conflicts: a newer product's question starts with its own choices
         <ProductDefaultsPrompt key={conflicts.map((c) => c.field).join()} conflicts={conflicts} onResolve={resolveConflicts} />
       )}
+      {loadingProductDefaults && <ProductDefaultsLoading />}
     </div>
   );
 }

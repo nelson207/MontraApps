@@ -122,42 +122,6 @@ $news-card-min-height: 18rem;
   border-radius: $app-surface-radius;
 }
 
-// Page dots under the gallery: the current page is a longer bar in the theme colour
-.app-news-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.125rem;
-}
-
-.app-news-dot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: $border-radius;
-  background: transparent;
-
-  span {
-    width: 0.375rem;
-    height: 0.375rem;
-    border-radius: $border-radius-pill;
-    background-color: var(--#{$prefix}border-color);
-    @include transition(width $news-transition, background-color $news-transition);
-  }
-
-  &.is-current span {
-    width: 1.25rem;
-    background-color: var(--app-primary);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--app-primary);
-  }
-}
-
 // Load error: a calm line in a panel, not a red alert
 .app-news-message {
   display: flex;

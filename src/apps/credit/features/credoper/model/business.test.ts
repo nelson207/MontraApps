@@ -15,7 +15,11 @@ import {
   hasFinancing,
   productsOf,
   toAvailableBusinesses,
+  retakeBaseOf,
   withAssetAmount,
+  withRetakeAmount,
+  withRetakeInLine,
+  withRetakePercentage,
 } from "./business";
 import type { CarInsurance, CreditProtectionInsurance, CredOperDraft } from "./credOperDraft";
 
@@ -219,4 +223,45 @@ describe("withAssetAmount", () => {
 
   it("no asset yet: the first one is made", () =>
     expect(withAssetAmount({ aplBusinessId: 1 }, 0, 10)).toEqual([{ amount: 10, baseAmount: 10, equipment: { netAmount: 10, purchaseAmount: 10 } }]));
+});
+
+describe("the initial entry: amount ⇄ percentage", () => {
+  const op = (retakeAmount?: number | null, retakePercentage?: number | null, netAmount: number | null = 20_000) => ({
+    assets: [{ equipment: { netAmount, retakeAmount, retakePercentage } }],
+  });
+  const entry = (next: { assets?: { equipment?: unknown }[] | null }) => next.assets?.[0]?.equipment;
+
+  it("the amount typed sets its percentage (2 decimals)", () => {
+    expect(entry(withRetakeAmount(op(), 2_000))).toMatchObject({ retakeAmount: 2_000, retakePercentage: 10 });
+    expect(entry(withRetakeAmount(op(), 1_234.56))).toMatchObject({ retakePercentage: 6.17 });
+  });
+
+  it("the percentage typed sets the amount (cents)", () =>
+    expect(entry(withRetakePercentage(op(), 12.5))).toMatchObject({ retakeAmount: 2_500, retakePercentage: 12.5 }));
+
+  it("cleared, the other is cleared too", () => {
+    expect(entry(withRetakeAmount(op(2_000, 10), null))).toMatchObject({ retakeAmount: null, retakePercentage: null });
+    expect(entry(withRetakePercentage(op(2_000, 10), null))).toMatchObject({ retakeAmount: null, retakePercentage: null });
+  });
+
+  it("no base: no percentage from an amount, no amount from a percentage", () => {
+    expect(entry(withRetakeAmount(op(undefined, undefined, null), 2_000))).toMatchObject({ retakeAmount: 2_000, retakePercentage: null });
+    expect(entry(withRetakePercentage(op(undefined, undefined, null), 10))).toMatchObject({ retakeAmount: null, retakePercentage: 10 });
+  });
+
+  it("a new base keeps the percentage; with none yet, the amount sets it", () => {
+    expect(entry(withRetakeInLine(op(2_000, 10, 30_000)))).toMatchObject({ retakeAmount: 3_000, retakePercentage: 10 });
+    expect(entry(withRetakeInLine(op(2_000, null, 40_000)))).toMatchObject({ retakeAmount: 2_000, retakePercentage: 5 });
+  });
+
+  it("renting: a share of all the vehicles", () => {
+    const renting = {
+      aplBusinessId: 13,
+      assetTypeId: EQUIPMENT_ASSET,
+      assets: [{ equipment: { netAmount: 20_000 } }, { equipment: { netAmount: 30_000 } }],
+    };
+    expect(retakeBaseOf(renting)).toBe(50_000);
+  });
+
+  it("no assets (a loan with none): nothing is made", () => expect(withRetakeAmount({}, 100)).toEqual({}));
 });

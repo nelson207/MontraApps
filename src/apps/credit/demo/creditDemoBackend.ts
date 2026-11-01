@@ -4,6 +4,8 @@ import { fromApiCredOper, stepName, stepNumber, toApiCredOper } from "../feature
 import { BUSINESSES } from "../features/credoper/model/business";
 import { registerDemoHandlers, type DemoRequest } from "@platform/api/demoBackend";
 import { demoCalculate } from "./demoCalculation";
+import type { EntityData } from "../features/credoper/entityLookup/entityLookupApi";
+import { delay } from "@platform/api/devFallback";
 
 // DEVELOPMENT ONLY — Montra Credit's answers for the demo backend (platform/api/demoBackend.ts):
 // used while signed in with "Demo access" and the API can't be reached, so quotations, proposals
@@ -124,6 +126,38 @@ const INTERVENTION_TYPES: Record<string, number> = { Customer: 1, SecondHolder: 
 
 /** A request to the new API, as a draft (the demo calculation works on drafts) */
 const apiOperationIn = (request: DemoRequest) => fromApiCredOper((request.body ?? {}) as ApiCredOperDto);
+
+// Entities in the "database" for the NIF lookup (the contacts masked, as the backend sends them)
+const DEMO_OTP_CODE = "123456";
+const otpRequests = new Map<string, string>();
+const DEMO_ENTITIES: Record<string, { phone: string; email: string; data: EntityData }> = {
+  "123456789": {
+    phone: "+351 9•• ••• 321",
+    email: "an•••@example.com",
+    data: {
+      entity: {
+        id: "demo-entity-1",
+        entityTypeId: 1,
+        fullName: "Ana Maria Silva",
+        legalDocs: [{ legalDocTypeId: 1, legalDocNumber: "12345678 9ZZ1", validDate: "2031-03-15" }],
+      },
+      person: { birthDate: "1988-04-12" },
+      entityEmail: { email: "ana.silva@example.com" },
+      entityMobilePhone: { phoneNumber: "+351912345321" },
+      fiscalEntityAddress: { street: "Rua Augusta 100", postalCode: "1100-053", district: "Lisboa", countryId: "PT" },
+    },
+  },
+  "500000000": {
+    phone: "+351 2•• ••• 100",
+    email: "fi•••@acme.pt",
+    data: {
+      entity: { id: "demo-entity-2", entityTypeId: 2, fullName: "Acme Transportes, Lda." },
+      entityEmail: { email: "financeiro@acme.pt" },
+      entityLandlinePhone: { phoneNumber: "+351210000100" },
+      fiscalEntityAddress: { street: "Avenida da Liberdade 200", postalCode: "1250-147", district: "Lisboa", countryId: "PT" },
+    },
+  },
+};
 
 registerDemoHandlers({
   // --- New API (/api/credit-operations/…): same answers, in the new shapes ----------------
@@ -296,4 +330,30 @@ registerDemoHandlers({
   },
 
   "POST /api/CreditOperations/SearchOperations": () => [...[...saved.values()].reverse(), ...sampleSearch()],
+
+  // --- Entity lookup by NIF (placeholder: entityLookup/entityLookupApi.ts) ------------------
+  // Known NIFs: 123456789 (a person), 500000000 (a company); the code is always 123456
+  "POST /api/entities/lookup-by-vat": async ({ body }) => {
+    await delay(700);
+    const entity = DEMO_ENTITIES[(body as { vat?: string })?.vat ?? ""];
+    return entity ? { found: true, phone: entity.phone, email: entity.email } : { found: false };
+  },
+
+  "POST /api/entities/otp/send": async ({ body }) => {
+    await delay(600);
+    const vat = (body as { vat?: string })?.vat ?? "";
+    if (!DEMO_ENTITIES[vat]) return { sent: false, message: "There are no contacts on file for this NIF." };
+    const otpRequestId = `otp-${vat}-${Date.now()}`;
+    otpRequests.set(otpRequestId, vat);
+    return { sent: true, otpRequestId, validUntil: new Date(Date.now() + 5 * 60_000).toISOString() };
+  },
+
+  "POST /api/entities/otp/verify": async ({ body }) => {
+    await delay(600);
+    const { otpRequestId = "", code } = (body ?? {}) as { otpRequestId?: string; code?: string };
+    const vat = otpRequests.get(otpRequestId);
+    if (!vat || code !== DEMO_OTP_CODE) return { valid: false };
+    otpRequests.delete(otpRequestId);
+    return { valid: true, intervention: DEMO_ENTITIES[vat].data };
+  },
 });

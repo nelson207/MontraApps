@@ -7,6 +7,7 @@ import {
 } from "@platform/api/generated/MontraPOSApi";
 import type { CredOperAssetDto, CredOperDto, CredOperIntervDto } from "@platform/api/legacy/legacyApi";
 import type { AppDispatch } from "@credit/store";
+import { withRetakeAmount } from "../model/business";
 import { assetKindOut, fromApiCredOper, toApiCredOper } from "./credOperMapping";
 
 // The credit-operation procedures of the new API (/api/credit-operations/…), for the wizard's
@@ -82,7 +83,10 @@ export function useCalculateCredOper() {
     if (!result.isCalculated || !result.credOper) {
       throw new CalculationError((result.messages ?? []).map((m) => m.text ?? "").filter(Boolean));
     }
-    return fromApiCredOper(result.credOper, draft);
+    const calculated = fromApiCredOper(result.credOper, draft);
+    // The amount is what was calculated with: the percentage shown follows it
+    const retakeAmount = calculated.assets?.[0]?.equipment?.retakeAmount;
+    return retakeAmount != null ? withRetakeAmount(calculated, retakeAmount) : calculated;
   };
   return [run, state] as const;
 }

@@ -425,3 +425,51 @@
   grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
   gap: map-get($spacers, 1) map-get($spacers, 3);
 }
+
+// One-time code, one box per digit (CodeInput)
+.app-code-input {
+  display: flex;
+  justify-content: center;
+  gap: map-get($spacers, 2);
+}
+
+.app-code-input-box {
+  width: 3rem;
+  height: 3.5rem;
+  padding: 0;
+  font-size: $h3-font-size;
+  font-weight: $font-weight-semibold;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  caret-color: var(--#{$prefix}primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+
+  &.is-filled {
+    border-color: var(--#{$prefix}primary);
+    background-color: var(--#{$prefix}primary-bg-subtle);
+  }
+
+  // the code was refused: the boxes shake once
+  &.is-invalid {
+    background-image: none;
+    padding-right: 0;
+    animation: app-code-shake 0.3s ease-in-out;
+  }
+
+  @include media-breakpoint-down(sm) {
+    width: 2.5rem;
+    height: 3rem;
+    font-size: $h4-font-size;
+  }
+}
+
+@keyframes app-code-shake {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-code-input-box.is-invalid {
+    animation: none;
+  }
+}

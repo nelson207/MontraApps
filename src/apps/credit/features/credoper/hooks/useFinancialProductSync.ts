@@ -19,6 +19,8 @@ export default function useFinancialProductSync(
   const revision = useAppSelector(selectCredoperRevision);
   /** The values on screen the new product would change, until the user decides */
   const [conflicts, setConflicts] = useState<DefaultConflict[]>([]);
+  /** The new product's defaults are on their way: the page waits for them */
+  const [isLoading, setIsLoading] = useState(false);
 
   // New API: POST /api/financial-products/defaults
   const [getProductDefaults] = useFinancialProductDefaults();
@@ -48,6 +50,7 @@ export default function useFinancialProductSync(
     const oldFinancialProductId = settledProduct.current;
     let cancelled = false;
     setConflicts([]);
+    setIsLoading(true);
 
     const sync = async () => {
       // Only what the backend answers is set: the app derives nothing from the product itself
@@ -62,13 +65,19 @@ export default function useFinancialProductSync(
       setConflicts(split.conflicts);
     };
 
-    sync().catch((error: unknown) => {
-      // The product stays chosen; the calculation shows its own errors
-      console.warn("Couldn't load financial product defaults", error);
-    });
+    sync()
+      .catch((error: unknown) => {
+        // The product stays chosen; the calculation shows its own errors
+        console.warn("Couldn't load financial product defaults", error);
+      })
+      // Settled or failed; one replaced by a newer product leaves it to that one
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
     return () => {
       cancelled = true;
+      setIsLoading(false);
     };
   }, [credoper?.financialProduct, enabled]);
 
@@ -81,5 +90,5 @@ export default function useFinancialProductSync(
     }
   };
 
-  return { conflicts, resolveConflicts };
+  return { conflicts, resolveConflicts, isLoading };
 }

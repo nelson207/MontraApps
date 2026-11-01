@@ -5,6 +5,8 @@ type Props = {
   isLast: boolean;
   onBack: () => void;
   onNext: () => void;
+  /** Why Next doesn't move on yet (e.g. the operation must be calculated first) */
+  nextHint?: string;
   onSave: () => void;
   isSaving: boolean;
   /** Quotation summary only */
@@ -72,6 +74,13 @@ function WizardActions(props: Props) {
           )}
         </div>
       </div>
+
+      {!props.isLast && props.nextHint && (
+        <small className="text-warning-emphasis text-end" role="status">
+          <i className="bi bi-calculator me-1" aria-hidden="true" />
+          {props.nextHint}
+        </small>
+      )}
 
       {props.showConvert && !props.canConvert && props.convertHint && (
         <small className="text-body-secondary text-end">{props.convertHint}</small>

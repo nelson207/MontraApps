@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { createMontraStore } from "@platform/app/store";
 import credoperReducer from "./features/credoper/credoperSlice";
+import entityLookupReducer from "./features/credoper/entityLookup/entityLookupSlice";
+import type { EntityLookup } from "./features/credoper/entityLookup/entityLookupSlice";
 import type { CredOperDraft } from "./features/credoper/model/credOperDraft";
 
 // Montra Credit store: platform slices (incl. the working context) + the credit operation.
@@ -11,6 +13,7 @@ if (import.meta.env.DEV) void import("./demo/creditDemoBackend");
 
 export const store = createMontraStore({
   credoper: credoperReducer,
+  entityLookup: entityLookupReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -28,3 +31,7 @@ export const selectCredoperRevision = (state: RootState): number => state.credop
 export const selectCredoperIsDirty = (state: RootState): boolean => state.credoper.isDirty;
 /** A new operation still without the server's template (its business isn't chosen yet) */
 export const selectCredoperAwaitingTemplate = (state: RootState): boolean => state.credoper.awaitingTemplate;
+
+/** Where the VAT number (NIF) lookup of a person of the proposal stands (by correlationID) */
+export const selectEntityLookup = (ref: string | undefined) => (state: RootState): EntityLookup | undefined =>
+  ref ? state.entityLookup[ref] : undefined;

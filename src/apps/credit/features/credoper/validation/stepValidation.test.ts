@@ -162,3 +162,19 @@ describe("auto insurance needs its insurance", () => {
     expect(validateInsurancesStep({ ...o, aplBusinessId: 4 }, today)["insurances.required"]).toBeUndefined();
   });
 });
+
+describe("initial entry: not more than what it is a share of", () => {
+  const withEntry = (netAmount: number, retakeAmount: number) => {
+    const op = validOperation();
+    op.assets![0].equipment = { ...op.assets![0].equipment, netAmount, retakeAmount };
+    return op;
+  };
+
+  it("higher than the loan amount", () =>
+    expect(validateFinancial(withEntry(20_000, 20_000.01), today)["assets.0.equipment.retakeAmount"]).toBe(
+      "Initial entry amount can't be higher than the loan amount.",
+    ));
+
+  it("up to the whole amount is fine", () =>
+    expect(validateFinancial(withEntry(20_000, 20_000), today)).toEqual({}));
+});

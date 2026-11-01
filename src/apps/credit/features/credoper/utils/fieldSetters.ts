@@ -8,7 +8,7 @@ import type {
   FinConditionDto,
 } from "@platform/api/legacy/legacyApi";
 import { patchCredoper } from "../credoperSlice";
-import { withAssetAmount } from "../model/business";
+import { withAssetAmount, withRetakeAmount, withRetakeInLine, withRetakePercentage } from "../model/business";
 import { isEmptyValue } from "../validation/fieldRules";
 
 /** Empty → empty (e.g. a field reporting "" when it loads) is not a change. */
@@ -182,7 +182,7 @@ export const setCustomerVATField = <K extends keyof EntityLegalDocDto>(
   );
 };
 
-/** The amount typed for an asset, with the amounts it fills (withAssetAmount). */
+/** The amount typed for an asset, with the amounts it fills (withAssetAmount) and the initial entry it is the base of. */
 export const setAssetAmount = (
   dispatch: AppDispatch,
   credoper: CredOperDto | null | undefined,
@@ -190,7 +190,19 @@ export const setAssetAmount = (
   amount: number | null | undefined,
 ) => {
   if (!credoper || credoper.assets?.[assetIndex]?.equipment?.netAmount === amount) return;
-  dispatch(patchCredoper({ assets: withAssetAmount(credoper, assetIndex, amount) }));
+  const { assets } = withRetakeInLine({ ...credoper, assets: withAssetAmount(credoper, assetIndex, amount) });
+  dispatch(patchCredoper({ assets }));
+};
+
+/** The initial entry typed as an amount (sent) or a percentage (a helper): each sets the other. */
+export const setRetake = (
+  dispatch: AppDispatch,
+  credoper: CredOperDto | null | undefined,
+  typed: { amount: number | null } | { percentage: number | null },
+) => {
+  if (!credoper) return;
+  const { assets } = "amount" in typed ? withRetakeAmount(credoper, typed.amount) : withRetakePercentage(credoper, typed.percentage);
+  dispatch(patchCredoper({ assets }));
 };
 
 /** Several equipment fields in one edit (e.g. a new brand clears model and version). */
@@ -208,5 +220,8 @@ export const setEquipmentFields = (
     credoper?.assets?.map((asset, index) =>
       index === assetIndex ? { ...asset, equipment: { ...(asset.equipment ?? {}), ...changes } } : asset,
     ) ?? [];
-  dispatch(patchCredoper({ assets: updatedAssets }));
+  // A vehicle's amount is (part of) the initial entry's base
+  const assets =
+    "netAmount" in changes && credoper ? withRetakeInLine({ ...credoper, assets: updatedAssets }).assets : updatedAssets;
+  dispatch(patchCredoper({ assets }));
 };

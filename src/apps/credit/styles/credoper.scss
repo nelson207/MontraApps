@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   height: 100%;
-  min-height: 4.25rem;
+  min-height: 3.75rem;
   border: 1px solid var(--#{$prefix}border-color);
   border-radius: $border-radius-lg;
   background-color: var(--#{$prefix}body-bg);
@@ -153,10 +153,10 @@
 .app-person-card-main {
   display: flex;
   align-items: center;
-  gap: map-get($spacers, 3);
+  gap: map-get($spacers, 2);
   flex: 1 1 auto;
   min-width: 0;
-  padding: map-get($spacers, 2) map-get($spacers, 3);
+  padding: map-get($spacers, 2);
   text-align: start;
   border: 0;
   background: none;
@@ -167,9 +167,11 @@
   flex-shrink: 0;
 }
 
+// The card to add a second holder or guarantor, in a free place of the row
 .app-person-card-add {
   justify-content: center;
   gap: map-get($spacers, 2);
+  padding: map-get($spacers, 2);
   border-style: dashed;
   color: var(--app-primary-text);
 
@@ -182,6 +184,22 @@
     color: var(--#{$prefix}secondary-color);
     background-color: var(--#{$prefix}tertiary-bg);
     cursor: not-allowed;
+  }
+}
+
+// One row of up to four cards (a full HD screen); fewer columns on narrower screens. More people
+// are paged (InterventionsStep), never a second row on wide screens.
+.app-people-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: map-get($spacers, 2);
+
+  @include media-breakpoint-up(sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include media-breakpoint-up(xl) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -463,4 +481,25 @@
 .app-gallery-btn {
   padding: 0.125rem 0.4rem;
   line-height: 1;
+}
+
+// --- Person lookup by NIF (entityLookup) ------------------------------------
+
+.app-entity-lookup {
+  background-color: var(--#{$prefix}primary-bg-subtle);
+  border-color: var(--#{$prefix}primary-border-subtle) !important;
+
+  // in line with the field, below its label
+  .app-entity-lookup-actions {
+    @include media-breakpoint-up(sm) {
+      padding-top: 1.75rem;
+    }
+  }
+}
+
+// A new person's other fields until the NIF is looked up (inert: no clicks or focus)
+.app-entity-locked {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+  user-select: none;
 }

@@ -1,11 +1,10 @@
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 import type { CredOperDraft } from "../../model/credOperDraft";
-import { money, percent, useCalculation } from "../../hooks/useCalculation";
+import { money, percent, type useCalculation } from "../../hooks/useCalculation";
 
 // Sticky side panel on the editing steps: financed amount, monthly payment, rates, term ± and Calculate.
-function SummaryPanel({ operation }: { operation: CredOperDraft }) {
-  const calc = useCalculation(operation);
-
+// The calculation is the wizard's (useCalculation): Next waits for it.
+function SummaryPanel({ operation, calc }: { operation: CredOperDraft; calc: Calc }) {
   return (
     <aside className="card border-0 shadow-sm app-summary-panel" aria-label="Calculation">
       <div className="card-body">

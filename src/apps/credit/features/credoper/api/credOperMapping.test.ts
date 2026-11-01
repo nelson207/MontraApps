@@ -42,6 +42,14 @@ const draft = (): DraftDto => ({
 describe("toApiCredOper", () => {
   const api = toApiCredOper(draft());
 
+  it("sends the initial entry as its amount only: the percentage is a helper", () => {
+    const op = draft();
+    op.assets![0].equipment = { ...op.assets![0].equipment, retakeAmount: 1500, retakePercentage: 10 };
+    const equipment = toApiCredOper(op).assets?.[0]?.equipment as Record<string, unknown>;
+    expect(equipment.retakeAmount).toBe(1500);
+    expect(equipment).not.toHaveProperty("retakePercentage");
+  });
+
   it("renames the operation fields the new API names differently", () => {
     expect(api).toMatchObject({
       id: "AQ7c2L0xOper7",

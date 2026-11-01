@@ -1,6 +1,7 @@
 import { validateInsurances } from "../insurance/insuranceRules";
 import type { EquipmentDto } from "@platform/api/legacy/legacyApi";
 import {
+  amountLabel,
   assetTypeOf,
   buildingOf,
   businessOf,
@@ -9,6 +10,7 @@ import {
   hasEquipment,
   hasFinancing,
   isAutoInsurance,
+  retakeBaseOf,
 } from "../model/business";
 import { customerOf, interventionRole, isCompany, type CredOperDraft } from "../model/credOperDraft";
 import { isAdult, notAfterToday, notBeforeToday } from "./dateRules";
@@ -59,6 +61,15 @@ function checkVehicle(errors: FieldErrors, equipment: EquipmentDto, index: numbe
   }
 }
 
+/** The initial entry is more than what it is a share of (shown as typed, not only after Next) */
+export function retakeOverBase(op: CredOperDraft): string | null {
+  const amount = op.assets?.[0]?.equipment?.retakeAmount;
+  const base = retakeBaseOf(op);
+  if (amount == null || base == null || amount <= base) return null;
+  const of = equipmentModeOf(op) === "multiple" ? "the total of the vehicles" : `the ${amountLabel(op).toLowerCase()}`;
+  return `Initial entry amount can't be higher than ${of}.`;
+}
+
 /** Financing only: vehicles are checked in the equipment step; Auto insurance has no financing. */
 export function validateFinancial(op: CredOperDraft, _today: LocalDate): FieldErrors {
   const errors: FieldErrors = {};
@@ -75,6 +86,7 @@ export function validateFinancial(op: CredOperDraft, _today: LocalDate): FieldEr
     }
     checkRequired(errors, equipmentMeta, "retakeAmount", `${prefix}retakeAmount`, equipment.retakeAmount);
     checkRequired(errors, equipmentMeta, "retakePercentage", `${prefix}retakePercentage`, equipment.retakePercentage);
+    add(errors, `${prefix}retakeAmount`, retakeOverBase(op));
   }
 
   checkRequired(errors, meta, "credOperClassification", "credOperClassification", op.credOperClassification);
