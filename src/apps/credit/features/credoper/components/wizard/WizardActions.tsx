@@ -34,7 +34,7 @@ function WizardActions(props: Props) {
 
       <div className="d-flex flex-wrap align-items-center gap-2">
         {!props.isFirst && (
-          <button type="button" className="btn btn-outline-secondary" onClick={props.onBack} disabled={busy}>
+          <button type="button" className="btn btn-ghost" onClick={props.onBack} disabled={busy}>
             <i className="bi bi-arrow-left me-1" aria-hidden="true" />
             Back
           </button>

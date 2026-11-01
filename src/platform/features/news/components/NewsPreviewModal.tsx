@@ -108,7 +108,7 @@ function NewsPreviewModal({ items, index, onIndexChange, onClose }: Props) {
               </div>
 
               <div className="d-flex gap-2">
-                <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
+                <button type="button" className="btn btn-ghost" onClick={onClose}>
                   Close
                 </button>
                 <Link to={`/news/${item.id}`} className="btn btn-primary" onClick={onClose}>

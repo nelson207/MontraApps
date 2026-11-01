@@ -365,7 +365,7 @@ function EntityLookupGate({ intervention }: Props) {
             </div>
           )}
           <div className="d-flex flex-wrap justify-content-center gap-2">
-            <button type="button" className="btn btn-outline-secondary" onClick={fillInManually}>
+            <button type="button" className="btn btn-ghost" onClick={fillInManually}>
               Fill in manually
             </button>
             <button type="button" className="btn btn-primary" onClick={sendCode} autoFocus>
@@ -419,10 +419,10 @@ function EntityLookupGate({ intervention }: Props) {
               )}
             </p>
             <div className="d-flex flex-wrap justify-content-center gap-2">
-              <button type="button" className="btn btn-outline-secondary" onClick={fillInManually}>
+              <button type="button" className="btn btn-ghost" onClick={fillInManually}>
                 Fill in manually
               </button>
-              <button type="button" className="btn btn-outline-primary" onClick={sendCode} disabled={verifyState.isLoading}>
+              <button type="button" className="btn btn-ghost" onClick={sendCode} disabled={verifyState.isLoading}>
                 Send a new code
               </button>
               <button

@@ -235,7 +235,7 @@ function StockUnitWizard({ context }: { context: CompleteSelection }) {
 
       <div className="card-footer bg-body d-flex justify-content-between gap-2 py-3">
         {step > 0 ? (
-          <button type="button" className="btn btn-outline-secondary" onClick={() => goTo(step - 1)} disabled={creation.isLoading}>
+          <button type="button" className="btn btn-ghost" onClick={() => goTo(step - 1)} disabled={creation.isLoading}>
             <i className="bi bi-arrow-left me-2" aria-hidden="true" />
             Back
           </button>

@@ -12,6 +12,15 @@ $form-label-font-weight: 500;
 $form-label-margin-bottom: 0.25rem;
 $form-label-color: var(--bs-secondary-color);
 
+// Buttons: as high as the form fields (34px), so a button next to a field lines up; small ones
+// (row and card actions) ~29px
+$btn-font-size: $input-font-size;
+$btn-padding-y: $input-padding-y;
+$btn-padding-x: 0.875rem;
+$btn-font-size-sm: 0.8125rem;
+$btn-padding-y-sm: 0.25rem;
+$btn-padding-x-sm: 0.625rem;
+
 // ---------------------------------------------------------------------------
 // Extra utilities via Bootstrap's utility API
 // (https://getbootstrap.com/docs/5.3/utilities/api/)

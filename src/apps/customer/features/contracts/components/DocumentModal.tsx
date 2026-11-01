@@ -141,7 +141,7 @@ function DocumentModal({ contract, document, onClose }: Props) {
 
             <div className="modal-footer">
               <span className="me-auto small text-body-secondary">{DOCUMENT_STATUS_LABELS[document.status]}</span>
-              <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
                 Close
               </button>
               <button type="button" className="btn btn-primary" onClick={() => pdf.download(contract, document)} disabled={loading}>

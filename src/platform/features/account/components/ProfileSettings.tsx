@@ -224,7 +224,7 @@ function ContactsForm({
           {isLoading ? "Saving…" : "Save changes"}
         </button>
         {request && (
-          <button type="button" className="btn btn-outline-secondary" onClick={discard} disabled={isLoading}>
+          <button type="button" className="btn btn-ghost" onClick={discard} disabled={isLoading}>
             Discard
           </button>
         )}

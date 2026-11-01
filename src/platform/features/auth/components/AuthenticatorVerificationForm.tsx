@@ -56,7 +56,7 @@ export function AuthenticatorVerificationForm({
           )}
           {isLoading ? "Verifying…" : "Verify and enable"}
         </button>
-        <button type="button" className="btn btn-outline-secondary" onClick={onCancel}>
+        <button type="button" className="btn btn-ghost" onClick={onCancel}>
           Cancel
         </button>
       </div>

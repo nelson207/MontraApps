@@ -67,7 +67,7 @@ function ForgotPasswordForm({
 
           <button
             type="button"
-            className="btn btn-outline-secondary"
+            className="btn btn-ghost"
             disabled={isForgotPasswordLoading}
             onClick={() => setShowForgotPassword(false)}
           >

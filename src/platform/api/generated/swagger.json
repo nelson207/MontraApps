@@ -1201,52 +1201,6 @@
         }
       }
     },
-    "/api/credit-operations/calculate": {
-      "post": {
-        "tags": ["CreditOperations"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CalculateCreditOperationRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CalculateCreditOperationRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CalculateCreditOperationRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreditOperationCalculationDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreditOperationCalculationDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreditOperationCalculationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/credit-operations/new-credoper": {
       "get": {
         "tags": ["CreditOperations"],
@@ -1410,6 +1364,90 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CredOperCalculationResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/save-credoper": {
+      "post": {
+        "tags": ["CreditOperations"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredOperDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperSaveResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperSaveResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperSaveResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credit-operations/credoper/{id}": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperDto"
                 }
               }
             }
@@ -1988,6 +2026,63 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CredOperDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health/live": {
+      "get": {
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
                 }
               }
             }
@@ -3613,60 +3708,6 @@
         },
         "additionalProperties": {}
       },
-      "CalculateCreditOperationRequest": {
-        "type": "object",
-        "properties": {
-          "financialProductId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "companyId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "businessId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "operationTypeId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "channelId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "purposeTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "currencyId": {
-            "type": "string",
-            "nullable": true
-          },
-          "beginDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "equipment": {
-            "$ref": "#/components/schemas/EquipmentInputDto"
-          },
-          "financedAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "term": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "periodId": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "CalculationMessageDto": {
         "type": "object",
         "properties": {
@@ -4341,6 +4382,15 @@
             "type": "string",
             "nullable": true
           },
+          "personStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "personName": {
+            "type": "string",
+            "nullable": true
+          },
           "conditions": {
             "type": "array",
             "items": {
@@ -4366,6 +4416,55 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/InsurancePolicyDto"
+            },
+            "nullable": true
+          },
+          "commissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinRewardDto"
+            },
+            "nullable": true
+          },
+          "subventions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinRewardDto"
+            },
+            "nullable": true
+          },
+          "otherExpenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseDto"
+            },
+            "nullable": true
+          },
+          "taxExpenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseDto"
+            },
+            "nullable": true
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailDto"
+            },
+            "nullable": true
+          },
+          "phones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneDto"
+            },
+            "nullable": true
+          },
+          "legalDocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegalDocDto"
             },
             "nullable": true
           }
@@ -4711,6 +4810,37 @@
         ],
         "type": "string"
       },
+      "CredOperSaveResultDto": {
+        "type": "object",
+        "properties": {
+          "isSaved": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "credOper": {
+            "$ref": "#/components/schemas/CredOperDto"
+          },
+          "calculationMessages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          },
+          "saveMessages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CredOperSummaryDto": {
         "type": "object",
         "properties": {
@@ -4812,70 +4942,6 @@
           "totalCount": {
             "type": "integer",
             "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreditOperationCalculationDto": {
-        "type": "object",
-        "properties": {
-          "isCalculated": {
-            "type": "boolean"
-          },
-          "financialProductId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currencyId": {
-            "type": "string",
-            "nullable": true
-          },
-          "beginDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "financedAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "term": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "periodId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "installmentAmount": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "installmentAmountWithTax": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "implicitRate": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "annualRate": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "equipmentNetAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "messages": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CalculationMessageDto"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5850,35 +5916,6 @@
         },
         "additionalProperties": false
       },
-      "EquipmentInputDto": {
-        "type": "object",
-        "properties": {
-          "typeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "stateId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "netAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "EquipmentOptionDto": {
         "type": "object",
         "properties": {
@@ -5892,6 +5929,275 @@
           },
           "description": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExpenseDto": {
+        "type": "object",
+        "properties": {
+          "accountDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accountingMode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "annulledAccountDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "aplBankAccountId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "aplTableId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "bankId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "businessPartnerStructNodeId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "companyCurrencyAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyCurrencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyExpenseBaseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyForexRateValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyTaxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "deferredAccountDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "descr": {
+            "type": "string",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "expenseBaseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "expenseTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "externalReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "financedAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "frameContractCompanyRPDocumentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "frameContractEquipmentRPDocumentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "grossAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "invoiceCurrencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAmountCalculated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isAnnulled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isDeferredAccounted": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isInvoiced": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isManualAssign": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isRejected": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isTaxExpense": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isTemplate": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isToInvoice": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "lastOperationAplUserId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "lastOperationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "maxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "paymentData": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "paymentRPDocumentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "productGeneratedId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rpDocumentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "rpScopeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "relatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "subCredOperItem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxExemptionReasonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "wasModifiedByUser": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "wasTaxInvoiced": {
+            "type": "boolean",
             "nullable": true
           }
         },
@@ -6579,6 +6885,341 @@
         },
         "additionalProperties": false
       },
+      "FinRewardDto": {
+        "type": "object",
+        "properties": {
+          "aggregatorFinRewardId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "aplBusinessId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "aplBusinessPurposeTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "aplTableId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "baseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "basePaymentRetentionFinRewardId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "calculationPeriodId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "coefficient": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyMarginAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyMarginTaxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyMarginThreshold": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "companyMarginThresholdInputModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyMarginThresholdPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "entityPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "excludeFromAggreement": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "externalReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "finRewardTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "financedAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fixedComponent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "flowItem": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "grossAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "isAmountCalculated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isCalcByRateDefinition": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isInformative": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isInvoiced": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isOkToInvoice": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isPointsUserDefined": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isReinforcement": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isReversal": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "maximumAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maximumAmountFinRewardTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "maximumInputId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maximumPercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "movDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "paymentModeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "points": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "productGeneratedId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rpDocItemGroupId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "rpDocumentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "rappelAggreementId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "relatedFinRewardId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "relatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "retentionTaxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "retentionTaxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rewardEntityOriginId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "subAplTableId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "subRelatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "taxExemptionReasonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalAmountIncludingRetention": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalGrossAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "variableComponent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "variablePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vatTaxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "vatTaxTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "FinancialProductDto": {
         "type": "object",
         "properties": {
@@ -6610,6 +7251,34 @@
           }
         },
         "additionalProperties": false
+      },
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/HealthStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferenceDataHealthDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HealthStatus": {
+        "enum": ["Healthy", "Degraded"],
+        "type": "string"
       },
       "IdpLoginRequest": {
         "type": "object",
@@ -7087,6 +7756,84 @@
         },
         "additionalProperties": false
       },
+      "LegalDocDto": {
+        "type": "object",
+        "properties": {
+          "countryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "initialValidDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isMain": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isReadOnly": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "issuedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "issuerEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "legalDocControl": {
+            "type": "string",
+            "nullable": true
+          },
+          "legalDocNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "legalDocStateId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "legalDocTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numSeries": {
+            "type": "string",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "validDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginMethod": {
         "enum": ["Custom", "Windows", "OpenId"],
         "type": "string"
@@ -7358,6 +8105,34 @@
           "phoneTypeId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReferenceDataHealthDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLoaded": {
+            "type": "boolean"
+          },
+          "lastLoadedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastFailedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nextAttemptAt": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         },
@@ -7925,6 +8700,9 @@
     },
     {
       "name": "FinancialProduct"
+    },
+    {
+      "name": "Health"
     },
     {
       "name": "News"

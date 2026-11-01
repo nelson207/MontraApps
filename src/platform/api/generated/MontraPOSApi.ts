@@ -262,16 +262,6 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
-    postApiCreditOperationsCalculate: build.mutation<
-      PostApiCreditOperationsCalculateApiResponse,
-      PostApiCreditOperationsCalculateApiArg
-    >({
-      query: (queryArg) => ({
-        url: `/api/credit-operations/calculate`,
-        method: "POST",
-        body: queryArg.calculateCreditOperationRequest,
-      }),
-    }),
     getApiCreditOperationsNewCredoper: build.query<
       GetApiCreditOperationsNewCredoperApiResponse,
       GetApiCreditOperationsNewCredoperApiArg
@@ -311,6 +301,24 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/credit-operations/calculate-credoper`,
         method: "POST",
         body: queryArg.credOperDto,
+      }),
+    }),
+    postApiCreditOperationsSaveCredoper: build.mutation<
+      PostApiCreditOperationsSaveCredoperApiResponse,
+      PostApiCreditOperationsSaveCredoperApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/credit-operations/save-credoper`,
+        method: "POST",
+        body: queryArg.credOperDto,
+      }),
+    }),
+    getApiCreditOperationsCredoperById: build.query<
+      GetApiCreditOperationsCredoperByIdApiResponse,
+      GetApiCreditOperationsCredoperByIdApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/credit-operations/credoper/${queryArg.id}`,
       }),
     }),
     getApiEquipmentsNew: build.query<
@@ -431,6 +439,15 @@ const injectedRtkApi = api.injectEndpoints({
           oldFinancialProductId: queryArg.oldFinancialProductId,
         },
       }),
+    }),
+    getApiHealthLive: build.query<
+      GetApiHealthLiveApiResponse,
+      GetApiHealthLiveApiArg
+    >({
+      query: () => ({ url: `/api/health/live` }),
+    }),
+    getApiHealth: build.query<GetApiHealthApiResponse, GetApiHealthApiArg>({
+      query: () => ({ url: `/api/health` }),
     }),
     getApiNewsTypes: build.query<
       GetApiNewsTypesApiResponse,
@@ -820,11 +837,6 @@ export type GetApiCreditOperationsSearchApiArg = {
   page?: number;
   pageSize?: number;
 };
-export type PostApiCreditOperationsCalculateApiResponse =
-  /** status 200 OK */ CreditOperationCalculationDto;
-export type PostApiCreditOperationsCalculateApiArg = {
-  calculateCreditOperationRequest: CalculateCreditOperationRequest;
-};
 export type GetApiCreditOperationsNewCredoperApiResponse =
   /** status 200 OK */ CredOperDto;
 export type GetApiCreditOperationsNewCredoperApiArg = {
@@ -845,6 +857,16 @@ export type PostApiCreditOperationsCalculateCredoperApiResponse =
   /** status 200 OK */ CredOperCalculationResultDto;
 export type PostApiCreditOperationsCalculateCredoperApiArg = {
   credOperDto: CredOperDto;
+};
+export type PostApiCreditOperationsSaveCredoperApiResponse =
+  /** status 200 OK */ CredOperSaveResultDto;
+export type PostApiCreditOperationsSaveCredoperApiArg = {
+  credOperDto: CredOperDto;
+};
+export type GetApiCreditOperationsCredoperByIdApiResponse =
+  /** status 200 OK */ CredOperDto;
+export type GetApiCreditOperationsCredoperByIdApiArg = {
+  id: string;
 };
 export type GetApiEquipmentsNewApiResponse =
   /** status 200 OK */ CredOperAssetDto;
@@ -912,6 +934,10 @@ export type PostApiFinancialProductsDefaultsApiArg = {
   oldFinancialProductId?: number;
   credOperDto: CredOperDto;
 };
+export type GetApiHealthLiveApiResponse = unknown;
+export type GetApiHealthLiveApiArg = void;
+export type GetApiHealthApiResponse = /** status 200 OK */ HealthDto;
+export type GetApiHealthApiArg = void;
 export type GetApiNewsTypesApiResponse = /** status 200 OK */ NewsTypeDto[];
 export type GetApiNewsTypesApiArg = {
   portal?: MontraAplApplications;
@@ -1519,46 +1545,6 @@ export type CredOperSummaryDtoPagedResult = {
   pageSize?: number;
   totalCount?: number;
 };
-export type CalculationMessageDto = {
-  severity?: string | null;
-  text?: string | null;
-};
-export type CreditOperationCalculationDto = {
-  isCalculated?: boolean;
-  financialProductId?: number;
-  currencyId?: string | null;
-  beginDate?: string;
-  financedAmount?: number;
-  term?: number;
-  periodId?: number;
-  installmentAmount?: number | null;
-  installmentAmountWithTax?: number | null;
-  implicitRate?: number | null;
-  annualRate?: number | null;
-  equipmentNetAmount?: number;
-  messages?: CalculationMessageDto[] | null;
-};
-export type EquipmentInputDto = {
-  typeId?: number | null;
-  categoryId?: number | null;
-  stateId?: number | null;
-  netAmount?: number;
-  description?: string | null;
-};
-export type CalculateCreditOperationRequest = {
-  financialProductId?: number;
-  companyId?: number;
-  businessId?: number;
-  operationTypeId?: number;
-  channelId?: number;
-  purposeTypeId?: number | null;
-  currencyId?: string | null;
-  beginDate?: string;
-  equipment?: EquipmentInputDto;
-  financedAmount?: number;
-  term?: number;
-  periodId?: number;
-};
 export type FinConditionsFlowDto = {
   amount?: number | null;
   amountUnrounded?: number | null;
@@ -1903,6 +1889,200 @@ export type InsurancePolicyDto = {
   wasTaxInvoiced?: boolean | null;
   whoPaidId?: number | null;
 };
+export type FinRewardDto = {
+  /** Protected id (opaque token). */
+  aggregatorFinRewardId?: string | null;
+  amount?: number | null;
+  aplBusinessId?: number | null;
+  aplBusinessPurposeTypeId?: number | null;
+  aplCompanyId?: number | null;
+  aplTableId?: number | null;
+  autUserStateId?: number | null;
+  baseAmount?: number | null;
+  /** Protected id (opaque token). */
+  basePaymentRetentionFinRewardId?: string | null;
+  beginDate?: string | null;
+  calculationPeriodId?: number | null;
+  coefficient?: number | null;
+  companyMarginAmount?: number | null;
+  companyMarginTaxAmount?: number | null;
+  companyMarginThreshold?: number | null;
+  companyMarginThresholdInputModeId?: number | null;
+  companyMarginThresholdPercentage?: number | null;
+  currencyId?: string | null;
+  discountId?: number | null;
+  endDate?: string | null;
+  /** Protected id (opaque token). */
+  entityId?: string | null;
+  entityPercentage?: number | null;
+  excludeFromAggreement?: boolean | null;
+  externalReference?: string | null;
+  finRewardTypeId?: number | null;
+  financedAmount?: number | null;
+  fixedComponent?: number | null;
+  flowItem?: number | null;
+  grossAmount?: number | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  isAmountCalculated?: boolean | null;
+  isCalcByRateDefinition?: boolean | null;
+  isInformative?: boolean | null;
+  isInvoiced?: boolean | null;
+  isOkToInvoice?: boolean | null;
+  isPointsUserDefined?: boolean | null;
+  isReinforcement?: boolean | null;
+  isReversal?: boolean | null;
+  issueDate?: string | null;
+  maximumAmount?: number | null;
+  maximumAmountFinRewardTypeId?: number | null;
+  maximumInputId?: number | null;
+  maximumPercentage?: number | null;
+  movDate?: string | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  paymentModeId?: number | null;
+  percentage?: number | null;
+  points?: number | null;
+  productGeneratedId?: number | null;
+  rpDocItemGroupId?: number | null;
+  /** Protected id (opaque token). */
+  rpDocumentId?: string | null;
+  rappelAggreementId?: number | null;
+  /** Protected id (opaque token). */
+  relatedFinRewardId?: string | null;
+  /** Protected id (opaque token). */
+  relatedId?: string | null;
+  retentionTaxAmount?: number | null;
+  retentionTaxTypeId?: number | null;
+  rewardEntityOriginId?: number | null;
+  stateDate?: string | null;
+  subAplTableId?: number | null;
+  /** Protected id (opaque token). */
+  subRelatedId?: string | null;
+  taxExemptionReasonId?: number | null;
+  totalAmountIncludingRetention?: number | null;
+  totalGrossAmount?: number | null;
+  valueDate?: string | null;
+  variableComponent?: number | null;
+  variablePercentage?: number | null;
+  vatTaxAmount?: number | null;
+  vatTaxTypeId?: number | null;
+};
+export type ExpenseDto = {
+  accountDate?: string | null;
+  accountingMode?: number | null;
+  amount?: number | null;
+  annulledAccountDate?: string | null;
+  aplBankAccountId?: number | null;
+  aplTableId?: number | null;
+  bankId?: number | null;
+  /** Protected id (opaque token). */
+  businessPartnerStructNodeId?: string | null;
+  companyCurrencyAmount?: number | null;
+  companyCurrencyId?: string | null;
+  companyExpenseBaseAmount?: number | null;
+  companyForexRateValue?: number | null;
+  companyTaxAmount?: number | null;
+  currencyId?: string | null;
+  deferredAccountDate?: string | null;
+  descr?: string | null;
+  /** Protected id (opaque token). */
+  entityId?: string | null;
+  expenseBaseAmount?: number | null;
+  expenseTypeId?: number | null;
+  externalReference?: string | null;
+  financedAmount?: number | null;
+  /** Protected id (opaque token). */
+  frameContractCompanyRPDocumentId?: string | null;
+  /** Protected id (opaque token). */
+  frameContractEquipmentRPDocumentId?: string | null;
+  grossAmount?: number | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  invoiceCurrencyId?: string | null;
+  isAmountCalculated?: boolean | null;
+  isAnnulled?: boolean | null;
+  isDeferredAccounted?: boolean | null;
+  isInvoiced?: boolean | null;
+  isManualAssign?: boolean | null;
+  isRejected?: boolean | null;
+  isTaxExpense?: boolean | null;
+  isTemplate?: boolean | null;
+  isToInvoice?: boolean | null;
+  /** Protected id (opaque token). */
+  lastOperationAplUserId?: string | null;
+  lastOperationDate?: string | null;
+  maxAmount?: number | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  paymentData?: string | null;
+  paymentModeId?: number | null;
+  /** Protected id (opaque token). */
+  paymentRPDocumentId?: string | null;
+  percentage?: number | null;
+  productGeneratedId?: number | null;
+  quantity?: number | null;
+  /** Protected id (opaque token). */
+  rpDocumentId?: string | null;
+  rpScopeId?: number | null;
+  /** Protected id (opaque token). */
+  relatedId?: string | null;
+  sourceId?: number | null;
+  subCredOperItem?: number | null;
+  taxAmount?: number | null;
+  taxExemptionReasonId?: number | null;
+  taxTypeId?: number | null;
+  valueDate?: string | null;
+  wasModifiedByUser?: boolean | null;
+  wasTaxInvoiced?: boolean | null;
+};
+export type EmailDto = {
+  consentToCommunicate?: boolean | null;
+  emailAddress?: string | null;
+  entityEmailTypeId?: number | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  invalidDate?: string | null;
+  isMain?: boolean | null;
+  isValidated?: boolean | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+};
+export type PhoneDto = {
+  areaCode?: string | null;
+  countryId?: string | null;
+  extension?: string | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  isInactive?: boolean | null;
+  isMain?: boolean | null;
+  lastCallMoment?: string | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  phoneNumber?: string | null;
+  phoneTypeId?: number | null;
+};
+export type LegalDocDto = {
+  countryId?: string | null;
+  documentName?: string | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  initialValidDate?: string | null;
+  isMain?: boolean | null;
+  isReadOnly?: boolean | null;
+  issueDate?: string | null;
+  issuedBy?: string | null;
+  /** Protected id (opaque token). */
+  issuerEntityId?: string | null;
+  legalDocControl?: string | null;
+  legalDocNumber?: string | null;
+  legalDocStateId?: number | null;
+  legalDocTypeId?: number | null;
+  numSeries?: string | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  validDate?: string | null;
+};
 export type CredOperDto = {
   /** Protected id (opaque token). */
   id?: string | null;
@@ -1932,16 +2112,38 @@ export type CredOperDto = {
   credOperClassificationId?: number | null;
   entityName?: string | null;
   descr?: string | null;
+  /** Protected id (opaque token). */
+  personStructNodeId?: string | null;
+  personName?: string | null;
   conditions?: FinConditionsDto[] | null;
   assets?: CredOperAssetDto[] | null;
   interventions?: CredOperIntervDto[] | null;
   insurances?: InsurancePolicyDto[] | null;
+  commissions?: FinRewardDto[] | null;
+  subventions?: FinRewardDto[] | null;
+  otherExpenses?: ExpenseDto[] | null;
+  taxExpenses?: ExpenseDto[] | null;
+  emails?: EmailDto[] | null;
+  phones?: PhoneDto[] | null;
+  legalDocs?: LegalDocDto[] | null;
 };
 export type NewInterventionKind = "Customer" | "SecondHolder" | "Guarantor";
+export type CalculationMessageDto = {
+  severity?: string | null;
+  text?: string | null;
+};
 export type CredOperCalculationResultDto = {
   isCalculated?: boolean;
   credOper?: CredOperDto;
   messages?: CalculationMessageDto[] | null;
+};
+export type CredOperSaveResultDto = {
+  isSaved?: boolean;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  credOper?: CredOperDto;
+  calculationMessages?: CalculationMessageDto[] | null;
+  saveMessages?: CalculationMessageDto[] | null;
 };
 export type EquipmentClassDto = {
   id?: number;
@@ -1957,6 +2159,20 @@ export type FinancialProductDto = {
   id?: number;
   code?: string | null;
   description?: string | null;
+};
+export type HealthStatus = "Healthy" | "Degraded";
+export type ReferenceDataHealthDto = {
+  name?: string | null;
+  isLoaded?: boolean;
+  lastLoadedAt?: string | null;
+  lastFailedAt?: string | null;
+  nextAttemptAt?: string | null;
+};
+export type HealthDto = {
+  status?: HealthStatus;
+  startedAt?: string;
+  version?: string | null;
+  referenceData?: ReferenceDataHealthDto[] | null;
 };
 export type NewsDto = {
   /** Protected id (opaque token). */
@@ -2057,32 +2273,6 @@ export type ContactDto = {
   type?: string | null;
   value?: string | null;
   isPrimary?: boolean;
-};
-export type EmailDto = {
-  consentToCommunicate?: boolean | null;
-  emailAddress?: string | null;
-  entityEmailTypeId?: number | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  invalidDate?: string | null;
-  isMain?: boolean | null;
-  isValidated?: boolean | null;
-  /** Protected id (opaque token). */
-  ownerId?: string | null;
-};
-export type PhoneDto = {
-  areaCode?: string | null;
-  countryId?: string | null;
-  extension?: string | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  isInactive?: boolean | null;
-  isMain?: boolean | null;
-  lastCallMoment?: string | null;
-  /** Protected id (opaque token). */
-  ownerId?: string | null;
-  phoneNumber?: string | null;
-  phoneTypeId?: number | null;
 };
 export type AddressLinesDto = {
   street?: string | null;
@@ -2252,11 +2442,12 @@ export const {
   useGetApiCreditOperationsClassificationsQuery,
   useGetApiCreditOperationsBusinessesQuery,
   useGetApiCreditOperationsSearchQuery,
-  usePostApiCreditOperationsCalculateMutation,
   useGetApiCreditOperationsNewCredoperQuery,
   useGetApiCreditOperationsNewInterventionQuery,
   useGetApiCreditOperationsNewInsuranceQuery,
   usePostApiCreditOperationsCalculateCredoperMutation,
+  usePostApiCreditOperationsSaveCredoperMutation,
+  useGetApiCreditOperationsCredoperByIdQuery,
   useGetApiEquipmentsNewQuery,
   useGetApiEquipmentsCategoriesQuery,
   useGetApiEquipmentsTypesQuery,
@@ -2266,6 +2457,8 @@ export const {
   useGetApiEquipmentsStatesQuery,
   useGetApiFinancialProductsQuery,
   usePostApiFinancialProductsDefaultsMutation,
+  useGetApiHealthLiveQuery,
+  useGetApiHealthQuery,
   useGetApiNewsTypesQuery,
   useGetApiNewsQuery,
   useGetApiNewsSearchQuery,

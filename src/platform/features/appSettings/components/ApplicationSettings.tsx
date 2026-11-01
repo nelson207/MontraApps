@@ -187,7 +187,7 @@ function ApplicationSettings() {
           )}
           {dirty && (
             <div className="ms-auto d-flex gap-2">
-              <button type="button" className="btn btn-outline-secondary" disabled={saveState.isLoading} onClick={discard}>
+              <button type="button" className="btn btn-ghost" disabled={saveState.isLoading} onClick={discard}>
                 Discard
               </button>
               <button type="button" className="btn btn-primary" disabled={saveState.isLoading} onClick={onSave}>

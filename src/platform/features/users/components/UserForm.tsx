@@ -169,7 +169,7 @@ function UserForm({ mode, initial, initialContacts = NO_CONTACTS, submitLabel, i
           {isSaving && <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />}
           {isSaving ? "Saving…" : submitLabel}
         </button>
-        <Link to={listUrl("/admin/users")} className="btn btn-outline-secondary">
+        <Link to={listUrl("/admin/users")} className="btn btn-ghost">
           Cancel
         </Link>
       </div>

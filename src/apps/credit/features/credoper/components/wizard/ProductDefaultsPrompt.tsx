@@ -72,7 +72,7 @@ function ProductDefaultsPrompt({ conflicts, onResolve }: Props) {
               </ul>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-outline-secondary" onClick={() => onResolve([])}>
+              <button type="button" className="btn btn-ghost" onClick={() => onResolve([])}>
                 Keep my values
               </button>
               <button

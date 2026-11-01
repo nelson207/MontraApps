@@ -89,7 +89,7 @@ function PasswordChangeForm({
           </button>
           <button
             type="button"
-            className="btn btn-outline-secondary"
+            className="btn btn-ghost"
             disabled={isPasswordChangeLoading}
             onClick={cancelPasswordChange}
           >

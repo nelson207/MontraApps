@@ -97,6 +97,24 @@
   --#{$prefix}btn-focus-shadow-rgb: var(--app-primary-rgb);
 }
 
+// Secondary action beside a main one (Back, Cancel, Close, Discard): text only, a tint on hover,
+// so the main action is the one that stands out
+.btn-ghost {
+  --#{$prefix}btn-color: var(--#{$prefix}body-color);
+  --#{$prefix}btn-bg: transparent;
+  --#{$prefix}btn-border-color: transparent;
+  --#{$prefix}btn-hover-color: var(--#{$prefix}emphasis-color);
+  --#{$prefix}btn-hover-bg: var(--#{$prefix}tertiary-bg);
+  --#{$prefix}btn-hover-border-color: transparent;
+  --#{$prefix}btn-active-color: var(--#{$prefix}emphasis-color);
+  --#{$prefix}btn-active-bg: var(--#{$prefix}secondary-bg);
+  --#{$prefix}btn-active-border-color: transparent;
+  --#{$prefix}btn-disabled-color: var(--#{$prefix}secondary-color);
+  --#{$prefix}btn-disabled-bg: transparent;
+  --#{$prefix}btn-disabled-border-color: transparent;
+  --#{$prefix}btn-focus-shadow-rgb: var(--app-primary-rgb);
+}
+
 // Forms
 .form-control:focus,
 .form-select:focus,

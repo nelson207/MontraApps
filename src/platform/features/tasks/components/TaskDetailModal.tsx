@@ -152,7 +152,7 @@ function TaskDetailModal({ tasks, index, onIndexChange, onClose }: Props) {
                   <i className="bi bi-chevron-right" />
                 </button>
               </div>
-              <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
                 Close
               </button>
             </div>

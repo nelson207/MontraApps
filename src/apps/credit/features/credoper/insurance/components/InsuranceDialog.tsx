@@ -44,7 +44,7 @@ function InsuranceDialog({ title, onSave, onClose, children }: Props) {
             </div>
             <div className="modal-body">{children}</div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
                 Cancel
               </button>
               <button type="button" className="btn btn-primary" onClick={onSave}>
