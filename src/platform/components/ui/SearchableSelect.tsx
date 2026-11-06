@@ -11,6 +11,10 @@ export type SelectOption = {
   value: string | number;
   label: string;
   title?: string;
+  /** Listed, but can't be chosen */
+  disabled?: boolean;
+  /** A line under the label, e.g. why it can't be chosen */
+  hint?: string;
 };
 
 export type SearchableSelectProps = {
@@ -104,6 +108,7 @@ function SearchableSelect({
   };
 
   const choose = (option: SelectOption) => {
+    if (option.disabled) return;
     onChange(String(option.value), option);
     closeAndFocus();
   };
@@ -238,14 +243,18 @@ function SearchableSelect({
                   id={optionId(index)}
                   role="option"
                   aria-selected={isSelected}
+                  aria-disabled={option.disabled || undefined}
                   data-index={index}
                   title={option.title ?? option.label}
-                  className={`dropdown-item d-flex align-items-center gap-2 app-combobox-option ${index === activeIndex ? "is-active" : ""} ${isSelected ? "fw-semibold" : ""}`}
+                  className={`dropdown-item d-flex align-items-center gap-2 app-combobox-option ${index === activeIndex ? "is-active" : ""} ${isSelected ? "fw-semibold" : ""} ${option.disabled ? "disabled" : ""}`}
                   onMouseMove={() => index !== activeIndex && setActiveIndex(index)}
                   onMouseDown={(e) => e.preventDefault()} // keep focus in the search box
                   onClick={() => choose(option)}
                 >
-                  <span className="text-truncate flex-grow-1">{option.label}</span>
+                  <span className="text-truncate flex-grow-1">
+                    {option.label}
+                    {option.hint && <span className="d-block small text-wrap fw-normal">{option.hint}</span>}
+                  </span>
                   {isSelected && <i className="bi bi-check2 text-primary" aria-hidden="true" />}
                 </li>
               );

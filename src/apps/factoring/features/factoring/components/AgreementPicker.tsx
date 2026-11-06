@@ -1,3 +1,4 @@
+import { useSingleOptionDefault } from "@platform/hooks/useSingleOptionDefault";
 import { availableOf, formatEuro, NATURE_LABELS, type FactoringAgreement } from "../model/factoring";
 
 type Props = {
@@ -17,6 +18,10 @@ const NATURE_HINTS = {
 // The credit intermediary's agreements as radio cards: factoring or confirming, the financial
 // company, what is still available and the terms. One with nothing available can't be chosen.
 function AgreementPicker({ agreements, isLoading, isError, value, onChange, invalidMessage }: Props) {
+  // Only one agreement with something available: it is chosen by default
+  const choosable = (agreements ?? []).filter((agreement) => availableOf(agreement) > 0);
+  useSingleOptionDefault(value === null && !isLoading && choosable.length === 1 ? choosable[0].id : null, onChange);
+
   if (isLoading)
     return (
       <div className="row g-3" aria-busy="true">

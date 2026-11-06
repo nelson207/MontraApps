@@ -27,10 +27,11 @@ export const SAMPLE_TYPES = [
   item(3, "Motorcycle"),
 ];
 
-export const SAMPLE_STATES = [1, 2, 3].map((code, i) => ({
+// The same ids as the API's: 0 is a real state
+export const SAMPLE_STATES = [0, 1, 2, 3].map((code, i) => ({
   code,
-  abbreviation: ["New", "Used", "Demonstration"][i],
-  description: ["New", "Used", "Demonstration vehicle"][i],
+  abbreviation: ["New", "Used", "Imported new", "Imported used"][i],
+  description: ["New", "Used", "Imported new", "Imported used"][i],
 }));
 
 const SAMPLE_CATEGORIES: Record<number, ReturnType<typeof item>[]> = {

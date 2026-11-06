@@ -25,8 +25,10 @@ type Props = {
   onChange: (changes: Partial<EquipmentValue>) => void;
   /** Element ids: `${idPrefix}-brand`, … (unique per vehicle on the page) */
   idPrefix: string;
-  /** The company whose equipment types and categories are listed (when the app has one) */
+  /** The company whose equipment types and categories are listed; the API requires it, so they wait for it */
   companyId?: number | null;
+  /** Shown in the equipment type while there is no company yet */
+  noCompanyHint?: string;
   /** Validation message per field (only once errors should show) */
   error?: (field: EquipmentField) => string | null | undefined;
   /** Visible / required / read-only per field; every field visible, optional and editable by default */
@@ -37,14 +39,15 @@ type Props = {
   showCommercialValue?: boolean;
   /** More fields in the Usage row (e.g. Renting's vehicle amount) */
   usageExtra?: ReactNode;
+  /** Only these equipment types / states are offered; empty or missing means no restriction */
+  allowedTypeIds?: number[] | null;
+  allowedStateIds?: number[] | null;
 };
+
+const onlyAllowed = (items: CodeItem[] | undefined, allowed: number[] | null | undefined) =>
+  allowed?.length ? items?.filter((item) => allowed.some((id) => String(id) === item.code)) : items;
 
 const money = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-
-const today = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-};
 
 /** What a change clears: every list after it depends on it */
 const AFTER_BRAND = { model: null, version: null };
@@ -53,11 +56,15 @@ const AFTER_TYPE = { equipmentCategoryId: null, ...AFTER_CATEGORY };
 
 const toNumber = (raw: string): number | null => (raw.trim() === "" ? null : Number(raw));
 
+/** Brands wait for the type, the category and the state (unless this screen hides the state) */
+const brandQueryReady = (value: EquipmentValue, rule: (field: EquipmentField) => EquipmentFieldRule) =>
+  !!value.equipmentTypeId && !!value.equipmentCategoryId && (value.equipmentStateId != null || !rule("equipmentStateId").visible);
+
 const asCodeOptions = (items?: CodeItem[]) =>
   items?.map((item) => ({ value: item.code, label: item.abbreviation, title: item.description }));
 
 // The vehicle: type → category → brand → model → version (each list waits for the one before and
-// changing one clears the ones after it), state, (VIN,) plate, registration date and description,
+// changing one clears the ones after it), state, (VIN,) plate, year, month and description,
 // then its usage: km, engine size and doors. The lists come from the API (cached and shared);
 // brand, model and version are kept as the API's codes. The app owns the value, the field rules
 // and the validation.
@@ -66,20 +73,24 @@ function EquipmentDetail({
   onChange,
   idPrefix,
   companyId,
+  noCompanyHint = "Select a company first",
   error = () => null,
   rule = () => OPTIONAL_FIELD,
   withVin = false,
   showCommercialValue = false,
   usageExtra,
+  allowedTypeIds,
+  allowedStateIds,
 }: Props) {
   const typeId = value.equipmentTypeId ?? null;
   const categoryId = value.equipmentCategoryId ?? null;
   const brand = value.brand ?? "";
   const model = value.model ?? "";
 
-  const types = useGetEquipmentTypesQuery({ companyId });
-  const categories = useGetEquipmentCategoriesQuery(typeId ? { companyId, equipmentTypeId: typeId } : skipToken);
-  const brands = useGetEquipmentBrandsQuery(typeId && categoryId ? { equipmentTypeId: typeId, categoryId } : skipToken);
+  const types = useGetEquipmentTypesQuery(companyId ? { companyId } : skipToken);
+  const categories = useGetEquipmentCategoriesQuery(companyId && typeId ? { companyId, equipmentTypeId: typeId } : skipToken);
+  const brands = useGetEquipmentBrandsQuery(brandQueryReady(value, rule) ? { equipmentTypeId: typeId as number, categoryId: categoryId as number } : skipToken);
+  const brandReady = brandQueryReady(value, rule);
   const models = useGetEquipmentModelsQuery(typeId && categoryId && brand ? { equipmentTypeId: typeId, categoryId, brand } : skipToken);
   const versions = useGetEquipmentVersionsQuery(
     typeId && categoryId && brand && model ? { equipmentTypeId: typeId, categoryId, brand, model } : skipToken,
@@ -123,6 +134,7 @@ function EquipmentDetail({
       <SelectField
         label={label}
         id={id(name)}
+        required={props.required}
         placeholder={placeholder}
         isLoading={list.isFetching}
         value={value[name] ?? undefined}
@@ -130,6 +142,21 @@ function EquipmentDetail({
         onChange={(e) => onChange(changes(Number(e.target.value)))}
         disabled={props.disabled || disabled}
         invalidMessage={props.invalidMessage}
+      />
+    ));
+
+  const yearMonthField = (name: "equipYear" | "equipMonth", label: string, min: number, max?: number) =>
+    field(name, (props) => (
+      <InputField
+        label={label}
+        id={id(name)}
+        type="number"
+        min={min}
+        max={max}
+        step={1}
+        value={value[name] ?? ""}
+        onChange={(e) => onChange({ [name]: toNumber(e.target.value) })}
+        {...props}
       />
     ));
 
@@ -164,10 +191,14 @@ function EquipmentDetail({
       <div className="row gx-3">
         <div className="col-md-4">
           {/* Everything after the type depends on it */}
-          {codeSelect("equipmentTypeId", "Equipment type", types, (code) => ({
-            equipmentTypeId: code,
-            ...AFTER_TYPE,
-          }))}
+          {codeSelect(
+            "equipmentTypeId",
+            "Equipment type",
+            { ...types, currentData: onlyAllowed(types.currentData, allowedTypeIds) },
+            (code) => ({ equipmentTypeId: code, ...AFTER_TYPE }),
+            companyId ? undefined : noCompanyHint,
+            !companyId,
+          )}
         </div>
         <div className="col-md-4">
           {codeSelect(
@@ -180,20 +211,21 @@ function EquipmentDetail({
           )}
         </div>
         <div className="col-md-4">
-          {codeSelect("equipmentStateId", "Equipment state", states, (code) => ({ equipmentStateId: code }))}
+          {codeSelect("equipmentStateId", "Equipment state", { ...states, currentData: onlyAllowed(states.currentData, allowedStateIds) }, (code) => ({ equipmentStateId: code }))}
         </div>
         <div className="col-md-4">
           {field("brand", (props) => (
             <SelectField
               label="Brand"
               id={id("brand")}
-              placeholder={categoryId ? "Select a brand" : "Select a category first"}
+              required={props.required}
+              placeholder={brandReady ? "Select a brand" : "Select type, category and state first"}
               isLoading={brands.isFetching}
               value={brand || undefined}
               // currentData: never offer the previous category or brand's list while the new one loads
               options={asCodeOptions(brands.currentData)}
               onChange={(e) => onChange({ brand: e.target.value, ...AFTER_BRAND })}
-              disabled={props.disabled || !categoryId}
+              disabled={props.disabled || !brandReady}
               invalidMessage={props.invalidMessage}
             />
           ))}
@@ -203,6 +235,7 @@ function EquipmentDetail({
             <SelectField
               label="Model"
               id={id("model")}
+              required={props.required}
               placeholder={brand ? "Select a model" : "Select a brand first"}
               isLoading={models.isFetching}
               value={model || undefined}
@@ -218,6 +251,7 @@ function EquipmentDetail({
             <SelectField
               label="Version"
               id={id("version")}
+              required={props.required}
               placeholder={model ? "Select a version" : "Select a model first"}
               isLoading={versions.isFetching}
               value={value.version || undefined}
@@ -255,20 +289,8 @@ function EquipmentDetail({
             />
           ))}
         </div>
-        <div className="col-md-4">
-          {field("registrationDate", (props) => (
-            <InputField
-              label="Registration date"
-              id={id("registrationDate")}
-              type="date"
-              min="1900-01-01"
-              max={today()}
-              value={value.registrationDate?.slice(0, 10) ?? ""}
-              onChange={(e) => onChange({ registrationDate: e.target.value || null })}
-              {...props}
-            />
-          ))}
-        </div>
+        <div className="col-6 col-md-2">{yearMonthField("equipYear", "Year", 1900)}</div>
+        <div className="col-6 col-md-2">{yearMonthField("equipMonth", "Month", 1, 12)}</div>
         <div className={vinVisible ? "col-12" : "col-md-4"}>
           {field("description", (props) => (
             <InputField

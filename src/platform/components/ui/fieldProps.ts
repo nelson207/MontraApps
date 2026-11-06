@@ -24,6 +24,8 @@ export type SelectFieldChange = { target: { value: string } };
 
 export type SelectFieldProps = {
   label?: string;
+  /** Marks the label as required (the form validates it) */
+  required?: boolean;
   id: string;
   value: string | number | null | undefined;
   isLoading?: boolean;
@@ -47,4 +49,8 @@ export type SelectFieldOptions = {
   value?: string | number | null;
   label?: string | null;
   title?: string | null;
+  /** Listed, but can't be chosen */
+  disabled?: boolean;
+  /** A line under the label, e.g. why it can't be chosen */
+  hint?: string;
 };
