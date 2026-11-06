@@ -1,55 +1,49 @@
-import React from "react";
+import { useRef, type KeyboardEvent } from "react";
 import type { WizardHeaderProps } from "../types/credoperTypes";
 
-const WizardHeaderWithIcons: React.FC<WizardHeaderProps> = ({
-  steps = [],
-  currentStep = 1,
-  onStepClick,
-}) => {
-  return (
-    <div className="d-flex justify-content-between mb-3">
-      {steps.map((step, index) => {
-        const stepNumber = index + 1;
-        const isActive = stepNumber === currentStep;
-        const isCompleted = stepNumber < currentStep;
+// The tabs of a person's form: a small icon beside the label, how many required fields it still
+// misses, a tick when it's complete and a mark when it has errors to show.
+function InterventionTabs({ steps = [], currentStep = 1, onStepClick }: WizardHeaderProps) {
+  const list = useRef<HTMLDivElement>(null);
 
+  // ← → move between the tabs
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const move = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!move) return;
+    e.preventDefault();
+    const next = ((currentStep - 1 + move + steps.length) % steps.length) + 1;
+    onStepClick?.(next);
+    list.current?.querySelectorAll<HTMLElement>('[role="tab"]')[next - 1]?.focus();
+  };
+
+  return (
+    <div ref={list} className="app-person-tabs" role="tablist" aria-label="Sections of this person" onKeyDown={onKeyDown}>
+      {steps.map((step, index) => {
+        const isActive = index + 1 === currentStep;
+        const says = [step.label, step.missing ? `${step.missing} to fill` : step.complete ? "complete" : null, step.hasError ? "has errors" : null];
         return (
-          <div key={index} className="flex-fill text-center position-relative">
-            <button
-              type="button"
-              className="btn mb-2 z-1 wizard-step-btn position-relative"
-              aria-label={step.hasError ? `${step.label} (has errors)` : undefined}
-              onClick={() => onStepClick?.(stepNumber)}
-            >
-              {step.hasError && (
-                <span className="position-absolute top-0 start-50 ms-2 p-1 bg-danger rounded-circle" aria-hidden="true" />
-              )}
-              <i
-                className={`bi ${step.icon} text-center fs-3 ${
-                  isActive
-                    ? "text-primary"
-                    : isCompleted
-                      ? "text-success"
-                      : "text-muted"
-                }`}
-              />
-              <div
-                className={`small text-center ${
-                  isActive
-                    ? "fw-bold text-primary"
-                    : isCompleted
-                      ? "text-success"
-                      : "text-muted"
-                }`}
-              >
-                {step.label}
-              </div>
-            </button>
-          </div>
+          <button
+            key={step.label}
+            type="button"
+            role="tab"
+            id={`person-tab-${index + 1}`}
+            aria-selected={isActive}
+            aria-controls="person-tab-panel"
+            aria-label={says.filter(Boolean).join(", ")}
+            tabIndex={isActive ? 0 : -1}
+            className={`app-person-tab ${isActive ? "is-active" : ""}`}
+            onClick={() => onStepClick?.(index + 1)}
+          >
+            <i className={`bi ${step.icon}`} aria-hidden="true" />
+            <span>{step.label}</span>
+            {!!step.missing && <span className="badge rounded-pill text-bg-warning app-person-tab-count">{step.missing}</span>}
+            {!step.missing && step.complete && <i className="bi bi-check-lg text-success" aria-hidden="true" />}
+            {step.hasError && <span className="app-person-tab-error" aria-hidden="true" />}
+          </button>
         );
       })}
     </div>
   );
-};
+}
 
-export default WizardHeaderWithIcons;
+export default InterventionTabs;

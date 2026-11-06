@@ -1,8 +1,6 @@
 import { nodeFromId } from "@platform/features/workContext/nodeLabels";
 import { businessOf } from "../../model/business";
-import type { CredOperDraft, Stage } from "../../model/credOperDraft";
-
-const STAGE_LABELS: Record<Stage, string> = { quotation: "Quotation", proposal: "Proposal" };
+import { operationTitle, type CredOperDraft, type Stage } from "../../model/credOperDraft";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
 
@@ -23,9 +21,8 @@ type Props = {
 // "New quotation" / "Quotation #n" / "Proposal #n", save state, company · business · asset type,
 // and where it belongs.
 function OperationHeader({ stage, operation, isDirty, companyLabel, assetTypeLabel }: Props) {
-  const number = operation.credOperNumber ?? operation.id;
   const isSaved = operation.id != null;
-  const title = isSaved ? `${STAGE_LABELS[stage]} #${number}` : `New ${STAGE_LABELS[stage].toLowerCase()}`;
+  const title = !isSaved ? `New ${stage}` : operationTitle(stage, operation);
 
   // "Unsaved changes" only once there is a saved version to differ from; until the first save it is "New".
   const badge = !isSaved

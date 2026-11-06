@@ -4,6 +4,7 @@ import type {
   CredOperIntervDto,
 } from "@platform/api/legacy/legacyApi";
 import type { AvailableBusiness } from "../model/business";
+import type { ClassificationOption } from "../model/credOperDraft";
 
 export type QuotationDataProps = {
   options?: OptionsState;
@@ -19,7 +20,7 @@ export type QuotationProps = {
 
 export type OptionsState = {
   financialProducts: CodeAbbreviation[];
-  credOperClassifications: CodeAbbreviation[];
+  credOperClassifications: ClassificationOption[];
 };
 
 export type UseQuotationOptionsParams = {
@@ -46,6 +47,10 @@ export type WizardHeaderStep = {
   id?: number | null | undefined;
   /** Shows an error mark on the step */
   hasError?: boolean;
+  /** Required fields it still misses */
+  missing?: number;
+  /** Nothing required is missing, in a tab that has required fields */
+  complete?: boolean;
 };
 
 export type WizardHeaderProps = {

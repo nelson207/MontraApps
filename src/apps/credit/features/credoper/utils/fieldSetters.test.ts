@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AppDispatch } from "@credit/store";
-import { setEquipmentField, setEquipmentFields, setLandLinePhoneField, setMobilePhoneField } from "./fieldSetters";
+import { setEquipmentField, setEquipmentFields, setLandLinePhone, setMobilePhone } from "./fieldSetters";
 
 const recorder = () => {
   const actions: unknown[] = [];
@@ -10,15 +10,17 @@ const recorder = () => {
 describe("phone setters", () => {
   it("an empty number reported for an empty phone is not an edit", () => {
     const { actions, dispatch } = recorder();
-    setMobilePhoneField(dispatch, { customerPhone: undefined }, "phoneNumber", "");
-    setLandLinePhoneField(dispatch, { customerLandLine: { phoneNumber: null } }, "phoneNumber", "");
+    setMobilePhone(dispatch, { customerPhone: undefined }, { phoneNumber: "", countryId: "PRT" });
+    setLandLinePhone(dispatch, { customerLandLine: { phoneNumber: null } }, { phoneNumber: "", countryId: "PRT" });
     expect(actions).toHaveLength(0);
   });
 
-  it("a real change is dispatched", () => {
+  it("a number, or another country for it, is dispatched: both, never joined", () => {
     const { actions, dispatch } = recorder();
-    setMobilePhoneField(dispatch, { customerPhone: undefined }, "phoneNumber", "+351912345678");
-    expect(actions).toHaveLength(1);
+    setMobilePhone(dispatch, { customerPhone: undefined }, { phoneNumber: "912345678", countryId: "PRT" });
+    setMobilePhone(dispatch, { customerPhone: { phoneNumber: "912345678", countryId: "PRT" } }, { phoneNumber: "912345678", countryId: "ESP" });
+    expect(actions).toHaveLength(2);
+    expect(actions[0]).toMatchObject({ payload: { customerPhone: { phoneNumber: "912345678", countryId: "PRT" } } });
   });
 });
 

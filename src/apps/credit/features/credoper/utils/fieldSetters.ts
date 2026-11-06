@@ -7,6 +7,7 @@ import type {
   EquipmentDto,
   FinConditionDto,
 } from "@platform/api/legacy/legacyApi";
+import type { PhoneValue } from "@platform/features/phone/phoneModel";
 import { patchCredoper } from "../credoperSlice";
 import { withAssetAmount, withRetakeAmount, withRetakeInLine, withRetakePercentage } from "../model/business";
 import { isEmptyValue } from "../validation/fieldRules";
@@ -92,6 +93,20 @@ export const setInterventionDetailField = <
   );
 };
 
+/** Several parts of a person in one edit */
+export const updateIntervention = (
+  dispatch: AppDispatch,
+  credoper: CredOperDto | null | undefined,
+  interventionIndex: number,
+  change: (intervention: CredOperIntervDto) => CredOperIntervDto,
+) => {
+  dispatch(
+    patchCredoper({
+      interventions: credoper?.interventions?.map((intervention, index) => (index === interventionIndex ? change(intervention) : intervention)) ?? [],
+    }),
+  );
+};
+
 export const setFinConditionsField = <K extends keyof FinConditionDto>(
   dispatch: AppDispatch,
   credoper: CredOperDto | null | undefined,
@@ -116,38 +131,18 @@ export const setFinConditionsField = <K extends keyof FinConditionDto>(
   );
 };
 
-export const setMobilePhoneField = <K extends keyof EntityPhoneDto>(
-  dispatch: AppDispatch,
-  credoper: CredOperDto | null | undefined,
-  name: K,
-  value: EntityPhoneDto[K],
-) => {
-  if (unchanged(credoper?.customerPhone?.[name], value)) return;
-  dispatch(
-    patchCredoper({
-      customerPhone: {
-        ...credoper?.customerPhone,
-        [name]: value,
-      },
-    } as Partial<CredOperDto>),
-  );
+/** A phone typed: an empty number reported for an empty phone is not an edit */
+const phoneUnchanged = (current: EntityPhoneDto | null | undefined, { phoneNumber, countryId }: PhoneValue) =>
+  unchanged(current?.phoneNumber, phoneNumber) && (isEmptyValue(phoneNumber) || current?.countryId === countryId);
+
+export const setMobilePhone = (dispatch: AppDispatch, credoper: CredOperDto | null | undefined, phone: PhoneValue) => {
+  if (phoneUnchanged(credoper?.customerPhone, phone)) return;
+  dispatch(patchCredoper({ customerPhone: { ...credoper?.customerPhone, ...phone } } as Partial<CredOperDto>));
 };
 
-export const setLandLinePhoneField = <K extends keyof EntityPhoneDto>(
-  dispatch: AppDispatch,
-  credoper: CredOperDto | null | undefined,
-  name: K,
-  value: EntityPhoneDto[K],
-) => {
-  if (unchanged(credoper?.customerLandLine?.[name], value)) return;
-  dispatch(
-    patchCredoper({
-      customerLandLine: {
-        ...credoper?.customerLandLine,
-        [name]: value,
-      },
-    } as Partial<CredOperDto>),
-  );
+export const setLandLinePhone = (dispatch: AppDispatch, credoper: CredOperDto | null | undefined, phone: PhoneValue) => {
+  if (phoneUnchanged(credoper?.customerLandLine, phone)) return;
+  dispatch(patchCredoper({ customerLandLine: { ...credoper?.customerLandLine, ...phone } } as Partial<CredOperDto>));
 };
 
 export const setEmailField = <K extends keyof EntityEmailDto>(

@@ -2,8 +2,7 @@ import { problemMessage } from "@platform/api/problemCode";
 import { selectCredoper, useAppDispatch, useAppSelector } from "@credit/store";
 import { useCompanyChoices } from "../../business/useCompanyChoices";
 import { patchCredoper } from "../../credoperSlice";
-import { useBusinessChoices } from "../../business/useBusinessChoices";
-import { assetTypeOf, assetTypesOf, businessOf } from "../../model/business";
+import { businessOf } from "../../model/business";
 import type { StepProps } from "../../wizard/stepTypes";
 
 // After Business, only when the chosen business can be done with several companies (otherwise the
@@ -12,22 +11,13 @@ function CompanyStep({ stage, errors, advance }: StepProps) {
   const dispatch = useAppDispatch();
   const op = useAppSelector(selectCredoper);
   const { data: companies, isError, error, refetch } = useCompanyChoices(stage, op);
-  const { data: businesses } = useBusinessChoices(stage, op);
   if (!op) return null;
 
   const choose = (companyId: number) => {
-    // The financial products are the company's: a different company chooses the product again,
-    // and the asset type too when the company doesn't offer it
+    // The financial products are the company's: a different company chooses the product again.
+    // Its asset types are asked for then: the asset type is checked against them (the Wizard).
     if (companyId !== op.aplCompanyId) {
-      const offered = assetTypesOf(businesses?.find((b) => b.id === op.aplBusinessId), companyId).map((a) => a.id);
-      const assetType = assetTypeOf(op);
-      dispatch(
-        patchCredoper({
-          aplCompanyId: companyId,
-          financialProduct: null,
-          ...(assetType !== undefined && !offered.includes(assetType) ? { assetTypeId: undefined } : {}),
-        }),
-      );
+      dispatch(patchCredoper({ aplCompanyId: companyId, financialProduct: null }));
     }
     advance();
   };

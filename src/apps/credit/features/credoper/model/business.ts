@@ -1,4 +1,4 @@
-import type { AvailableBusinessDto, AvailableFinancialProductDto, BuildingDto } from "@platform/api/generated/MontraPOSApi";
+import type { AssetTypeDto, AvailableBusinessDto, AvailableFinancialProductDto, BuildingDto } from "@platform/api/generated/MontraPOSApi";
 import type { CredOperAssetDto, CredOperDto, EquipmentDto } from "@platform/api/legacy/legacyApi";
 import type { CredOperDraft } from "./credOperDraft";
 
@@ -88,12 +88,11 @@ export type AssetTypeOption = { id: AssetTypeId; label: string };
 export const assetTypeLabel = (id: AssetTypeId, label?: string | null): string =>
   label?.trim() || (id === null ? "No asset" : id === EQUIPMENT_ASSET ? "Equipment" : id === BUILDING_ASSET ? "Building" : `Asset type ${id}`);
 
-/** A company a business can be done with, that company's financial products and asset types for it */
+/** A company a business can be done with, and that company's financial products for it */
 export type BusinessOffer = {
   companyId: number;
   companyLabel: string;
   financialProducts: AvailableFinancialProductDto[];
-  assetTypes: AssetTypeOption[];
 };
 
 /** A business of the API, with the app's traits for it and the companies it can be done with */
@@ -125,21 +124,23 @@ export function toAvailableBusinesses(list: AvailableBusinessDto[]): AvailableBu
       companyId: dto.companyId,
       companyLabel: dto.companyAbbreviation?.trim() || `Company ${dto.companyId}`,
       financialProducts: (dto.financialProducts ?? []).filter((p) => typeof p.id === "number"),
-      // No asset is a null id (also when the answer leaves it out)
-      assetTypes: (dto.assetTypes ?? []).flatMap((a) => {
-        const id = a.id ?? null;
-        return id === null || typeof id === "number" ? [{ id, label: assetTypeLabel(id, a.abbreviation) }] : [];
-      }),
     });
   }
   return [...businesses.values()];
 }
 
-/** The asset types of a business in a company; every company's (without repeats) while no company is set */
-export function assetTypesOf(business: AvailableBusiness | undefined, companyId: number | null | undefined): AssetTypeOption[] {
-  const offers = business?.offers.filter((o) => !companyId || o.companyId === companyId) ?? [];
-  const all = offers.flatMap((o) => o.assetTypes);
-  return all.filter((a, i) => all.findIndex((b) => b.id === a.id) === i);
+/**
+ * GET /api/credit-operations/asset-types → the asset types offered, in the answer's order and
+ * without repeats; no asset is a null id (also when the answer leaves it out)
+ */
+export function toAssetTypeOptions(list: AssetTypeDto[]): AssetTypeOption[] {
+  const options: AssetTypeOption[] = [];
+  for (const dto of list) {
+    const id = dto.id ?? null;
+    if ((id !== null && typeof id !== "number") || options.some((o) => o.id === id)) continue;
+    options.push({ id, label: assetTypeLabel(id, dto.abbreviation) });
+  }
+  return options;
 }
 
 /**
@@ -191,8 +192,9 @@ const AMOUNT_FILLS_ASSET = [4, 1];
 
 /**
  * The assets with the amount typed for asset `index`: its equipment's net amount; for Auto
- * credit and Financial leasing also the equipment's purchase amount and the asset's amount and
- * base amount (the amount × the equipment's quantity, 1 when it has none).
+ * credit and Financial leasing also the equipment's purchase amount and the asset's amount (the
+ * amount × the equipment's quantity, 1 when it has none). The base amount is the API's (retake,
+ * calculate), never worked out here.
  * TODO: the other businesses' rules.
  */
 export function withAssetAmount(op: CredOperDto, index: number, amount: number | null | undefined): CredOperAssetDto[] {
@@ -204,7 +206,7 @@ export function withAssetAmount(op: CredOperDto, index: number, amount: number |
     return assets;
   }
   const total = amount == null ? amount : amount * (asset.equipment?.quantity || 1);
-  assets[index] = { ...asset, amount: total, baseAmount: total, equipment: { ...equipment, purchaseAmount: amount } };
+  assets[index] = { ...asset, amount: total, equipment: { ...equipment, purchaseAmount: amount } };
   return assets;
 }
 
@@ -266,6 +268,8 @@ const VEHICLE_FIELDS: (keyof EquipmentDto)[] = [
   "equipmentStateId",
   "licencePlate",
   "registrationDate",
+  "equipYear",
+  "equipMonth",
   "description",
   "brand",
   "model",
@@ -334,6 +338,32 @@ export function changeAssetType(op: CredOperDraft, id: AssetTypeId): { next: Cre
   }
   const insurances = withoutLostCars(op.insurances, assets, id === EQUIPMENT_ASSET, removed);
   return { next: { ...op, assetTypeId: id, assets: assets.map((a) => ({ ...a, assetType: id })), insurances }, removed };
+}
+
+/** What to do with the operation's asset type, given the ones its business offers in its company */
+export type AssetTypeCheck = {
+  /** The Asset type step is shown: several to pick from, a change to confirm, or still loading */
+  userChooses: boolean;
+  /** Decided for the user: the only one offered, when taking it removes nothing */
+  preset?: AssetTypeId;
+  /** Not offered anymore (another business or company): chosen again, its data kept until then */
+  clear?: true;
+};
+
+/**
+ * The asset type against the ones offered (GET /api/credit-operations/asset-types; undefined while
+ * unknown). One offered is decided for the user only when that removes nothing: otherwise the user
+ * picks it on the Asset type step, which confirms what it removes. A saved operation keeps its
+ * asset type even when it isn't offered anymore.
+ */
+export function checkAssetType(op: CredOperDraft, offered: AssetTypeOption[] | undefined): AssetTypeCheck {
+  if (!offered) return { userChooses: true };
+  const current = assetTypeOf(op);
+  if (current !== undefined && offered.some((a) => a.id === current)) return { userChooses: offered.length > 1 };
+  if (offered.length === 1 && changeAssetType(op, offered[0].id).removed.length === 0) {
+    return { userChooses: false, preset: offered[0].id };
+  }
+  return current !== undefined && op.id == null ? { userChooses: true, clear: true } : { userChooses: true };
 }
 
 /**

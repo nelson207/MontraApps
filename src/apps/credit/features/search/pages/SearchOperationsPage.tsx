@@ -1,14 +1,19 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { problemMessage } from "@platform/api/problemCode";
 import ActiveFilters from "@platform/components/results/ActiveFilters";
 import FilterChips from "@platform/components/results/FilterChips";
 import { ResultList, ResultRow } from "@platform/components/results/ResultList";
+import type { Tone } from "@platform/components/results/resultsModel";
 import ResultsFooter from "@platform/components/results/ResultsFooter";
 import ResultsPanel from "@platform/components/results/ResultsPanel";
 import ResultsToolbar from "@platform/components/results/ResultsToolbar";
 import { useUrlFilters } from "@platform/hooks/useUrlFilters";
 import { useGetApiCreditOperationsSearchQuery } from "@platform/api/generated/MontraPOSApi";
+import { useAppSelector } from "@credit/store";
+import { editableStage } from "@credit/features/credoper/model/credOperDraft";
+import { convertQuotationPath, openOperationPath } from "@credit/features/credoper/session/useCredOperSession";
 import {
   activeSearchFilters,
   CLEAR_FILTERS,
@@ -25,11 +30,13 @@ const amountFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2
 // Credit → Search: the credit operations the user may see (GET /api/credit-operations/search;
 // the API scopes them, nothing is filtered here), server-paged by totalCount. The number (search
 // box), the step (chips), the state (Filters) and the page live in the URL, so Back and links
-// bring the same results.
-// TODO: rows open nothing yet: the API has no endpoint to load one operation for the wizard.
+// bring the same results. A quotation or a proposal opens on its wizard to edit (?id=…: loaded
+// there, so the link survives a refresh); the other steps are shown only.
 function SearchOperations() {
   const { get, set } = useUrlFilters();
   const filters = fromSearchParams({ get });
+  /** A quotation a proposal was saved from in this session doesn't offer the conversion again */
+  const convertedQuotations = useAppSelector((state) => state.credoper.convertedQuotations);
   const numberIsValid = isSearchableNumber(filters.number);
   const { currentData, isFetching, isError, error, refetch } = useGetApiCreditOperationsSearchQuery(
     numberIsValid ? toSearchArgs(filters) : skipToken,
@@ -154,23 +161,39 @@ function SearchOperations() {
         <ResultList label="Operations">
           {items.map((result, i) => {
             const step = stepLabel(result.step);
-            const tone = result.step === "Proposal" ? "info" : result.step === "Quotation" ? "primary" : "secondary";
-            return (
-              <ResultRow
-                key={result.id ?? `row-${i}`}
-                accent={tone}
-                accentLabel={step ?? undefined}
-                title={result.entityName || result.descr || "No customer"}
-                meta={[
-                  result.number != null ? `No. ${result.number}` : "",
-                  result.financialProductId != null ? `Product ${result.financialProductId}` : "",
-                  result.beginDate?.slice(0, 10) ?? "",
-                  result.amount != null ? `${amountFormat.format(result.amount)}${result.currencyId ? ` ${result.currencyId}` : ""}` : "",
-                ]}
-                trailing={
-                  step && <span className={`badge rounded-pill bg-${tone}-subtle text-${tone}-emphasis`}>{step}</span>
-                }
-              />
+            const tone: Tone = result.step === "Proposal" ? "info" : result.step === "Quotation" ? "primary" : "secondary";
+            const editOn = editableStage(result.step);
+            const row = {
+              accent: tone,
+              accentLabel: step ?? undefined,
+              title: result.entityName || result.descr || "No customer",
+              meta: [
+                result.number != null ? `No. ${result.number}` : "",
+                result.financialProductId != null ? `Product ${result.financialProductId}` : "",
+                result.beginDate?.slice(0, 10) ?? "",
+                result.amount != null ? `${amountFormat.format(result.amount)}${result.currencyId ? ` ${result.currencyId}` : ""}` : "",
+              ],
+              trailing: step && <span className={`badge rounded-pill bg-${tone}-subtle text-${tone}-emphasis`}>{step}</span>,
+            };
+            const key = result.id ?? `row-${i}`;
+            // A saved quotation can become a proposal (made and opened on the proposal screen)
+            const converted =
+              (!!result.id && convertedQuotations.includes(result.id)) || (result.number != null && convertedQuotations.includes(`#${result.number}`));
+            const action =
+              result.step === "Quotation" && result.id && !converted ? (
+                <Link
+                  to={convertQuotationPath(result.id)}
+                  className="btn btn-sm btn-outline-primary text-nowrap"
+                  aria-label={`Convert ${result.number != null ? `quotation ${result.number}` : "the quotation"} to a proposal`}
+                >
+                  Convert to proposal
+                </Link>
+              ) : null;
+            // Quotations and proposals open on their wizard to edit; the other steps are shown only
+            return editOn && result.id ? (
+              <ResultRow key={key} {...row} action={action} to={openOperationPath(editOn, result.id)} />
+            ) : (
+              <ResultRow key={key} {...row} action={action} />
             );
           })}
         </ResultList>

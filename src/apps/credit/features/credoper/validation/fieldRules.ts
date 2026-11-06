@@ -1,3 +1,5 @@
+import { VEHICLE_RULED_FIELDS, vehicleFieldsRequired, vehicleKindFieldsRequired } from "@platform/features/equipment/equipmentModel";
+
 // Server-driven field rules: every part of an operation carries `metadataResponse`
 // ({ jsonName, isRequired, isVisible, isReadOnly }) describing its fields.
 
@@ -23,6 +25,24 @@ export function fieldRule(metadata: FieldMeta[] | null | undefined, jsonName: st
     required: meta?.isRequired ?? false,
     readOnly: meta?.isReadOnly ?? false,
   };
+}
+
+/**
+ * A vehicle field's rule on this screen. Which of the type, category, state, brand, model, version,
+ * year and month are mandatory is decided by the stage: a quotation needs the kind of vehicle, a
+ * proposal the exact one, and both its year (and month, when it is used, so the state counts too).
+ * Everything else (those fields' visibility, the other fields) stays the server's.
+ */
+export function vehicleFieldRule(
+  stage: "quotation" | "proposal",
+  metadata: FieldMeta[] | null | undefined,
+  jsonName: string,
+  stateId: number | null | undefined,
+): FieldRule {
+  const rule = fieldRule(metadata, jsonName);
+  if (!(VEHICLE_RULED_FIELDS as readonly string[]).includes(jsonName)) return rule;
+  const mandatory: readonly string[] = stage === "proposal" ? vehicleFieldsRequired(stateId) : vehicleKindFieldsRequired(stateId);
+  return { ...rule, required: mandatory.includes(jsonName) };
 }
 
 /** Only "nothing entered" is empty: 0 and false are real values. */

@@ -1,19 +1,16 @@
 import { Fragment, useState, type ReactNode } from "react";
 import { skipToken } from "@reduxjs/toolkit/query";
 import {
-  useGetEquipmentBrandsQuery,
   useGetEquipmentCategoriesQuery,
-  useGetEquipmentModelsQuery,
   useGetEquipmentStatesQuery,
   useGetEquipmentTypesQuery,
-  useGetEquipmentVersionsQuery,
 } from "@platform/features/equipment/api/equipmentApi";
 import { labelOfCode } from "@platform/features/equipment/api/equipmentLists";
 import { nodeFromId } from "@platform/features/workContext/nodeLabels";
-import type { CodeAbbreviation } from "@platform/api/legacy/legacyApi";
-import { legalDocumentTypeName } from "../../model/legalDocumentTypes";
+import type { CodeAbbreviation, CredOperAssetDto } from "@platform/api/legacy/legacyApi";
+import { vatOf } from "../../entityLookup/entityLookup";
 import { money } from "../../hooks/useCalculation";
-import { amountLabel, businessOf, equipmentModeOf, hasEquipment } from "../../model/business";
+import { equipmentModeOf, hasEquipment } from "../../model/business";
 import { useGetInsuranceTypesQuery } from "../../insurance/insuranceApi";
 import {
   insuredLabel,
@@ -25,8 +22,9 @@ import {
 } from "../../model/credOperDraft";
 import type { QuotationDataProps } from "../../types/credoperTypes";
 import type { StepId } from "../../wizard/steps";
+import { useVehicleName } from "./useVehicleName";
 
-// Review cards: the Summary step (with Edit) and a converted proposal's Quotation step (read-only).
+// Review cards of the Summary step: each leads with what it's about, then its key facts.
 
 const labelOf = (list: CodeAbbreviation[] | undefined, code?: number | null) =>
   code == null
@@ -59,7 +57,7 @@ export function ReviewCard({
             <i className={`bi ${icon}`} aria-hidden="true" />
           </span>
           <h4 className="h6 fw-semibold mb-0 flex-grow-1 text-truncate">{title}</h4>
-          {issues > 0 && <span className="badge rounded-pill text-bg-warning">{issues} to fix</span>}
+          {issues > 0 && <span className="badge rounded-pill text-bg-danger">{issues} to fix</span>}
           {nav}
           {goTo && step && (
             <button
@@ -83,17 +81,54 @@ export function Fields({ children }: { children: ReactNode }) {
   return <dl className="app-review-fields mb-0">{children}</dl>;
 }
 
+/** Nothing when empty: what's required and missing is listed by Readiness */
 export function Field({ label, value }: { label: string; value: ReactNode }) {
+  if (isBlank(value)) return null;
   return (
     <>
       <dt>{label}</dt>
-      <dd className={isBlank(value) ? "text-body-tertiary" : undefined}>{isBlank(value) ? "Not filled" : value}</dd>
+      <dd>{value}</dd>
     </>
   );
 }
 
 export function Empty({ children }: { children: ReactNode }) {
   return <p className="small text-body-tertiary mb-0">{children}</p>;
+}
+
+const initialsOf = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .filter((_, index, words) => index === 0 || index === words.length - 1)
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+
+/** What a card or an entry is about: its name, with who or what it is below */
+function Lead({ name, detail, avatar = false }: { name: ReactNode; detail?: ReactNode; avatar?: boolean }) {
+  return (
+    <div className="app-review-lead">
+      {avatar && typeof name === "string" && (
+        <span className="app-review-avatar" aria-hidden="true">
+          {initialsOf(name)}
+        </span>
+      )}
+      <div className="min-w-0">
+        <div className="app-review-lead-name">{name}</div>
+        {!isBlank(detail) && <div className="small text-body-secondary">{detail}</div>}
+      </div>
+    </div>
+  );
+}
+
+/** The rest of an entry's fields, one click away */
+function MoreDetails({ label = "Show all details", children }: { label?: string; children: ReactNode }) {
+  return (
+    <details className="app-review-more">
+      <summary>{label}</summary>
+      {children}
+    </details>
+  );
 }
 
 export function CustomerCard({ op, ...card }: CardProps & { op: CredOperDraft }) {
@@ -104,29 +139,20 @@ export function CustomerCard({ op, ...card }: CardProps & { op: CredOperDraft })
   ]
     .filter(Boolean)
     .join(" › ");
+  const fiscalNumber = op.customerVAT?.legalDocNumber;
 
   return (
     <ReviewCard title="Customer" icon="bi-person" {...card}>
+      {op.customerName ? (
+        <Lead avatar name={op.customerName} detail={fiscalNumber && `Fiscal number ${fiscalNumber}`} />
+      ) : (
+        <Empty>No customer yet.</Empty>
+      )}
       <Fields>
-        <Field label="Name" value={op.customerName} />
-        <Field label="Fiscal number" value={op.customerVAT?.legalDocNumber} />
         <Field label="E-mail" value={op.customerEmail?.email} />
         <Field label="Mobile" value={op.customerPhone?.phoneNumber} />
         <Field label="Landline" value={op.customerLandLine?.phoneNumber} />
         <Field label="Commercial network" value={network} />
-      </Fields>
-    </ReviewCard>
-  );
-}
-
-/** The type of business (Auto credit, Renting, …) */
-export function BusinessCard({ op, ...card }: CardProps & { op: CredOperDraft }) {
-  const business = businessOf(op);
-  return (
-    <ReviewCard title="Business" icon={business?.icon ?? "bi-grid"} {...card}>
-      <Fields>
-        <Field label="Type" value={business?.label} />
-        <Field label="Includes" value={business?.description} />
       </Fields>
     </ReviewCard>
   );
@@ -192,43 +218,50 @@ export function GalleryCard({
 
 const amount = (value: number | null | undefined) => (value != null ? money.format(value) : null);
 
-/** One vehicle's fields: brand → version, type, plate…, km, engine size, doors, commercial value */
+/** One vehicle: its name and plate, the facts that tell it apart, and the rest a click away */
 function VehicleFields({ op, index }: { op: CredOperDraft; index: number }) {
   const equipment = op.assets?.[index]?.equipment;
   const renting = equipmentModeOf(op) === "multiple";
-  // The same cached lists as the equipment detail (brand, model and version are codes)
+  // The same cached lists as the equipment detail
   const companyId = op.aplCompanyId;
   const typeId = equipment?.equipmentTypeId;
-  const categoryId = equipment?.equipmentCategoryId;
-  const brand = equipment?.brand;
-  const model = equipment?.model;
   const types = useGetEquipmentTypesQuery({ companyId });
   const states = useGetEquipmentStatesQuery();
   const categories = useGetEquipmentCategoriesQuery(typeId ? { companyId, equipmentTypeId: typeId } : skipToken);
-  const brands = useGetEquipmentBrandsQuery(typeId && categoryId ? { equipmentTypeId: typeId, categoryId } : skipToken);
-  const models = useGetEquipmentModelsQuery(typeId && categoryId && brand ? { equipmentTypeId: typeId, categoryId, brand } : skipToken);
-  const versions = useGetEquipmentVersionsQuery(
-    typeId && categoryId && brand && model ? { equipmentTypeId: typeId, categoryId, brand, model } : skipToken,
-  );
+  const name = useVehicleName(op, index);
   const label = (list: { data?: Parameters<typeof labelOfCode>[0] }, code?: number | string | null) =>
     labelOfCode(list.data, code) ?? (code == null || code === "" ? null : String(code));
-  return (
+  const facts: [string, ReactNode][] = [
+    ["State", label(states, equipment?.equipmentStateId)],
+    ["Year", equipment?.equipYear],
+    ["Month", equipment?.equipMonth],
+    ["Km", equipment?.odometer != null ? `${equipment.odometer.toLocaleString("pt-PT")} km` : null],
+    ["Amount", renting ? amount(equipment?.netAmount) : null],
+    ["Commercial value", amount(equipment?.baseMarketValue)],
+  ];
+  const more: [string, ReactNode][] = [
+    ["Type", label(types, equipment?.equipmentTypeId)],
+    ["Category", label(categories, equipment?.equipmentCategoryId)],
+    // Not when it's what names the vehicle
+    ["Description", equipment?.description !== name ? equipment?.description : null],
+    ["Engine size", equipment?.enginesize != null ? `${equipment.enginesize} cc` : null],
+    ["Doors", equipment?.doors],
+  ];
+  const filled = (fields: [string, ReactNode][]) => fields.some(([, value]) => !isBlank(value));
+  const fields = (list: [string, ReactNode][]) => (
     <Fields>
-      <Field label="Brand" value={label(brands, brand)} />
-      <Field label="Model" value={label(models, model)} />
-      <Field label="Version" value={label(versions, equipment?.version)} />
-      <Field label="Type" value={label(types, equipment?.equipmentTypeId)} />
-      <Field label="Category" value={label(categories, equipment?.equipmentCategoryId)} />
-      <Field label="State" value={label(states, equipment?.equipmentStateId)} />
-      <Field label="License plate" value={equipment?.licencePlate} />
-      <Field label="Registration" value={equipment?.registrationDate?.slice(0, 10)} />
-      <Field label="Description" value={equipment?.description} />
-      {renting && <Field label="Amount" value={amount(equipment?.netAmount)} />}
-      <Field label="Km" value={equipment?.odometer != null ? `${equipment.odometer.toLocaleString("pt-PT")} km` : null} />
-      <Field label="Engine size" value={equipment?.enginesize != null ? `${equipment.enginesize} cc` : null} />
-      <Field label="Doors" value={equipment?.doors} />
-      <Field label="Commercial value" value={amount(equipment?.baseMarketValue)} />
+      {list.map(([fieldLabel, value]) => (
+        <Field key={fieldLabel} label={fieldLabel} value={value} />
+      ))}
     </Fields>
+  );
+  if (!name && !filled(facts) && !filled(more)) return <Empty>No details yet.</Empty>;
+  return (
+    <>
+      {name && <Lead name={name} detail={name !== equipment?.licencePlate ? equipment?.licencePlate : null} />}
+      {filled(facts) && fields(facts)}
+      {filled(more) && <MoreDetails>{fields(more)}</MoreDetails>}
+    </>
   );
 }
 
@@ -251,42 +284,42 @@ export function VehicleCards({ op, ...card }: CardProps & { op: CredOperDraft })
   );
 }
 
-/** The people of a proposal (customer, second holder, guarantors), as one gallery */
+/** The people of a proposal (customer, second holder, guarantors), all in view, their details a click away */
 export function PeopleCard({ op, ...card }: CardProps & { op: CredOperDraft }) {
+  const people = op.interventions ?? [];
   return (
-    <GalleryCard
-      title="Interventions"
-      icon="bi-people"
-      empty="No people added."
-      items={(op.interventions ?? []).map((person, index) => {
-        const docs = person.entity?.legalDocs ?? [];
-        return {
-          key: person.correlationID ?? String(index),
-          label: `${interventionName(person)} · ${ROLE_LABELS[interventionRole(person)]}`,
-          content: (
-            <Fields>
-              <Field label="Role" value={ROLE_LABELS[interventionRole(person)]} />
-              <Field label="Name" value={person.entity?.fullName} />
-              <Field label="Birth date" value={person.person?.birthDate?.slice(0, 10)} />
-              {docs.length === 0 && <Field label="Document" value={null} />}
-              {docs.map((doc, docIndex) => {
-                // Untyped documents are told apart by their position
-                const name = doc.legalDocTypeId ? legalDocumentTypeName(doc.legalDocTypeId) : `Document ${docIndex + 1}`;
-                return (
-                  <Fragment key={doc.correlationID ?? docIndex}>
-                    <Field label={`${name} number`} value={doc.legalDocNumber} />
-                    <Field label={`${name} expiry`} value={doc.validDate?.slice(0, 10)} />
-                  </Fragment>
-                );
-              })}
-              <Field label="E-mail" value={person.entityEmail?.email} />
-              <Field label="Mobile" value={person.entityMobilePhone?.phoneNumber} />
-            </Fields>
-          ),
-        };
-      })}
-      {...card}
-    />
+    <ReviewCard title="Interventions" icon="bi-people" {...card}>
+      {people.length === 0 && <Empty>No people added.</Empty>}
+      <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
+        {people.map((person, index) => {
+          const docs = person.entity?.documents ?? [];
+          return (
+            <li key={person.correlationID ?? index}>
+              <Lead avatar name={interventionName(person)} detail={ROLE_LABELS[interventionRole(person)]} />
+              <MoreDetails label="Show details">
+                <Fields>
+                  <Field label="NIF" value={vatOf(person)} />
+                  <Field label="Birth date" value={person.person?.birthDate?.slice(0, 10)} />
+                  {docs.map((doc, docIndex) => {
+                    // Without a name, documents are told apart by their position
+                    const name = doc.documentName?.trim() || doc.typeLabel || `Document ${docIndex + 1}`;
+                    return (
+                      <Fragment key={doc.correlationID ?? docIndex}>
+                        <Field label={`${name} number`} value={doc.legalDocNumber} />
+                        <Field label={`${name} expiry`} value={doc.validDate?.slice(0, 10)} />
+                      </Fragment>
+                    );
+                  })}
+                  <Field label="E-mail" value={person.entityEmail?.email} />
+                  <Field label="Phone" value={person.entityMobilePhone?.phoneNumber} />
+                  <Field label="Landline" value={person.entityLandlinePhone?.phoneNumber} />
+                </Fields>
+              </MoreDetails>
+            </li>
+          );
+        })}
+      </ul>
+    </ReviewCard>
   );
 }
 
@@ -332,27 +365,17 @@ export function FinancingCard({
   options,
   ...card
 }: CardProps & { op: CredOperDraft; options: QuotationDataProps["options"] }) {
-  const equipment = op.assets?.[0]?.equipment;
-  const term = op.conditions?.[0]?.term;
-  const renting = equipmentModeOf(op) === "multiple";
-  const base = renting ? (op.assets ?? []).reduce((sum, a) => sum + (a.equipment?.netAmount ?? 0), 0) : equipment?.netAmount;
-  const baseLabel = renting ? "Total of the vehicles" : amountLabel(op);
+  // Worked out by the API (retake, calculate): shown, never typed
+  const asset = op.assets?.[0] as (CredOperAssetDto & { building?: { taxAmount?: number | null } | null }) | undefined;
+  const taxAmount = asset?.equipment?.taxAmount ?? asset?.building?.taxAmount;
+  // The amounts and the term are in the overview above
   return (
-    <ReviewCard title="Financing" icon="bi-cash-coin" {...card}>
+    <ReviewCard title="Financing details" icon="bi-cash-coin" {...card}>
       <Fields>
-        <Field label="Contract classification" value={labelOf(options?.credOperClassifications, op.credOperClassification)} />
         <Field label="Financial product" value={labelOf(options?.financialProducts, op.financialProduct)} />
-        <Field label="Financed amount" value={op.amount != null ? money.format(op.amount) : null} />
-        <Field label={baseLabel} value={base != null ? money.format(base) : null} />
-        <Field
-          label="Initial entry"
-          value={
-            equipment?.retakeAmount != null
-              ? `${money.format(equipment.retakeAmount)} (${equipment.retakePercentage ?? 0} %)`
-              : null
-          }
-        />
-        <Field label="Term" value={term != null ? `${term} months` : null} />
+        <Field label="Contract classification" value={labelOf(options?.credOperClassifications, op.credOperClassification)} />
+        {asset?.baseAmount != null && <Field label="Base amount" value={money.format(asset.baseAmount)} />}
+        {taxAmount != null && <Field label="Tax" value={money.format(taxAmount)} />}
       </Fields>
     </ReviewCard>
   );

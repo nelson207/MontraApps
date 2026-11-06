@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { loadExisting, resetCredoper, startBlank, startNew } from "../credoperSlice";
+import type { OtpChannel } from "@platform/api/generated/MontraPOSApi";
+import { loadExisting, resetCredoper, restartCustomer, startBlank, startNew } from "../credoperSlice";
 
 // Per person of the proposal (intervention correlationID): where their VAT number (NIF) lookup
 // stands. Kept out of the draft (never sent), and across steps, so a code request can be resumed.
@@ -16,12 +17,13 @@ export type LookupOutcome =
   /** The user went back to the search (after filling in by hand): the fields wait again */
   | "search";
 
-export type OtpRequest = { requestId: string; validUntil: string };
+/** A code sent: by SMS or e-mail, to where the backend says (masked), accepted until `validUntil` */
+export type OtpRequest = { channel: OtpChannel; sentTo?: string | null; validUntil: string };
 
 export type EntityLookup = {
   vat: string;
   outcome: LookupOutcome;
-  /** Where the code goes (masked by the backend) */
+  /** Where a code can be sent (masked by the backend): the mobile phone and the e-mail on file */
   phone?: string | null;
   email?: string | null;
   otp?: OtpRequest;
@@ -44,6 +46,13 @@ const entityLookupSlice = createSlice({
       const { ref, vat } = action.payload;
       state[ref] = { ...state[ref], vat, outcome: "search" };
     },
+    /**
+     * The NIF belongs to an entity of another kind: nothing of it stays (contacts, a code sent), and
+     * the search waits for another NIF
+     */
+    kindRefused(state, action: PayloadAction<string>) {
+      state[action.payload] = { vat: "", outcome: "search" };
+    },
     otpSent(state, action: PayloadAction<{ ref: string; otp: OtpRequest }>) {
       const lookup = state[action.payload.ref];
       if (lookup) lookup.otp = action.payload.otp;
@@ -62,12 +71,17 @@ const entityLookupSlice = createSlice({
   },
   // Another operation: its people start over
   extraReducers: (builder) =>
-    builder.addMatcher(
-      (action) => [startNew.type, startBlank.type, loadExisting.type, resetCredoper.type].includes(action.type),
-      () => ({}),
-    ),
+    builder
+      // The customer starts over: their search too, and a code sent can't be entered anymore
+      .addCase(restartCustomer, (state, action) => {
+        delete state[action.payload.ref];
+      })
+      .addMatcher(
+        (action) => [startNew.type, startBlank.type, loadExisting.type, resetCredoper.type].includes(action.type),
+        () => ({}),
+      ),
 });
 
-export const { lookedUp, otpSent, choseManual, filled, searchAgain } = entityLookupSlice.actions;
+export const { lookedUp, otpSent, choseManual, filled, searchAgain, kindRefused } = entityLookupSlice.actions;
 
 export default entityLookupSlice.reducer;

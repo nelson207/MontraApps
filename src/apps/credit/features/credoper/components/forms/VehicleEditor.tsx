@@ -2,7 +2,8 @@ import { selectCredoper, useAppDispatch, useAppSelector } from "@credit/store";
 import InputField from "@platform/components/ui/InputField";
 import EquipmentDetail from "@platform/features/equipment/components/EquipmentDetail";
 import { setEquipmentFields } from "../../utils/fieldSetters";
-import { fieldRule } from "../../validation/fieldRules";
+import { stageOf } from "../../model/credOperDraft";
+import { fieldRule, vehicleFieldRule } from "../../validation/fieldRules";
 import type { FieldErrors } from "../../validation/fieldRules";
 import OperationField from "../OperationField";
 
@@ -32,7 +33,7 @@ function VehicleEditor({ assetIndex, errors, showAmount = false }: Props) {
       idPrefix={idPrefix}
       companyId={credoper?.aplCompanyId}
       error={error}
-      rule={(field) => fieldRule(meta, field)}
+      rule={(field) => vehicleFieldRule(stageOf(credoper ?? {}), meta, field, equipment.equipmentStateId)}
       showCommercialValue
       usageExtra={
         showAmount && (

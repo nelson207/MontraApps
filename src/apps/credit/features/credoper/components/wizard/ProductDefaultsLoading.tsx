@@ -1,9 +1,9 @@
 import { createPortal } from "react-dom";
 
-// Over the page while a new financial product's defaults load: its values (amounts, initial
-// entry, term) are about to change, so nothing is typed or calculated meanwhile. In <body>, out
-// of the page it blocks (made inert meanwhile).
-function ProductDefaultsLoading() {
+// Over the page while the operation's values are about to change: a new financial product's
+// defaults loading (amounts, initial entry, term), or a calculation running. Nothing is typed,
+// calculated or left meanwhile. In <body>, out of the page it blocks (made inert meanwhile).
+function ProductDefaultsLoading({ text = "Fetching the financial product's values…" }: { text?: string }) {
   return createPortal(
     <>
       <div className="modal fade show d-block" role="alertdialog" aria-modal="true" aria-busy="true" aria-labelledby="product-defaults-loading">
@@ -12,7 +12,7 @@ function ProductDefaultsLoading() {
             <div className="modal-body p-4 text-center" role="status">
               <span className="spinner-border text-primary mb-3" aria-hidden="true" />
               <p id="product-defaults-loading" className="mb-0">
-                Fetching the financial product's values…
+                {text}
               </p>
             </div>
           </div>

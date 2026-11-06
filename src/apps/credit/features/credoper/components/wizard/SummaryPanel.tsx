@@ -1,10 +1,13 @@
+import { useEffect, useRef } from "react";
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 import type { CredOperDraft } from "../../model/credOperDraft";
 import { money, percent, type useCalculation } from "../../hooks/useCalculation";
+import { MessageGroups } from "./SaveResults";
 
-// Sticky side panel on the editing steps: financed amount, monthly payment, rates, term ± and Calculate.
-// The calculation is the wizard's (useCalculation): Next waits for it.
-function SummaryPanel({ operation, calc }: { operation: CredOperDraft; calc: Calc }) {
+// Sticky side panel on the editing steps: financed amount, monthly payment, rates, term ±, what the
+// last calculation said and Calculate. The calculation is the wizard's (useCalculation): Next waits
+// for it, and asked too early it sends the user here (`nudged`).
+function SummaryPanel({ operation, calc, nudged = false }: { operation: CredOperDraft; calc: Calc; nudged?: boolean }) {
   return (
     <aside className="card border-0 shadow-sm app-summary-panel" aria-label="Calculation">
       <div className="card-body">
@@ -47,13 +50,19 @@ function SummaryPanel({ operation, calc }: { operation: CredOperDraft; calc: Cal
           <TermStepper calc={calc} />
         </div>
 
-        {!!calc.error && (
-          <div className="alert alert-danger small py-2" role="alert">
-            {getApiErrorMessage(calc.error) ?? "Couldn't calculate. Please try again."}
+        {calc.messages.length > 0 ? (
+          <div className="mb-3" role={calc.error ? "alert" : "status"}>
+            <MessageGroups messages={calc.messages} />
           </div>
+        ) : (
+          !!calc.error && (
+            <div className="alert alert-danger small py-2" role="alert">
+              {getApiErrorMessage(calc.error) ?? "Couldn't calculate. Please try again."}
+            </div>
+          )
         )}
 
-        <CalculateButton calc={calc} className="w-100" />
+        <CalculateButton calc={calc} nudged={nudged} />
         <p className="text-body-secondary small text-center mt-2 mb-0">
           Indicative values, subject to approval.
         </p>
@@ -93,9 +102,23 @@ export function TermStepper({ calc }: { calc: Calc }) {
   );
 }
 
-export function CalculateButton({ calc, className = "" }: { calc: Calc; className?: string }) {
+function CalculateButton({ calc, nudged }: { calc: Calc; nudged: boolean }) {
+  const button = useRef<HTMLButtonElement>(null);
+  // On a phone the panel is below the form: bring the button into view, ready to press
+  useEffect(() => {
+    if (!nudged) return;
+    button.current?.scrollIntoView?.({ block: "nearest" });
+    button.current?.focus({ preventScroll: true });
+  }, [nudged]);
   return (
-    <button type="button" className={`btn btn-primary ${className}`} onClick={calc.run} disabled={calc.isLoading}>
+    <button
+      ref={button}
+      type="button"
+      // It leads until there's a calculation for the values on screen; then Next does
+      className={`btn w-100 app-calculate ${calc.needsCalculation ? "btn-primary" : "btn-outline-primary"} ${nudged ? "is-nudged" : ""}`}
+      onClick={() => void calc.run()}
+      disabled={calc.isLoading}
+    >
       {calc.isLoading ? (
         <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
       ) : (

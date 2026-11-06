@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useGetApiCreditOperationsClassificationsQuery, type CredOperClassificationDto } from "@platform/api/generated/MontraPOSApi";
 import type { CodeAbbreviation } from "@platform/api/legacy/legacyApi";
+import type { ClassificationOption } from "../model/credOperDraft";
 import { APP_SETTINGS } from "@credit/appSettings";
 import { productsOf, type AvailableBusiness } from "../model/business";
 import type { OptionsState, UseQuotationOptionsParams } from "../types/credoperTypes";
@@ -13,11 +14,11 @@ export const financialProductOptions = (business: AvailableBusiness | undefined,
     description: p.description ?? null,
   }));
 
-/** The contract classifications as the wizard's option list ({ code: id, abbreviation, description }) */
-export const classificationOptions = (dtos: CredOperClassificationDto[] | undefined): CodeAbbreviation[] =>
+/** The contract classifications as the wizard's option list ({ code: id, abbreviation, description, entitySuperType }) */
+export const classificationOptions = (dtos: CredOperClassificationDto[] | undefined): ClassificationOption[] =>
   (dtos ?? []).flatMap((c) =>
     typeof c.id === "number"
-      ? [{ code: String(c.id), abbreviation: c.abbreviation?.trim() || c.description?.trim() || `Classification ${c.id}`, description: c.description ?? null }]
+      ? [{ code: String(c.id), abbreviation: c.abbreviation?.trim() || c.description?.trim() || `Classification ${c.id}`, description: c.description ?? null, entitySuperType: c.entitySuperType ?? null }]
       : [],
   );
 

@@ -14,6 +14,9 @@ import { fieldRule, type FieldErrors } from "../../validation/fieldRules";
 import { retakeOverBase } from "../../validation/stepValidation";
 import { amountLabel, equipmentModeOf, retakeBaseOf } from "../../model/business";
 import OperationField from "../OperationField";
+import ClassificationField from "./ClassificationField";
+import { useRetakeSync } from "../../hooks/useRetakeSync";
+import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 
 type Props = Pick<
   QuotationDataProps,
@@ -32,6 +35,9 @@ function FinancingFields({
   errors = {},
 }: Props) {
   const credoper = useAppSelector(selectCredoper);
+  // The initial entry typed (amount or %): shown at once, the app's estimate for the other one
+  // meanwhile; the API's answer (both, and the asset's base amount) replaces it
+  const retake = useRetakeSync();
 
   // What the initial entry is a share of: the vehicle (or loan) amount; Renting: all vehicles
   const renting = !!credoper && equipmentModeOf(credoper) === "multiple";
@@ -53,39 +59,11 @@ function FinancingFields({
   return (
     <div className="row gx-3">
       <div className="col-md-6">
-        <OperationField
-          rule={fieldRule(operationMeta, "credOperClassification")}
+        <ClassificationField
+          options={options?.credOperClassifications}
+          loading={fetchingOptions.credOperClassifications}
           error={error("credOperClassification")}
-        >
-          {(field) => (
-            <SelectField
-              label="Contract classification"
-              id="credoper.credoperClassification"
-              isLoading={fetchingOptions.credOperClassifications}
-              // None offered: the app's settings list no classification for this business
-              placeholder={
-                !fetchingOptions.credOperClassifications && !options?.credOperClassifications?.length
-                  ? "Nothing configured for this business"
-                  : undefined
-              }
-              value={credoper?.credOperClassification ?? undefined}
-              options={options?.credOperClassifications?.map((coc) => ({
-                value: coc.code,
-                label: coc.abbreviation,
-                title: coc.description,
-              }))}
-              onChange={(e) =>
-                setCredOperField(
-                  dispatchCredOper,
-                  "credOperClassification",
-                  Number(e.target.value),
-                )
-              }
-              disabled={field.disabled}
-              invalidMessage={field.invalidMessage}
-            />
-          )}
-        </OperationField>
+        />
       </div>
       <div className="col-md-6">
         <OperationField
@@ -156,23 +134,34 @@ function FinancingFields({
         <OperationField
           rule={fieldRule(equipmentMeta, "retakeAmount")}
           // Too high: shown as typed, not only after Next
-          error={error("assets.0.equipment.retakeAmount") ?? (credoper ? retakeOverBase(credoper) : null)}
+          error={
+            error("assets.0.equipment.retakeAmount") ??
+            (credoper ? retakeOverBase(credoper) : null) ??
+            (retake.error
+              ? `Couldn't update the initial entry: ${getApiErrorMessage(retake.error) ?? "please try again."}`
+              : null)
+          }
         >
           {(field) => (
-            <InputField
-              label="Initial entry amount"
-              id="credoper.equipmentInitialEntryAmount"
-              type="number"
-              placeholder="0.00"
-              min={0}
-              max={financedBase ?? undefined}
-              step={0.01}
-              value={equipment?.retakeAmount ?? ""}
-              onChange={(e) => setRetake(dispatchCredOper, credoper, { amount: typedNumber(e.target.value) })}
-              inputGroupSpan="€"
-              {...field}
-              disabled={field.disabled || !hasBase}
-            />
+            <div onBlur={retake.flush}>
+              <InputField
+                label="Initial entry amount"
+                id="credoper.equipmentInitialEntryAmount"
+                type="number"
+                placeholder="0.00"
+                min={0}
+                max={financedBase ?? undefined}
+                step={0.01}
+                value={equipment?.retakeAmount ?? ""}
+                onChange={(e) => {
+                  setRetake(dispatchCredOper, credoper, { amount: typedNumber(e.target.value) });
+                  retake.typed("Percentage");
+                }}
+                inputGroupSpan="€"
+                {...field}
+                disabled={field.disabled || !hasBase}
+              />
+            </div>
           )}
         </OperationField>
       </div>
@@ -182,20 +171,25 @@ function FinancingFields({
           error={error("assets.0.equipment.retakePercentage")}
         >
           {(field) => (
-            <InputField
-              label="Initial entry percentage"
-              id="credoper.equipmentInitialEntryPercentage"
-              type="number"
-              placeholder="0.00"
-              min={0}
-              max={100}
-              step={0.01}
-              value={equipment?.retakePercentage ?? ""}
-              onChange={(e) => setRetake(dispatchCredOper, credoper, { percentage: typedNumber(e.target.value) })}
-              inputGroupSpan="%"
-              {...field}
-              disabled={field.disabled || !hasBase}
-            />
+            <div onBlur={retake.flush}>
+              <InputField
+                label="Initial entry percentage"
+                id="credoper.equipmentInitialEntryPercentage"
+                type="number"
+                placeholder="0.00"
+                min={0}
+                max={100}
+                step={0.01}
+                value={equipment?.retakePercentage ?? ""}
+                onChange={(e) => {
+                  setRetake(dispatchCredOper, credoper, { percentage: typedNumber(e.target.value) });
+                  retake.typed("Amount");
+                }}
+                inputGroupSpan="%"
+                {...field}
+                disabled={field.disabled || !hasBase}
+              />
+            </div>
           )}
         </OperationField>
       </div>

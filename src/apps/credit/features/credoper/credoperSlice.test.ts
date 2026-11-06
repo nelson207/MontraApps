@@ -17,6 +17,8 @@ import reducer, {
   presetAssetType,
   applyNewAsset,
   presetCustomer,
+  presetCompany,
+  startConverted,
 } from "./credoperSlice";
 
 const protection: CreditProtectionInsurance = {
@@ -38,6 +40,34 @@ describe("credoper slice lifecycle", () => {
     const edited = reducer(started(), patchCredoper({ customerName: "Rui" }));
     expect(edited.isDirty).toBe(true);
     expect(reducer(edited, markSaved({ id: "op9", customerName: "Rui" })).isDirty).toBe(false);
+  });
+
+  it("edits made while saving stay, with the server's identity, number and state", () => {
+    const sentAt = started().revision;
+    const edited = reducer(started(), patchCredoper({ customerName: "Rui" }));
+    const saved = reducer(
+      edited,
+      markSaved({ id: "op9", credOperNumber: 2026001, autUserStateId: 3, stateDate: "2026-11-03", customerName: "Ana" }, sentAt),
+    );
+    expect(saved.data).toMatchObject({ id: "op9", credOperNumber: 2026001, autUserStateId: 3, stateDate: "2026-11-03", customerName: "Rui" });
+    expect(saved.isDirty).toBe(true);
+  });
+
+  it("edits made while saving: the next save is of the saved version (its rowVersion, the ids it gave)", () => {
+    const start = reducer(undefined, startNew({ insurances: [], correlationId: "c-1", assets: [{ correlationID: "a1" }] }));
+    const edited = reducer(start, patchCredoper({ customerName: "Rui" }));
+    const saved = reducer(
+      edited,
+      markSaved({ id: "op9", rowVersion: "rv-1", correlationId: "c-1", entryMoment: "2026-11-04T10:00:00Z", assets: [{ id: "as1" }] }, start.revision),
+    );
+    expect(saved.data).toMatchObject({ id: "op9", rowVersion: "rv-1", correlationId: "c-1", entryMoment: "2026-11-04T10:00:00Z", customerName: "Rui" });
+    expect(saved.data?.assets?.[0]).toMatchObject({ id: "as1", correlationID: "a1" });
+  });
+
+  it("a saved operation replaces the draft's identity: the new rowVersion, never the old one", () => {
+    const opened = reducer(undefined, loadExisting({ id: "op9", rowVersion: "rv-1", correlationId: "c-1", insurances: [] }));
+    const saved = reducer(opened, markSaved({ id: "op9", rowVersion: "rv-2", correlationId: "c-1" }, opened.revision));
+    expect(saved.data).toMatchObject({ rowVersion: "rv-2", correlationId: "c-1" });
   });
 
   it("a save response without insurances keeps the user's insurances", () => {
@@ -190,6 +220,12 @@ describe("credoper slice: what's typed before the template", () => {
     state = reducer(state, presetCustomer({ credOperIntervType: 9 }));
     expect(state.data?.interventions).toHaveLength(1);
   });
+
+  it("presetCustomer: with only a guarantor there, the customer comes first and the guarantor stays", () => {
+    const guarantor = { credOperIntervType: 4, correlationID: "g1" };
+    const state = reducer(reducer(blank(), startBlank({ insurances: [], interventions: [guarantor] })), presetCustomer({ credOperIntervType: 1 }));
+    expect(state.data?.interventions?.map((i) => i.credOperIntervType)).toEqual([1, 4]);
+  });
 });
 
 describe("credoper slice: the new asset of the asset type chosen", () => {
@@ -255,4 +291,44 @@ describe("the financial product's version", () => {
     expect(reducer(withVersion(), patchCredoper({ financialProduct: 1041 })).data?.finProductVersion).toBe(3);
     expect(reducer(withVersion(), patchCredoper({ customerName: "Rui" })).data?.finProductVersion).toBe(3);
   });
+});
+
+describe("a proposal made from a quotation", () => {
+  const LOCKED = { aplCompanyId: 1, aplBusinessId: 3, credOperTypeId: 300 };
+  const converted = () =>
+    reducer(undefined, startConverted({ credOperStep: 2, sourceCredOperId: "AQquote", correlationId: "c-9", ...LOCKED }));
+
+  it("starts as unsaved work (it isn't saved yet), as the API returned it", () => {
+    const state = converted();
+    expect(state.isDirty).toBe(true);
+    expect(state.data?.id).toBeUndefined();
+    expect(state.data).toMatchObject({ correlationId: "c-9", sourceCredOperId: "AQquote", ...LOCKED });
+  });
+
+  it("keeps the quotation's company, business and operation type whatever else changes", () => {
+    let state = converted();
+    state = reducer(state, patchCredoper({ aplCompanyId: 2, aplBusinessId: 4, credOperTypeId: 301, amount: 9000 }));
+    state = reducer(state, presetBusiness(5));
+    state = reducer(state, presetCompany(6));
+    // A new product's defaults, a calculation
+    state = reducer(state, applyProductDefaults({ credOperTypeId: 302 }));
+    state = reducer(state, setCredoper({ ...state.data!, credOperTypeId: 303, aplCompanyId: 7 }));
+    // …nor is the link to the quotation lost
+    state = reducer(state, patchCredoper({ sourceCredOperId: null }));
+    expect(state.data).toMatchObject({ ...LOCKED, sourceCredOperId: "AQquote", amount: 9000 });
+  });
+
+  it("reopened after its first save: still locked", () => {
+    const reopened = reducer(undefined, loadExisting({ id: "APtoken", credOperStep: 2, sourceCredOperId: "AQquote", ...LOCKED }));
+    expect(reducer(reopened, patchCredoper({ aplBusinessId: 4 })).data?.aplBusinessId).toBe(3);
+  });
+
+  it("another operation, or the saved version, sets them", () => {
+    const state = reducer(converted(), loadExisting({ id: "op5", aplCompanyId: 2 }));
+    expect(state.data?.aplCompanyId).toBe(2);
+    expect(reducer(converted(), markSaved({ id: "APtoken", sourceCredOperId: "AQquote", ...LOCKED, credOperTypeId: 310 })).data?.credOperTypeId).toBe(310);
+  });
+
+  it("an operation not made from a quotation changes them freely", () =>
+    expect(reducer(started(), patchCredoper({ aplCompanyId: 2 })).data?.aplCompanyId).toBe(2));
 });

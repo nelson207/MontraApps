@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CarInsurance } from "./credOperDraft";
-import { carryRefs, convertedFromQuotation, ensureRefs, secondHolderBlock, interventionName, interventionRole, stageOf } from "./credOperDraft";
+import { carryRefs, convertedFromQuotation, ensureRefs, operationTitle, secondHolderBlock, interventionName, interventionRole, stageOf } from "./credOperDraft";
 
 const car: CarInsurance = {
   id: "i1",
@@ -85,10 +85,21 @@ describe("secondHolderBlock", () => {
 });
 
 describe("business rules", () => {
-  it("a proposal with a quotationId was converted from that quotation", () => {
-    expect(convertedFromQuotation({ credOperStep: 2, quotationId: "AQ7c2L0xQuote" } as never)).toBe(true);
-    expect(convertedFromQuotation({ credOperStep: 2, quotationId: null } as never)).toBe(false);
+  it("a proposal with a sourceCredOperId was made from that quotation", () => {
+    expect(convertedFromQuotation({ credOperStep: 2, sourceCredOperId: "AQ7c2L0xQuote" })).toBe(true);
+    expect(convertedFromQuotation({ credOperStep: 2, sourceCredOperId: null })).toBe(false);
     expect(convertedFromQuotation({ credOperStep: 2 })).toBe(false);
-    expect(convertedFromQuotation({ credOperStep: 1, quotationId: "AQ7c2L0xQuote" } as never)).toBe(false);
+    expect(convertedFromQuotation({ credOperStep: 1, sourceCredOperId: "AQ7c2L0xQuote" })).toBe(false);
+  });
+});
+
+describe("operationTitle", () => {
+  it("names a saved operation by its stage and number", () => {
+    expect(operationTitle("quotation", { credOperNumber: 1042 })).toBe("Quotation #1042");
+    expect(operationTitle("proposal", { credOperNumber: 7 })).toBe("Proposal #7");
+  });
+
+  it("is the stage alone without a number", () => {
+    expect(operationTitle("proposal", {})).toBe("Proposal");
   });
 });

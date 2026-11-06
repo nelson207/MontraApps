@@ -40,6 +40,7 @@ export function demoCalculate(op: CredOperDto): CredOperDto {
         term,
         implicitRate: tan,
         annualRate: taeg,
+        totalAmountChargedToCustomer: Math.round(monthly * term * 100) / 100,
         flows: [{ amount: monthly, numOfRepetitions: term }],
       },
       ...others,

@@ -5,11 +5,14 @@ import CodeInput from "@platform/components/ui/CodeInput";
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
 import { selectCredoper, selectEntityLookup, useAppDispatch, useAppSelector } from "@credit/store";
 import { patchCredoper } from "../credoperSlice";
-import { isCompany } from "../model/credOperDraft";
+import { entityKindOf, isCompany } from "../model/credOperDraft";
 import {
   initialNif,
   canSearchAgain,
   isLookupPending,
+  isNewEntity,
+  kindMismatchMessage,
+  refusedKind,
   isOtpValid,
   isValidNif,
   normalizeNif,
@@ -19,11 +22,15 @@ import {
   withVat,
 } from "./entityLookup";
 import {
-  usePostApiEntitiesLookupByVatMutation,
-  usePostApiEntitiesOtpSendMutation,
+  usePostApiEntitiesLookupMutation,
+  usePostApiEntitiesOtpMutation,
   usePostApiEntitiesOtpVerifyMutation,
-} from "./entityLookupApi";
-import { choseManual, filled, lookedUp, otpSent, searchAgain, type EntityLookup } from "./entityLookupSlice";
+  type IntervEntityKind,
+  type OtpChannel,
+} from "@platform/api/generated/MontraPOSApi";
+import { PROBLEM, problemCode, problemMessage, problemStatus } from "@platform/api/problemCode";
+import { entityFromPreload } from "../api/entityMapping";
+import { choseManual, filled, kindRefused, lookedUp, otpSent, searchAgain, type OtpRequest } from "./entityLookupSlice";
 
 const CODE_LENGTH = 6;
 
@@ -45,24 +52,15 @@ const timeLeft = (iso: string, now: number) => {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 };
 
-/** Where the code goes, as the backend masked it */
-function Contacts({ lookup }: { lookup: EntityLookup }) {
-  if (!lookup.phone && !lookup.email) return null;
+const CHANNEL_ICONS: Record<OtpChannel, string> = { Sms: "bi-phone", Email: "bi-envelope" };
+
+/** Where the code was sent, as the backend masked it */
+function SentTo({ otp }: { otp: OtpRequest }) {
   return (
-    <ul className="list-unstyled d-inline-flex flex-column gap-1 text-start mb-0">
-      {lookup.phone && (
-        <li>
-          <i className="bi bi-phone me-2 text-primary" aria-hidden="true" />
-          {lookup.phone}
-        </li>
-      )}
-      {lookup.email && (
-        <li>
-          <i className="bi bi-envelope me-2 text-primary" aria-hidden="true" />
-          {lookup.email}
-        </li>
-      )}
-    </ul>
+    <span className="d-inline-flex align-items-center">
+      <i className={`bi ${CHANNEL_ICONS[otp.channel]} me-2 text-primary`} aria-hidden="true" />
+      {otp.sentTo || (otp.channel === "Sms" ? "the mobile phone on file" : "the e-mail on file")}
+    </span>
   );
 }
 
@@ -119,6 +117,8 @@ function EntityLookupGate({ intervention }: Props) {
   const dispatch = useAppDispatch();
   const credoper = useAppSelector(selectCredoper);
   const ref = intervention.correlationID;
+  /** What the NIF must be of: the search only ever hands over an entity of this kind */
+  const kind = entityKindOf(intervention);
   const lookup = useAppSelector(selectEntityLookup(ref));
   const pending = isLookupPending(intervention, lookup);
 
@@ -129,8 +129,8 @@ function EntityLookupGate({ intervention }: Props) {
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState<string | null>(null);
 
-  const [lookUp] = usePostApiEntitiesLookupByVatMutation();
-  const [sendOtp] = usePostApiEntitiesOtpSendMutation();
+  const [lookUp] = usePostApiEntitiesLookupMutation();
+  const [sendOtp] = usePostApiEntitiesOtpMutation();
   const [verifyOtp, verifyState] = usePostApiEntitiesOtpVerifyMutation();
 
   const otp = lookup?.otp;
@@ -154,6 +154,18 @@ function EntityLookupGate({ intervention }: Props) {
     });
   };
 
+  /** The NIF is of another kind of entity: nothing loaded, no code, and the field ready for another one */
+  const refuseNif = (entityKind: IntervEntityKind | null | undefined) => {
+    setStep(null);
+    setFailure(null);
+    setCode("");
+    setCodeError(null);
+    setNif("");
+    setNifError(kindMismatchMessage(entityKind));
+    if (ref) dispatch(kindRefused(ref));
+    requestAnimationFrame(() => document.getElementById(`entity-lookup-${ref}-nif`)?.focus());
+  };
+
   const search = async (e?: FormEvent) => {
     e?.preventDefault();
     const vat = normalizeNif(nif);
@@ -164,9 +176,18 @@ function EntityLookupGate({ intervention }: Props) {
     setFailure(null);
     setStep("searching");
     try {
-      const answer = await lookUp({ vat }).unwrap();
-      dispatch(lookedUp({ ref, vat, found: answer.found, phone: answer.phone, email: answer.email }));
-      if (answer.found) return setStep("found");
+      const answer = await lookUp({ entityLookupRequestDto: { vatNumber: vat, kind } }).unwrap();
+      const found = !!answer.exists;
+      if (found && !answer.kindMatches) return refuseNif(answer.kind);
+      dispatch(lookedUp({ ref, vat, found, phone: answer.mobilePhone, email: answer.email }));
+      // A company: its data comes with the answer, no code to ask for
+      const { preload } = answer;
+      if (found && preload) {
+        update((person) => withEntityData(person, entityFromPreload(preload, kind), vat));
+        dispatch(filled(ref));
+        return setStep(null);
+      }
+      if (found) return setStep("found");
       setStep(null);
       toManual(vat);
     } catch (error) {
@@ -183,21 +204,24 @@ function EntityLookupGate({ intervention }: Props) {
     toManual(isValidNif(vat) ? vat : "");
   };
 
-  const sendCode = async () => {
+  /** A code to the mobile phone (SMS) or the e-mail on file */
+  const sendCode = async (channel: OtpChannel) => {
     if (!ref || !lookup) return;
     setFailure(null);
     setStep("sending");
     try {
-      const answer = await sendOtp({ vat: lookup.vat }).unwrap();
-      if (!answer.sent || !answer.otpRequestId || !answer.validUntil) {
+      const answer = await sendOtp({ otpSendRequestDto: { vatNumber: lookup.vat, channel, kind } }).unwrap();
+      if (!answer.expiresAt) {
         setStep("found");
-        return setFailure(answer.message || "The code couldn't be sent. Try again, or fill in the details by hand.");
+        return setFailure("The code couldn't be sent. Try again, or fill in the details by hand.");
       }
-      dispatch(otpSent({ ref, otp: { requestId: answer.otpRequestId, validUntil: answer.validUntil } }));
+      const sentTo = answer.sentTo ?? (channel === "Sms" ? lookup.phone : lookup.email);
+      dispatch(otpSent({ ref, otp: { channel, sentTo, validUntil: answer.expiresAt } }));
       setCode("");
       setCodeError(null);
       setStep("code");
     } catch (error) {
+      if (problemCode(error) === PROBLEM.entityKindMismatch) return refuseNif(refusedKind(error, kind));
       setStep("found");
       setFailure(getApiErrorMessage(error) ?? "The code couldn't be sent. Try again, or fill in the details by hand.");
     }
@@ -207,16 +231,21 @@ function EntityLookupGate({ intervention }: Props) {
     if (!ref || !lookup || !otp || value.length !== CODE_LENGTH || verifyState.isLoading) return;
     setCodeError(null);
     try {
-      const answer = await verifyOtp({ otpRequestId: otp.requestId, code: value }).unwrap();
-      if (!answer.valid || !answer.intervention) {
-        setCode("");
-        return setCodeError(answer.message || "The code doesn't match. Check it and try again.");
-      }
-      update((person) => withEntityData(person, answer.intervention!, lookup.vat));
+      // Confirmed: the entity as the database has it
+      const preload = await verifyOtp({ otpVerifyRequestDto: { vatNumber: lookup.vat, code: value, kind } }).unwrap();
+      update((person) => withEntityData(person, entityFromPreload(preload, kind), lookup.vat));
       dispatch(filled(ref));
       setStep(null);
     } catch (error) {
-      setCodeError(getApiErrorMessage(error) ?? "Couldn't check the code. Please try again.");
+      if (problemCode(error) === PROBLEM.entityKindMismatch) return refuseNif(refusedKind(error, kind));
+      // Refused (4xx): the code doesn't match or has expired; otherwise it couldn't be checked
+      const status = problemStatus(error);
+      const refused = status !== undefined && status >= 400 && status < 500 && status !== 429;
+      if (refused) setCode("");
+      setCodeError(
+        problemMessage(error) ??
+          (refused ? "The code doesn't match or has expired. Check it and try again." : "Couldn't check the code. Please try again."),
+      );
     }
   };
 
@@ -248,7 +277,7 @@ function EntityLookupGate({ intervention }: Props) {
           </div>
           <p className="text-body-secondary small mb-3">
             We'll check whether this {isCompany(intervention) ? "company" : "person"} is already a customer.
-            {lookup?.outcome === "search"
+            {lookup?.outcome === "search" && !isNewEntity(intervention)
               ? " What you typed is kept: it unlocks again if you go back to filling in by hand."
               : " The other details unlock once the NIF is searched, or when you choose to fill them in by hand."}
           </p>
@@ -273,7 +302,7 @@ function EntityLookupGate({ intervention }: Props) {
                 }}
               />
               {nifError && (
-                <div id={`entity-lookup-${ref}-nif-feedback`} className="invalid-feedback d-block">
+                <div id={`entity-lookup-${ref}-nif-feedback`} className="invalid-feedback d-block" role="alert">
                   {nifError}
                 </div>
               )}
@@ -354,23 +383,38 @@ function EntityLookupGate({ intervention }: Props) {
           </h2>
           <p className="text-body-secondary">
             NIF {lookup.vat} is already in the database. To fill in the details from there, the owner must confirm with a{" "}
-            {CODE_LENGTH}-digit code. Send it to:
+            {CODE_LENGTH}-digit code.{" "}
+            {lookup.phone || lookup.email ? "Send it by:" : "There's no mobile phone or e-mail on file to send it to."}
           </p>
-          <div className="mb-3">
-            <Contacts lookup={lookup} />
-          </div>
+          {(lookup.phone || lookup.email) && (
+            <div className="d-grid gap-2 mb-3 text-start">
+              {lookup.phone && (
+                <button type="button" className="btn btn-outline-primary text-start" onClick={() => void sendCode("Sms")} autoFocus>
+                  <i className="bi bi-phone me-2" aria-hidden="true" />
+                  SMS to {lookup.phone}
+                </button>
+              )}
+              {lookup.email && (
+                <button
+                  type="button"
+                  className="btn btn-outline-primary text-start"
+                  onClick={() => void sendCode("Email")}
+                  autoFocus={!lookup.phone}
+                >
+                  <i className="bi bi-envelope me-2" aria-hidden="true" />
+                  E-mail to {lookup.email}
+                </button>
+              )}
+            </div>
+          )}
           {failure && (
             <div className="alert alert-warning small py-2 text-start" role="alert">
               {failure}
             </div>
           )}
           <div className="d-flex flex-wrap justify-content-center gap-2">
-            <button type="button" className="btn btn-ghost" onClick={fillInManually}>
+            <button type="button" className="btn btn-ghost" onClick={fillInManually} autoFocus={!lookup.phone && !lookup.email}>
               Fill in manually
-            </button>
-            <button type="button" className="btn btn-primary" onClick={sendCode} autoFocus>
-              <i className="bi bi-send me-1" aria-hidden="true" />
-              Send code
             </button>
           </div>
         </Dialog>
@@ -384,7 +428,7 @@ function EntityLookupGate({ intervention }: Props) {
           </h2>
           <p className="text-body-secondary mb-2">We sent a {CODE_LENGTH}-digit code to:</p>
           <div className="mb-3">
-            <Contacts lookup={lookup} />
+            <SentTo otp={otp} />
           </div>
           <form
             onSubmit={(e) => {
@@ -422,7 +466,7 @@ function EntityLookupGate({ intervention }: Props) {
               <button type="button" className="btn btn-ghost" onClick={fillInManually}>
                 Fill in manually
               </button>
-              <button type="button" className="btn btn-ghost" onClick={sendCode} disabled={verifyState.isLoading}>
+              <button type="button" className="btn btn-ghost" onClick={() => void sendCode(otp.channel)} disabled={verifyState.isLoading}>
                 Send a new code
               </button>
               <button

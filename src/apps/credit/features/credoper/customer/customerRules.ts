@@ -5,7 +5,7 @@ import type { LocalDate } from "../validation/localDate";
 // Customer step (quotation / proposal): the commercial network and the customer's contacts,
 // required as the server's field rules say. Error keys are the fields' paths.
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validateCustomer(op: CredOperDraft, _today: LocalDate): FieldErrors {
   const errors: FieldErrors = {};

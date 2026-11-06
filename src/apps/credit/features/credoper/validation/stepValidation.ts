@@ -1,3 +1,4 @@
+import { isValidVehicleMonth, isValidVehicleYear } from "@platform/features/equipment/equipmentModel";
 import { validateInsurances } from "../insurance/insuranceRules";
 import type { EquipmentDto } from "@platform/api/legacy/legacyApi";
 import {
@@ -12,10 +13,15 @@ import {
   isAutoInsurance,
   retakeBaseOf,
 } from "../model/business";
-import { customerOf, interventionRole, isCompany, type CredOperDraft } from "../model/credOperDraft";
+import { EMAIL_PATTERN } from "../customer/customerRules";
+import { isValidNif, vatOf } from "../entityLookup/entityLookup";
+import { CUSTOMER_NEEDED, customerOf, hasCustomer, interventionRole, isCompany, isExistingEntity, stageOf, type CredOperDraft } from "../model/credOperDraft";
+import { missingRequired } from "../model/interventionRequired";
 import { isAdult, notAfterToday, notBeforeToday } from "./dateRules";
-import { addError as add, checkRequired, fieldRule, type FieldErrors } from "./fieldRules";
+import { addError as add, checkRequired, fieldRule, REQUIRED_MESSAGE, requiredError, vehicleFieldRule, type FieldErrors } from "./fieldRules";
 import type { LocalDate } from "./localDate";
+
+const PHONE_NEEDED = "Enter a mobile or a landline phone.";
 
 // Per-step validation: server field rules (required / visible) + date rules vs today.
 // Error keys are field paths; the step components look up their field's key.
@@ -49,16 +55,17 @@ export function validateBuilding(op: CredOperDraft, today: LocalDate): FieldErro
 const notNegative = (value: number | null | undefined, label: string) =>
   value != null && value < 0 ? `${label} can't be negative.` : null;
 
-/** The vehicle fields (shared EquipmentDetail) of asset `index`: server rules + registration date not in the future. */
-function checkVehicle(errors: FieldErrors, equipment: EquipmentDto, index: number, today: LocalDate) {
+/** The vehicle fields (shared EquipmentDetail) of asset `index`: their rules + a real year and month. */
+function checkVehicle(errors: FieldErrors, stage: "quotation" | "proposal", equipment: EquipmentDto, index: number, today: LocalDate) {
   const meta = equipment.metadataResponse;
   const prefix = `assets.${index}.equipment.`;
-  for (const field of ["equipmentTypeId", "equipmentCategoryId", "equipmentStateId", "licencePlate", "registrationDate", "description"] as const) {
-    checkRequired(errors, meta, field, `${prefix}${field}`, equipment[field]);
+  const stateId = equipment.equipmentStateId;
+  for (const field of ["equipmentTypeId", "equipmentCategoryId", "equipmentStateId", "licencePlate", "equipYear", "equipMonth", "description"] as const) {
+    add(errors, `${prefix}${field}`, requiredError(vehicleFieldRule(stage, meta, field, stateId), equipment[field]));
   }
-  if (fieldRule(meta, "registrationDate").visible) {
-    add(errors, `${prefix}registrationDate`, notAfterToday(equipment.registrationDate, today, "Registration date"));
-  }
+  const { equipYear: year, equipMonth: month } = equipment;
+  if (year != null && !isValidVehicleYear(year, today)) add(errors, `${prefix}equipYear`, "Enter a valid year.");
+  if (month != null && !isValidVehicleMonth(month)) add(errors, `${prefix}equipMonth`, "Enter a month from 1 to 12.");
 }
 
 /** The initial entry is more than what it is a share of (shown as typed, not only after Next) */
@@ -115,9 +122,10 @@ export function validateEquipment(op: CredOperDraft, today: LocalDate): FieldErr
     const meta = equipment.metadataResponse;
     const prefix = `assets.${index}.equipment.`;
 
-    checkVehicle(errors, equipment, index, today);
+    const stage = stageOf(op);
+    checkVehicle(errors, stage, equipment, index, today);
     for (const field of ["brand", "model", "version", "odometer", "enginesize", "doors"] as const) {
-      checkRequired(errors, meta, field, `${prefix}${field}`, equipment[field]);
+      add(errors, `${prefix}${field}`, requiredError(vehicleFieldRule(stage, meta, field, equipment.equipmentStateId), equipment[field]));
     }
     if (renting) checkRequired(errors, meta, "netAmount", `${prefix}netAmount`, equipment.netAmount);
     add(errors, `${prefix}odometer`, notNegative(equipment.odometer, "Km"));
@@ -136,6 +144,8 @@ export function validateInterventions(op: CredOperDraft, today: LocalDate): Fiel
   const errors: FieldErrors = {};
   const companyCustomer = isCompany(customerOf(op));
   let secondHolders = 0;
+  // A new proposal's customer waits for its classification: it can't go on without one
+  if (!op.id && !hasCustomer(op)) errors["interventions.customer"] = CUSTOMER_NEEDED;
 
   op.interventions?.forEach((intervention) => {
     const prefix = `interventions.${intervention.correlationID}.`;
@@ -146,26 +156,29 @@ export function validateInterventions(op: CredOperDraft, today: LocalDate): Fiel
       else if (secondHolders > 1) errors[`${prefix}role`] = "Only one second holder is allowed.";
     }
 
-    // The intervention name is edited as the entity full name (Details form)
-    checkRequired(errors, intervention.entity?.metadataResponse, "fullName", `${prefix}entity.fullName`, intervention.entity?.fullName);
+    for (const { key } of missingRequired(intervention)) add(errors, key, key.endsWith("entity.phone") ? PHONE_NEEDED : REQUIRED_MESSAGE);
+
+    const nif = vatOf(intervention);
+    if (!isExistingEntity(intervention) && nif && !isValidNif(nif)) add(errors, `${prefix}entity.vatNumber`, "Enter a valid NIF (9 digits).");
+
+    // Typed here, like the Customer step's; one on file is the entity's
+    const email = intervention.entityEmail;
+    if (!email?.id && email?.email?.trim() && !EMAIL_PATTERN.test(email.email.trim())) add(errors, `${prefix}entityEmail.email`, "Enter a valid e-mail address.");
 
     const person = intervention.person;
     const personMeta = person?.metadataResponse;
 
-    if (person) {
+    if (person && !isCompany(intervention)) {
       checkRequired(errors, personMeta, "birthDate", `${prefix}person.birthDate`, person.birthDate);
       if (fieldRule(personMeta, "birthDate").visible) {
         add(errors, `${prefix}person.birthDate`, isAdult(person.birthDate, today));
       }
     }
 
-    intervention.entity?.legalDocs?.forEach((doc, documentIndex) => {
-      const docPrefix = `${prefix}entity.legalDocs.${documentIndex}.`;
-      checkRequired(errors, doc.metadataResponse, "legalDocNumber", `${docPrefix}legalDocNumber`, doc.legalDocNumber);
-      checkRequired(errors, doc.metadataResponse, "validDate", `${docPrefix}validDate`, doc.validDate);
-      if (fieldRule(doc.metadataResponse, "validDate").visible) {
-        add(errors, `${docPrefix}validDate`, notBeforeToday(doc.validDate, today, "Identification document"));
-      }
+    // Only those added here: the entity's own can't be changed from here
+    intervention.entity?.documents?.forEach((doc, documentIndex) => {
+      if (doc.id) return;
+      add(errors, `${prefix}entity.documents.${documentIndex}.validDate`, notBeforeToday(doc.validDate, today, "Identification document"));
     });
   });
 

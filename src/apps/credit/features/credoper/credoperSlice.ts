@@ -1,5 +1,5 @@
 import { newId } from "@platform/utils/newId";
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type Action, type PayloadAction } from "@reduxjs/toolkit";
 import type {
   CredOperDto,
   FinConditionDto,
@@ -9,6 +9,9 @@ import type {
 import {
   carryRefs,
   ensureRefs,
+  hasCustomer,
+  interventionRole,
+  LOCKED_BY_QUOTATION,
   type CarInsurance,
   type CreditProtectionInsurance,
   type CredOperDraft,
@@ -31,6 +34,11 @@ type CredoperState = {
    * its business is chosen (applyTemplate)
    */
   awaitingTemplate: boolean;
+  /**
+   * The quotations a proposal was saved from in this session (their ids, and `#number`): a quotation
+   * converts only once. Stays when another operation starts.
+   */
+  convertedQuotations: string[];
 };
 
 const initialState: CredoperState = {
@@ -41,7 +49,18 @@ const initialState: CredoperState = {
   isDirty: false,
   revision: 0,
   awaitingTemplate: false,
+  convertedQuotations: [],
 };
+
+/** What a saved proposal says of the quotation it came from */
+function rememberConverted(state: CredoperState, saved: CredOperInput) {
+  if (!saved.sourceCredOperId) return;
+  const { sourceCredOperId, conversionRef, sourceQuotation } = saved;
+  const number = sourceQuotation?.number;
+  for (const ref of [sourceCredOperId, conversionRef, sourceQuotation?.id, number != null ? `#${number}` : null]) {
+    if (ref && !state.convertedQuotations.includes(ref)) state.convertedQuotations.push(ref);
+  }
+}
 
 type InsuranceChanges = Partial<Omit<CreditProtectionInsurance, "id" | "kind">> &
   Partial<Omit<CarInsurance, "id" | "kind">>;
@@ -67,6 +86,13 @@ function setLoaded(state: CredoperState, op: CredOperInput) {
   state.error = null;
   state.isDirty = false;
   state.awaitingTemplate = false;
+}
+
+/** The ids the save gave items that had none (by position): saved again, they're updated, not added */
+function takeNewIds(items: { id?: string | null }[] | null | undefined, saved: { id?: string | null }[] | null | undefined) {
+  items?.forEach((item, index) => {
+    if (item.id == null && saved?.[index]?.id != null) item.id = saved[index].id;
+  });
 }
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -126,10 +152,13 @@ const credoperSlice = createSlice({
       state.awaitingTemplate = false;
     },
 
-    /** A blank proposal's customer (new-intervention), before its template: not an edit */
+    /** The customer of a proposal that has none (new-intervention), first: not an edit */
     presetCustomer(state, action: PayloadAction<CredOperIntervDto>) {
-      if (!state.data || state.data.interventions?.length) return;
-      state.data.interventions = [{ ...action.payload, correlationID: action.payload.correlationID || newId() }];
+      if (!state.data || hasCustomer(state.data)) return;
+      state.data.interventions = [
+        { ...action.payload, correlationID: action.payload.correlationID || newId() },
+        ...(state.data.interventions ?? []),
+      ];
     },
 
     /**
@@ -150,22 +179,42 @@ const credoperSlice = createSlice({
       state.data = ensureRefs(changeAssetType(state.data, action.payload).next);
     },
 
-    /** An existing operation (Search, conversion result). */
+    /** An existing operation (Search, a reopened one). */
     loadExisting(state, action: PayloadAction<CredOperInput>) {
       setLoaded(state, action.payload);
     },
 
     /**
-     * Server response to Save. Keeps local insurances when the response has none
-     * (backend not updated yet) and the refs insurances link to. If the user edited
-     * while saving, keeps those edits and only takes the server identity.
+     * A proposal made from a quotation, as the API returned it: not saved yet, so it's unsaved work
+     * (leaving it asks first)
+     */
+    startConverted(state, action: PayloadAction<CredOperInput>) {
+      setLoaded(state, action.payload);
+      state.isDirty = true;
+    },
+
+    /**
+     * Server response to Save: the saved operation replaces the draft (credOperApi
+     * savedFromApi), keeping the refs insurances link to. If the user edited while saving,
+     * keeps those edits and only takes the server identity (id, number, state, rowVersion,
+     * correlationId, and the ids of the items it created), so the next save is of this version.
      */
     markSaved: {
       reducer(state, action: PayloadAction<ServerResponse>) {
         const { response, sentRevision } = action.payload;
+        rememberConverted(state, response);
         if (state.data && isStale(state, sentRevision)) {
-          state.data.id = response.id;
-          state.data.credOperNumber = response.credOperNumber;
+          const data = state.data;
+          data.id = response.id;
+          data.credOperNumber = response.credOperNumber;
+          data.autUserStateId = response.autUserStateId;
+          data.stateDate = response.stateDate;
+          data.entryMoment = response.entryMoment;
+          data.rowVersion = response.rowVersion;
+          data.correlationId = response.correlationId ?? data.correlationId;
+          takeNewIds(data.interventions, response.interventions);
+          takeNewIds(data.assets, response.assets);
+          takeNewIds(data.conditions, response.conditions);
           return;
         }
         const insurances = response.insurances ?? state.data?.insurances ?? [];
@@ -232,6 +281,42 @@ const credoperSlice = createSlice({
         ...(state.data.interventions ?? []),
         { ...person, correlationID: person.correlationID || newId() },
       ];
+      edited(state);
+    },
+
+    /**
+     * The customer starts over, from a blank one (new-intervention): nothing of who they were
+     * stays, on them or on the operation's customer fields. Still this operation's same person: saved
+     * again they're updated, not added, and the insurances linked to them stay linked. With
+     * `credOperClassification`, the classification they were asked for comes in at the same time;
+     * with `dropSecondHolder` (the user was warned: a company can't have one), the second holder goes.
+     */
+    restartCustomer(
+      state,
+      action: PayloadAction<{ ref: string; blank: CredOperIntervDto; credOperClassification?: number; dropSecondHolder?: boolean }>,
+    ) {
+      if (!state.data) return;
+      const { ref, blank, credOperClassification, dropSecondHolder } = action.payload;
+      if (credOperClassification !== undefined) state.data.credOperClassification = credOperClassification;
+      state.data.interventions = state.data.interventions?.map((person) =>
+        person.correlationID === ref
+          ? {
+              ...blank,
+              id: person.id,
+              correlationID: ref,
+              credOperIntervType: person.credOperIntervType,
+              credOperId: (person as { credOperId?: string | null }).credOperId,
+            }
+          : person,
+      );
+      if (dropSecondHolder) {
+        state.data.interventions = state.data.interventions?.filter((person) => interventionRole(person) !== "secondHolder");
+      }
+      delete state.data.customerName;
+      delete state.data.customerVAT;
+      delete state.data.customerEmail;
+      delete state.data.customerPhone;
+      delete state.data.customerLandLine;
       edited(state);
     },
 
@@ -346,12 +431,14 @@ export const {
   startBlank,
   applyTemplate,
   loadExisting,
+  startConverted,
   markSaved,
   setCredoper,
   setCredoperError,
   patchCredoper,
   applyProductDefaults,
   addIntervention,
+  restartCustomer,
   presetBusiness,
   presetCompany,
   presetAssetType,
@@ -373,4 +460,21 @@ export const {
   resetCredoper,
 } = credoperSlice.actions;
 
-export default credoperSlice.reducer;
+/** Actions that put another operation (or the saved version of this one) in place: they may set the locked fields */
+const REPLACING: string[] = [startNew.type, startBlank.type, loadExisting.type, startConverted.type, markSaved.type, resetCredoper.type];
+
+/**
+ * A proposal made from a quotation keeps the quotation's company, business and operation type
+ * (LOCKED_BY_QUOTATION): whatever else changes the operation (an edit, a product's defaults, a
+ * calculation, a company decided for the user…) leaves them as they were.
+ */
+function credoperReducer(state: CredoperState | undefined, action: Action): CredoperState {
+  const next = credoperSlice.reducer(state, action);
+  const before = state?.data;
+  if (!before?.sourceCredOperId || !next.data || REPLACING.includes(action.type)) return next;
+  const changed = LOCKED_BY_QUOTATION.filter((key) => next.data![key] !== before[key]);
+  if (!changed.length) return next;
+  return { ...next, data: { ...next.data, ...Object.fromEntries(changed.map((key) => [key, before[key]])) } };
+}
+
+export default credoperReducer;

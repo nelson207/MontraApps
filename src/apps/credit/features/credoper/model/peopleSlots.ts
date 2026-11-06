@@ -17,7 +17,8 @@ export type PeopleSlot =
   /** The card to add one; with `blocked`, why it can't be (shown, not clickable) */
   | { kind: "add"; person: NewPersonKind; blocked: string | null };
 
-export function peopleSlots(op: CredOperDto): PeopleSlot[] {
+/** `blocked`: why nobody can be added yet (see classificationBlock) */
+export function peopleSlots(op: CredOperDto, blocked: string | null = null): PeopleSlot[] {
   const people = op.interventions ?? [];
   const indexes = people.map((_, i) => i);
   const customer = indexes.find((i) => interventionRole(people[i]) === "customer");
@@ -29,11 +30,11 @@ export function peopleSlots(op: CredOperDto): PeopleSlot[] {
   slots.push(
     secondHolder !== undefined
       ? { kind: "person", index: secondHolder }
-      : { kind: "add", person: "secondHolder", blocked: secondHolderBlock(op) },
+      : { kind: "add", person: "secondHolder", blocked: blocked ?? secondHolderBlock(op) },
   );
   slots.push(...others.map((index) => ({ kind: "person" as const, index })));
   // Never a page of its own: only in a free place of the last row
-  if (slots.length % PEOPLE_PER_PAGE !== 0) slots.push({ kind: "add", person: "guarantor", blocked: null });
+  if (slots.length % PEOPLE_PER_PAGE !== 0) slots.push({ kind: "add", person: "guarantor", blocked });
   return slots;
 }
 

@@ -108,6 +108,35 @@
   }
 }
 
+// Next asked for it: a brief ring around the button, clear of the action bar when scrolled to
+.app-calculate {
+  scroll-margin-bottom: 6rem;
+
+  &.is-nudged {
+    box-shadow: 0 0 0 0.3rem rgba(var(--#{$prefix}primary-rgb), 0.4);
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: app-calculate-nudge 1.2s ease-out both;
+    }
+  }
+}
+
+@keyframes app-calculate-nudge {
+  0%,
+  50% {
+    box-shadow: 0 0 0 0 rgba(var(--#{$prefix}primary-rgb), 0.5);
+  }
+
+  25%,
+  75% {
+    box-shadow: 0 0 0 0.35rem rgba(var(--#{$prefix}primary-rgb), 0.4);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0.6rem rgba(var(--#{$prefix}primary-rgb), 0);
+  }
+}
+
 .app-summary-monthly {
   background-color: var(--#{$prefix}primary-bg-subtle);
   @include transition(opacity 0.15s ease);
@@ -184,6 +213,82 @@
     color: var(--#{$prefix}secondary-color);
     background-color: var(--#{$prefix}tertiary-bg);
     cursor: not-allowed;
+  }
+}
+
+// A person's form: its tabs, the entity's contacts to choose from
+.app-person-tabs {
+  display: flex;
+  gap: map-get($spacers, 1);
+  padding-inline: map-get($spacers, 2);
+  border-bottom: 1px solid var(--#{$prefix}border-color);
+  overflow-x: auto;
+}
+
+.app-person-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  padding: map-get($spacers, 2) 0.75rem;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: $btn-font-size-sm;
+  color: var(--#{$prefix}secondary-color);
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--#{$prefix}body-color);
+  }
+
+  &.is-active {
+    border-bottom-color: var(--app-primary);
+    color: var(--app-primary-text);
+    font-weight: 600;
+  }
+}
+
+.app-person-tab-count {
+  font-size: 0.6875rem;
+}
+
+.app-person-tab-error {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--#{$prefix}danger);
+}
+
+// Under a field, whose own margin it sits in
+.app-field-note {
+  margin-top: -0.75rem;
+  font-size: 0.8125rem;
+}
+
+.app-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: map-get($spacers, 2);
+}
+
+.app-choice {
+  min-width: 0;
+  padding: map-get($spacers, 2) 0.75rem;
+  border: 1px solid var(--#{$prefix}border-color);
+  border-radius: $border-radius;
+  background-color: var(--#{$prefix}body-bg);
+  color: inherit;
+  text-align: start;
+
+  &:hover {
+    border-color: var(--app-primary);
+  }
+
+  &.is-selected {
+    border-color: var(--app-primary);
+    background-color: var(--#{$prefix}primary-bg-subtle);
+    box-shadow: inset 0 0 0 1px var(--app-primary);
   }
 }
 
@@ -265,14 +370,185 @@
     }
   }
 
+  // What blocks saving
   &.has-issues {
+    background-color: var(--#{$prefix}danger-bg-subtle);
+    border-color: var(--#{$prefix}danger-border-subtle);
+
+    .app-readiness-icon {
+      color: var(--#{$prefix}danger);
+    }
+  }
+}
+
+// --- Save results (a status in the action bar, the messages in a sheet above it) ----
+
+// The save's result, the same in both: failed; worked, with something to review; worked
+.app-save-status,
+.app-save-sheet-head {
+  &.is-failed {
+    background-color: var(--#{$prefix}danger-bg-subtle);
+    border-color: var(--#{$prefix}danger-border-subtle);
+
+    .bi:first-child {
+      color: var(--#{$prefix}danger);
+    }
+  }
+
+  &.is-warned {
     background-color: var(--#{$prefix}warning-bg-subtle);
     border-color: var(--#{$prefix}warning-border-subtle);
 
-    .app-readiness-icon {
-      color: var(--#{$prefix}warning);
+    .bi:first-child {
+      color: var(--#{$prefix}warning-text-emphasis);
     }
   }
+
+  &.is-ready {
+    background-color: var(--#{$prefix}success-bg-subtle);
+    border-color: var(--#{$prefix}success-border-subtle);
+
+    .bi:first-child {
+      color: var(--#{$prefix}success);
+    }
+  }
+}
+
+.app-save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  max-width: 100%;
+  padding: map-get($spacers, 1) map-get($spacers, 2);
+  color: var(--#{$prefix}body-color);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: $border-radius;
+
+  .bi {
+    flex-shrink: 0;
+  }
+}
+
+.app-save-status-chevron {
+  margin-left: auto;
+  @include transition(transform 0.15s ease);
+
+  [aria-expanded="true"] > & {
+    transform: rotate(180deg);
+  }
+}
+
+// Above the bar, leaving the rest of the form in view and usable
+.app-save-sheet {
+  position: absolute;
+  bottom: 100%;
+  left: map-get($spacers, 3);
+  display: flex;
+  flex-direction: column;
+  width: min(36rem, calc(100% - #{map-get($spacers, 3) * 2}));
+  max-height: min(60vh, 26rem);
+  background-color: var(--#{$prefix}body-bg);
+  border: 1px solid var(--#{$prefix}border-color);
+  border-bottom: 0;
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
+  box-shadow: 0 -0.5rem 1.5rem rgba(0, 0, 0, 0.14);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: app-save-sheet-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  @include media-breakpoint-up(lg) {
+    left: map-get($spacers, 4);
+  }
+
+  @include media-breakpoint-down(sm) {
+    left: 0;
+    width: 100%;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--#{$prefix}focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  .app-readiness-step {
+    padding: 0;
+  }
+
+  // From before the latest changes: still there, but no longer the last word
+  &.is-stale .app-readiness-step {
+    opacity: 0.75;
+  }
+}
+
+@keyframes app-save-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+.app-save-sheet-head {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: map-get($spacers, 2);
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+  border-bottom: 1px solid transparent;
+  border-radius: calc(#{$border-radius-lg} - 1px) calc(#{$border-radius-lg} - 1px) 0 0;
+
+  .app-readiness-icon {
+    font-size: 1.25rem;
+  }
+
+  > .flex-grow-1 {
+    flex-basis: 12rem;
+  }
+
+  // Readable on the result's colour
+  .btn {
+    background-color: var(--#{$prefix}body-bg);
+  }
+
+  .btn:hover {
+    background-color: var(--#{$prefix}btn-hover-bg);
+  }
+}
+
+.app-save-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: map-get($spacers, 3);
+  min-height: 0;
+  padding: map-get($spacers, 3);
+  overflow-y: auto;
+}
+
+.app-save-results-stale {
+  padding: map-get($spacers, 1) map-get($spacers, 2);
+  border: 1px dashed var(--#{$prefix}border-color);
+  border-radius: $border-radius;
+}
+
+.app-message-title {
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-message-items {
+  display: flex;
+  flex-direction: column;
+  gap: map-get($spacers, 1);
+  margin-top: map-get($spacers, 1);
+  padding-left: calc(1em + #{map-get($spacers, 2)});
+}
+
+details.app-readiness-step > summary {
+  cursor: pointer;
 }
 
 .app-readiness-icon {
@@ -286,29 +562,33 @@
   background-color: var(--#{$prefix}body-bg);
 }
 
-.app-financing-overview {
-  overflow: hidden;
-  border: 1px solid var(--#{$prefix}border-color);
-  border-radius: $border-radius-xl;
-}
-
-.app-financing-hero {
+// The deal at a glance: a sentence, the payment, and how it's paid
+.app-deal {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: map-get($spacers, 1);
-  padding: map-get($spacers, 4);
-  text-align: center;
-  background-color: var(--#{$prefix}primary-bg-subtle);
-  @include transition(background-color 0.15s ease);
+  gap: map-get($spacers, 3);
+  padding-bottom: map-get($spacers, 4);
+  border-bottom: 1px solid var(--#{$prefix}border-color);
+}
 
-  &.is-stale {
-    background-color: var(--#{$prefix}warning-bg-subtle);
+.app-deal-line {
+  max-width: 90ch;
+  margin: 0;
+  font-size: $h5-font-size;
+  font-weight: $font-weight-semibold;
+  line-height: 1.35;
+  text-wrap: balance;
+}
 
-    .app-financing-monthly {
-      opacity: 0.55;
-    }
+.app-deal-pay {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: map-get($spacers, 3) map-get($spacers, 5);
+
+  &.is-stale .app-financing-monthly,
+  &.is-stale .app-deal-stats {
+    opacity: 0.55;
   }
 }
 
@@ -323,6 +603,74 @@
   }
 }
 
+.app-deal-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: map-get($spacers, 2) map-get($spacers, 4);
+  margin: 0;
+
+  dt {
+    font-size: $small-font-size;
+    font-weight: $font-weight-normal;
+    color: var(--#{$prefix}secondary-color);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: $font-weight-semibold;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Each part's colour, in the bar and its key
+.app-deal-bar .is-entry,
+.app-deal-key .is-entry {
+  background-color: color-mix(in srgb, var(--app-primary) 45%, var(--app-surface-mix));
+}
+
+.app-deal-bar .is-asset,
+.app-deal-key .is-asset {
+  background-color: var(--app-primary);
+}
+
+.app-deal-bar .is-costs,
+.app-deal-key .is-costs {
+  background-color: color-mix(in srgb, var(--app-primary) 70%, var(--app-text-mix));
+}
+
+.app-deal-bar {
+  display: flex;
+  gap: 2px;
+  height: 0.875rem;
+  overflow: hidden;
+  border-radius: $border-radius-sm;
+
+  span {
+    display: block;
+    // A small part stays visible
+    min-width: 4px;
+  }
+}
+
+.app-deal-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: map-get($spacers, 1) map-get($spacers, 3);
+  margin-top: map-get($spacers, 2);
+
+  i {
+    display: inline-block;
+    width: 0.625rem;
+    height: 0.625rem;
+    margin-right: map-get($spacers, 1);
+    border-radius: 2px;
+  }
+
+  strong {
+    font-weight: $font-weight-semibold;
+  }
+}
+
 .app-review-card {
   border-color: var(--#{$prefix}border-color);
 
@@ -331,13 +679,38 @@
     padding-block: map-get($spacers, 2);
   }
 
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: map-get($spacers, 2);
+  }
+
   &.has-issues {
-    border-color: var(--#{$prefix}warning-border-subtle);
+    border-color: var(--#{$prefix}danger-border-subtle);
 
     .card-header {
-      background-color: var(--#{$prefix}warning-bg-subtle);
+      background-color: var(--#{$prefix}danger-bg-subtle);
     }
   }
+}
+
+// What a card is about: its name, above the fields
+.app-review-lead {
+  display: flex;
+  align-items: center;
+  gap: map-get($spacers, 2);
+}
+
+.app-review-lead-name {
+  font-weight: $font-weight-semibold;
+  overflow-wrap: anywhere;
+}
+
+.app-review-more summary {
+  margin-bottom: map-get($spacers, 1);
+  font-size: $font-size-sm;
+  color: var(--app-primary-text, var(--#{$prefix}primary));
+  cursor: pointer;
 }
 
 .app-review-icon {

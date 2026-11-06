@@ -24,13 +24,20 @@ describe("contract classifications (GET /api/credit-operations/classifications)"
   it("asks for the app's classifications of the business in the company", async () => {
     const { requests } = mockFetch((url) =>
       url.pathname === "/api/credit-operations/classifications"
-        ? { json: [{ id: 1, abbreviation: "Private", description: "Private customer", isValid: true }] }
+        ? {
+            json: [
+              { id: 1, abbreviation: "Private", description: "Private customer", isValid: true, entitySuperType: "Person" },
+              { id: 2, abbreviation: "Acme", description: "Companies", isValid: true, entitySuperType: "Company" },
+              { id: 3, abbreviation: "Public", description: "Neither", isValid: true, entitySuperType: null },
+            ],
+          }
         : undefined,
     );
     const { result } = render({ business, companyId: 2, loadingBusinesses: false });
 
-    await waitFor(() => expect(result.current.options.credOperClassifications).toHaveLength(1));
-    expect(result.current.options.credOperClassifications[0]).toEqual({ code: "1", abbreviation: "Private", description: "Private customer" });
+    await waitFor(() => expect(result.current.options.credOperClassifications).toHaveLength(3));
+    expect(result.current.options.credOperClassifications[0]).toEqual({ code: "1", abbreviation: "Private", description: "Private customer", entitySuperType: "Person" });
+    expect(result.current.options.credOperClassifications.map((c) => c.entitySuperType)).toEqual(["Person", "Company", null]);
     const params = new URL(requests[0].url).searchParams;
     expect(Object.fromEntries(params)).toEqual({ application: "MONTRA_APPLICATION_CREDIT", companyId: "2", businessId: "4" });
   });

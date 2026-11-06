@@ -20,7 +20,7 @@ describe("businessChoices", () => {
   });
 
   it("a proposal converted from a quotation keeps its business (no restriction)", () => {
-    const op = { credOperStep: 2 as const, quotationId: 41, aplBusinessId: first.id };
+    const op = { credOperStep: 2 as const, sourceCredOperId: "AQquote", aplBusinessId: first.id };
     expect(businessChoices(all, { stage: "proposal", op, proposalBusinesses: [second.id] })).toEqual(all);
   });
 

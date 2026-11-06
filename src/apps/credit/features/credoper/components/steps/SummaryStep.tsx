@@ -11,9 +11,10 @@ import {
   type StepIssues,
 } from "../../wizard/steps";
 import type { StepProps } from "../../wizard/stepTypes";
-import { hasFinancing, isAutoInsurance } from "../../model/business";
-import { financingFigures } from "../review/financingFigures";
-import { BusinessCard, CustomerCard, FinancingCard, InsurancesCard, PeopleCard, VehicleCards } from "../review/ReviewCards";
+import { hasBuilding, hasEquipment, hasFinancing, isAutoInsurance } from "../../model/business";
+import { dealSentence, financingFigures, paymentBreakdown, type PaymentBreakdown } from "../review/financingFigures";
+import { CustomerCard, FinancingCard, InsurancesCard, PeopleCard, VehicleCards } from "../review/ReviewCards";
+import { useVehicleName } from "../review/useVehicleName";
 import { money, percent } from "../../hooks/useCalculation";
 
 const FIELD_LABELS: Record<string, string> = {
@@ -28,7 +29,8 @@ const FIELD_LABELS: Record<string, string> = {
   equipmentCategoryId: "Equipment category",
   equipmentStateId: "Equipment state",
   licencePlate: "License plate",
-  registrationDate: "Registration date",
+  equipYear: "Year",
+  equipMonth: "Month",
   description: "Description",
   netAmount: "Equipment amount",
   retakeAmount: "Initial entry amount",
@@ -61,21 +63,25 @@ const fieldLabel = (key: string) =>
 
 // --- Readiness -------------------------------------------------------------------
 
-function Readiness({
+export function Readiness({
   groups,
   stage,
   operation,
   goTo,
+  resultsShown = false,
 }: {
   groups: StepIssues[];
   stage: StepProps["stage"];
   operation: CredOperDraft;
   goTo: (step: StepId) => void;
+  /** The last save's results are showing: they say whether it's saved */
+  resultsShown?: boolean;
 }) {
   const isDirty = useAppSelector(selectCredoperIsDirty);
   const count = groups.reduce((total, group) => total + group.issues.length, 0);
 
   if (count === 0) {
+    if (resultsShown) return null;
     const hint =
       operation.id == null || isDirty
         ? `Everything required is filled in. Save the ${stage} to keep it.`
@@ -99,7 +105,7 @@ function Readiness({
   return (
     <div className="app-readiness has-issues" role="status">
       <i
-        className="bi bi-exclamation-triangle-fill app-readiness-icon"
+        className="bi bi-x-octagon-fill app-readiness-icon"
         aria-hidden="true"
       />
       <div className="flex-grow-1 min-w-0">
@@ -113,7 +119,7 @@ function Readiness({
               <div className="d-flex align-items-center gap-2">
                 <i className={`bi ${step.icon}`} aria-hidden="true" />
                 <span className="fw-semibold">{step.label}</span>
-                <span className="badge rounded-pill text-bg-warning">
+                <span className="badge rounded-pill text-bg-danger">
                   {issues.length}
                 </span>
                 <button
@@ -141,70 +147,120 @@ function Readiness({
   );
 }
 
-// --- Financing overview -------------------------------------------------------------
+// --- The deal ------------------------------------------------------------------------
 
 function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="col">
-      <small className="text-body-secondary d-block">{label}</small>
-      <strong className="text-nowrap">{value}</strong>
+    <div>
+      <dt>{label}</dt>
+      <dd className="text-nowrap">{value}</dd>
     </div>
   );
 }
 
-/** The financing as calculated (read-only: the term and the calculation are in Financial data) */
-function FinancingSummary({ operation, onEdit }: { operation: CredOperDraft; onEdit?: () => void }) {
+const share = (part: number, whole: number) => Math.round((part / whole) * 1000) / 10;
+
+/** How the equipment is paid, drawn to scale: its initial entry, what's financed, and any financed costs */
+function PaymentBar({ breakdown, totalLabel }: { breakdown: PaymentBreakdown; totalLabel: string }) {
+  const { entry, asset, costs, total } = breakdown;
+  const parts = [
+    { key: "entry", label: "Initial entry", value: entry },
+    { key: "asset", label: costs > 0 ? "Financed equipment" : "Financed amount", value: asset },
+    { key: "costs", label: "Fees, insurance and other costs", value: costs },
+  ].filter((part) => part.value > 0);
+  const described = parts.map((part) => `${part.label} ${money.format(part.value)}`).join(", ");
+  return (
+    <div>
+      <div className="app-deal-bar" role="img" aria-label={`${totalLabel} ${money.format(total)}: ${described}`}>
+        {parts.map((part) => (
+          <span key={part.key} className={`is-${part.key}`} style={{ flexBasis: `${share(part.value, total)}%` }} />
+        ))}
+      </div>
+      <div className="app-deal-key small">
+        {parts.map((part) => (
+          <span key={part.key}>
+            <i className={`is-${part.key}`} aria-hidden="true" />
+            <span>{part.label}</span> <strong className="app-tabular">{money.format(part.value)}</strong>{" "}
+            <span className="text-body-secondary app-tabular">({share(part.value, total).toLocaleString("pt-PT")} %)</span>
+          </span>
+        ))}
+        <span className="ms-auto text-body-secondary">
+          {totalLabel} <strong className="text-body app-tabular">{money.format(total)}</strong>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** What's being financed, as the deal's sentence names it */
+function useFinancedThing(op: CredOperDraft): string | null {
+  const vehicle = useVehicleName(op, 0);
+  if (hasBuilding(op)) return "a building";
+  if (!hasEquipment(op)) return null;
+  const count = op.assets?.length ?? 0;
+  return count > 1 ? `${count} vehicles` : vehicle;
+}
+
+/** The deal at a glance (read-only: the term and the calculation are in Financial data) */
+export function DealOverview({ operation, stale = false, onEdit }: { operation: CredOperDraft; stale?: boolean; onEdit?: () => void }) {
   const f = financingFigures(operation);
+  const breakdown = paymentBreakdown(operation);
+  const thing = useFinancedThing(operation);
+  const sentence = dealSentence(
+    { amount: f.financed, term: f.term, thing, customer: operation.customerName },
+    (value) => money.format(value),
+  );
   const amount = (value: number | null) => (value != null ? money.format(value) : "—");
+  const toCalculate = onEdit && (
+    <button type="button" className="btn btn-link btn-sm p-0 align-baseline" onClick={onEdit}>
+      Calculate in Financial data
+    </button>
+  );
 
   return (
-    <section className="app-financing-overview" aria-label="Financing summary">
-      <div className="row g-0">
-        <div className="col-md-5 app-financing-hero">
-          <small className="text-body-secondary">Monthly payment</small>
-          <div className="app-financing-monthly">
+    <section className="app-deal" aria-label="Financing summary">
+      {sentence && <p className="app-deal-line">{sentence}</p>}
+
+      <div className={`app-deal-pay ${stale ? "is-stale" : ""}`}>
+        <div>
+          <small className="text-body-secondary d-block">Monthly payment</small>
+          <div className="app-financing-monthly app-tabular">
             {amount(f.monthly)}
             <span className="fs-6 fw-normal text-body-secondary"> / month</span>
           </div>
-          {!f.calculated && (
-            <small className="text-body-secondary">
-              Not calculated yet.{" "}
-              {onEdit && (
-                <button type="button" className="btn btn-link btn-sm p-0 align-baseline" onClick={onEdit}>
-                  Calculate in Financial data
-                </button>
+          {!f.calculated && <small className="text-body-secondary">Not calculated yet. {toCalculate}</small>}
+          {f.calculated && stale && <small className="text-warning-emphasis">Values changed since calculating. {toCalculate}</small>}
+        </div>
+        <dl className="app-deal-stats">
+          {f.tan != null && <Stat label="TAN" value={percent(f.tan)} />}
+          {f.taeg != null && <Stat label="TAEG" value={percent(f.taeg)} />}
+          {f.total != null && <Stat label="Total to pay" value={money.format(f.total)} />}
+          {!breakdown && (
+            <>
+              <Stat label="Financed amount" value={amount(f.financed)} />
+              {f.base != null && <Stat label={f.baseLabel} value={money.format(f.base)} />}
+              {f.initialEntry != null && (
+                <Stat
+                  label="Initial entry"
+                  value={`${money.format(f.initialEntry)}${f.initialEntryPercentage != null ? ` (${f.initialEntryPercentage} %)` : ""}`}
+                />
               )}
-            </small>
+            </>
           )}
-        </div>
-
-        <div className="col-md-7 p-3 p-lg-4 d-flex flex-column gap-3">
-          <div className="row row-cols-2 row-cols-sm-3 g-3">
-            <Stat label="Financed amount" value={amount(f.financed)} />
-            <Stat label={f.baseLabel} value={amount(f.base)} />
-            <Stat
-              label="Initial entry"
-              value={
-                f.initialEntry != null
-                  ? `${money.format(f.initialEntry)}${f.initialEntryPercentage != null ? ` (${f.initialEntryPercentage} %)` : ""}`
-                  : "—"
-              }
-            />
-            <Stat label="Term" value={f.term != null ? `${f.term} months` : "—"} />
-            <Stat label="TAN" value={percent(f.tan)} />
-            <Stat label="TAEG" value={percent(f.taeg)} />
-          </div>
-          <small className="text-body-secondary">Indicative values, subject to approval.</small>
-        </div>
+        </dl>
       </div>
+
+      {breakdown && <PaymentBar breakdown={breakdown} totalLabel={breakdown.costs > 0 ? "Total" : f.baseLabel} />}
+
+      <small className="text-body-secondary">Indicative values, subject to approval.</small>
     </section>
   );
 }
 
 // --- Review cards (shared: ../review/ReviewCards) ----------------------------------
 
-// Last step: is it ready, what does it cost, and a review of everything entered.
-function SummaryStep({ stage, goTo, formProps, steps, errorsByStep }: StepProps) {
+// Last step: is it ready, what's the deal, and a review of everything entered.
+function SummaryStep({ stage, goTo, formProps, steps, errorsByStep, saveResultsShown, calculationStale }: StepProps) {
   const op = useAppSelector(selectCredoper);
   if (!op) return null;
 
@@ -217,15 +273,13 @@ function SummaryStep({ stage, goTo, formProps, steps, errorsByStep }: StepProps)
 
   return (
     <div className="d-flex flex-column gap-4">
-      <Readiness groups={groups} stage={stage} operation={op} goTo={goTo} />
+      <Readiness groups={groups} stage={stage} operation={op} goTo={goTo} resultsShown={saveResultsShown} />
 
       {hasFinancing(op) && (
-        <FinancingSummary operation={op} onEdit={has("financial") ? () => goTo("financial") : undefined} />
+        <DealOverview operation={op} stale={calculationStale} onEdit={has("financial") ? () => goTo("financial") : undefined} />
       )}
 
       <div className="row g-3">
-        <BusinessCard op={op} step="business" issues={issuesIn("business")} goTo={editable("business")} />
-
         <CustomerCard
           op={op}
           step="customer"

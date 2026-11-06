@@ -45,7 +45,7 @@ const company: StepDef = { id: "company", label: "Company", icon: "bi-building",
 const assetType: StepDef = { id: "assetType", label: "Asset type", icon: "bi-boxes", validate: validateAssetType };
 const building: StepDef = { id: "building", label: "Building detail", icon: "bi-house", validate: validateBuilding };
 const customer: StepDef = { id: "customer", label: "Customer", icon: "bi-person", validate: validateCustomer };
-/** Converted proposal, step 1: the source quotation, read-only (nothing to fix there). */
+/** A proposal made from a quotation, first step: the quotation's summary, read-only (nothing to fix there) */
 const quotation: StepDef = { id: "quotation", label: "Quotation", icon: "bi-file-earmark-text", validate: () => ({}) };
 const financial: StepDef = { id: "financial", label: "Financial data", icon: "bi-cash-coin", validate: validateFinancial };
 const interventions: StepDef = {
@@ -81,13 +81,13 @@ export type StepOptions = {
 
 /**
  * The steps of an operation:
- *   [Business] → [Company] → [Asset type] → Customer (or the read-only Quotation of a converted
- *   proposal) → Equipment (asset type equipment) or Building (asset type building; none for no
- *   asset) → Financial data (financed businesses)
+ *   [Business] → [Company] → [Asset type] → [Quotation: the one a proposal was made from, read-only]
+ *   → Customer → Equipment (asset type equipment) or
+ *   Building (asset type building; none for no asset) → Financial data (financed businesses)
  *   → Interventions (proposal) → Insurances (proposal; Auto insurance: also the quotation)
  *   → Summary.
- * Until a business is chosen there's only the Business step. A converted proposal keeps
- * its quotation's business.
+ * Until a business is chosen there's only the Business step. A proposal made from a quotation
+ * keeps the quotation's company, business (and asset type): none of their steps.
  */
 export function stepsFor(
   stage: Stage,
@@ -100,7 +100,8 @@ export function stepsFor(
   if (chooseBusiness && !converted) steps.push(business);
   if (chooseCompany && !converted) steps.push(company);
   if (chooseAssetType && !converted) steps.push(assetType);
-  steps.push(converted ? quotation : customer);
+  if (converted) steps.push(quotation);
+  steps.push(customer);
   if (hasEquipment(op)) steps.push(equipmentStep(op));
   if (hasBuilding(op)) steps.push(building);
   if (hasFinancing(op)) steps.push(financial);
@@ -142,11 +143,13 @@ export function issuesByStep(steps: StepDef[], byStep: Partial<Record<StepId, Fi
 
 /**
  * Person sub-tab (InterventionsSection) for an intervention error key:
- * 1 Details (entity name), 2 Address, 3 Legal document, 4 Person details.
+ * 1 Details (NIF, names, legal form, activity, contacts), 2 Address, 3 Legal document,
+ * 4 Person / Company details.
  */
 export function interventionTabOfErrorKey(key: string): 1 | 2 | 3 | 4 {
-  if (key.includes(".entity.legalDocs.")) return 3;
-  if (key.includes(".person.")) return 4;
+  if (key.includes(".entity.documents.")) return 3;
+  if (/\.(firstName|lastName|leafActivityTypeNodeId|leafActivityTypeId)$/.test(key)) return 1;
+  if (key.includes(".person.") || key.includes(".company.")) return 4;
   if (key.includes("Address")) return 2;
   return 1;
 }

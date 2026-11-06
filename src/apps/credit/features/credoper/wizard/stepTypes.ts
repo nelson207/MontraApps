@@ -16,6 +16,10 @@ export type StepProps = {
   steps: StepDef[];
   /** Each step's current errors */
   errorsByStep: Partial<Record<StepId, FieldErrors>>;
+  /** The last save's result is there, and still about the values on screen: it says if it's saved (Summary) */
+  saveResultsShown?: boolean;
+  /** The values changed since calculating: the figures shown are outdated (Summary) */
+  calculationStale?: boolean;
   /** Options and helpers the existing field forms need */
   formProps: QuotationDataProps;
 };

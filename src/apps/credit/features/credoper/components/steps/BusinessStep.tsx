@@ -2,7 +2,7 @@ import { problemMessage } from "@platform/api/problemCode";
 import { selectCredoper, useAppDispatch, useAppSelector } from "@credit/store";
 import { useBusinessChoices } from "../../business/useBusinessChoices";
 import { patchCredoper, setInsurances } from "../../credoperSlice";
-import { assetTypesOf, businessOf, changeBusiness, type Business } from "../../model/business";
+import { assetTypeOf, businessOf, changeBusiness, type Business } from "../../model/business";
 import type { StepProps } from "../../wizard/stepTypes";
 
 // What the asset is comes after the company (Asset type); here, only what the business is
@@ -23,9 +23,10 @@ function BusinessStep({ stage, errors, advance }: StepProps) {
   const choose = (business: Business) => {
     // Picking a business moves on to the next step (the same one again too)
     if (business.id === current?.id) return advance();
-    // The company is chosen again: the asset type stays if the business offers it in any
-    const offered = assetTypesOf(businesses?.find((b) => b.id === business.id), null).map((a) => a.id);
-    const { next, removed } = changeBusiness(op, business.id, offered);
+    // The company is chosen again, and the asset types are only known after it: the asset type
+    // stays for now, and is checked (and its data confirmed) once they are (the Wizard)
+    const assetType = assetTypeOf(op);
+    const { next, removed } = changeBusiness(op, business.id, assetType === undefined ? [] : [assetType]);
     if (removed.length > 0 && !window.confirm(`Change to ${business.label}? This removes ${removed.join(" and ")}.`)) {
       return;
     }

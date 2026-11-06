@@ -3,12 +3,26 @@ import { selectCredoper, useAppDispatch, useAppSelector } from "@credit/store";
 import type { NewInterventionKind } from "@platform/api/generated/MontraPOSApi";
 import { newIntervention } from "../../api/credOperApi";
 import { getApiErrorMessage } from "@platform/utils/getApiErrorMessage";
-import { addIntervention, patchCredoper } from "../../credoperSlice";
+import { addIntervention, patchCredoper, restartCustomer } from "../../credoperSlice";
+import type { CredOperIntervDto } from "@platform/api/legacy/legacyApi";
 import {
+  classificationBlock,
+  classificationOf,
+  CUSTOMER_NEEDED,
+  entityKindOf,
+  hasCustomer,
   interventionName,
   interventionRole,
+  isCompany,
+  losesSecondHolder,
   ROLE_LABELS,
+  savedCustomerConflict,
+  SECOND_HOLDER_LOST,
+  UNNAMED,
 } from "../../model/credOperDraft";
+import { hasFinancing } from "../../model/business";
+import ClassificationField from "../forms/ClassificationField";
+import ConfirmPrompt from "../wizard/ConfirmPrompt";
 import {
   pageOfPerson,
   peopleSlots,
@@ -40,15 +54,27 @@ const ROLE_ICONS = {
   guarantor: "bi-shield-fill-check",
 } as const;
 
+const namedOrNull = (person: CredOperIntervDto) => {
+  const name = interventionName(person);
+  return name === UNNAMED ? null : name;
+};
+
 // Proposal: the people involved, as cards (select / add second holder or guarantor / remove),
 // with the selected person's forms below.
-function InterventionsStep({ errors }: StepProps) {
+function InterventionsStep({ errors, formProps }: StepProps) {
   const dispatch = useAppDispatch();
   const credoper = useAppSelector(selectCredoper);
   const interventions = credoper?.interventions ?? [];
   const [selected, setSelected] = useState(0);
   const [adding, setAdding] = useState<NewPersonKind | null>(null);
   const [addError, setAddError] = useState<unknown>(null);
+  /** The customer (their index) whose restart is being asked about */
+  const [restartAsked, setRestartAsked] = useState<number | null>(null);
+  const [restarting, setRestarting] = useState(false);
+  const [restartError, setRestartError] = useState<unknown>(null);
+  const [restarts, setRestarts] = useState(0);
+  /** The second holder or guarantor (their index) whose removal is being asked about */
+  const [removeAsked, setRemoveAsked] = useState<number | null>(null);
   // When errors appear (Save / Next) and the selected person has none, select the first one that does
   const peopleWithErrors = interventions
     .map((person, index) =>
@@ -72,7 +98,12 @@ function InterventionsStep({ errors }: StepProps) {
   // Customer, second holder's place, guarantors… (peopleSlots); more than a row holds are paged,
   // like the dashboard's news, and the page follows the selected person (one added, or the first
   // with errors)
-  const slots = credoper ? peopleSlots(credoper) : [];
+  const classifications = formProps.options?.credOperClassifications;
+  /** Why nobody can be added yet (and the customer can't be asked for) */
+  const block = credoper ? classificationBlock(credoper, classifications) : null;
+  const slots = credoper ? peopleSlots(credoper, block) : [];
+  /** Restarted, the customer is what the classification says: a company can't keep a second holder */
+  const restartLosesSecondHolder = !!credoper && losesSecondHolder(credoper, classificationOf(credoper, classifications)?.entitySuperType);
   const pages = Math.max(1, Math.ceil(slots.length / PEOPLE_PER_PAGE));
   const [page, setPage] = useState(() => pageOfPerson(slots, current));
   const [pageOf, setPageOf] = useState(current);
@@ -90,7 +121,7 @@ function InterventionsStep({ errors }: StepProps) {
   const isAddable = (kind: NewPersonKind) =>
     slots.some((s) => s.kind === "add" && s.person === kind && !s.blocked) ||
     // No free place for its card (the last row is full): still addable
-    (kind === "guarantor" && !slots.some((s) => s.kind === "add" && s.person === "guarantor"));
+    (kind === "guarantor" && !block && !slots.some((s) => s.kind === "add" && s.person === "guarantor"));
   /** In the head: what can be added but has no card on the row shown */
   const addableHere = (Object.keys(NEW_PERSON) as NewPersonKind[]).filter(
     (kind) => isAddable(kind) && !shown.some((s) => s.kind === "add" && s.person === kind),
@@ -101,7 +132,7 @@ function InterventionsStep({ errors }: StepProps) {
     setAddError(null);
     try {
       // New API: GET /api/credit-operations/new-intervention?kind=SecondHolder|Guarantor
-      const created = await newIntervention(dispatch, NEW_PERSON[kind].kind);
+      const created = await newIntervention(dispatch, { kind: NEW_PERSON[kind].kind });
       // Make sure a second holder is marked as one
       dispatch(
         addIntervention(
@@ -118,12 +149,35 @@ function InterventionsStep({ errors }: StepProps) {
     }
   };
 
+  /**
+   * The customer again from the start, on a blank one. Asked for first: if it can't be had, the
+   * customer stays as they are.
+   */
+  const restart = async (index: number) => {
+    const ref = interventions[index].correlationID;
+    const credOperClassificationId = credoper?.credOperClassification;
+    if (!ref || credOperClassificationId == null) return;
+    setRestarting(true);
+    setRestartError(null);
+    try {
+      const blank = await newIntervention(dispatch, { kind: "Customer", credOperClassificationId });
+      dispatch(restartCustomer({ ref, blank, dropSecondHolder: restartLosesSecondHolder }));
+      // A second holder before them, gone with the restart, moves them up
+      const before = interventions.slice(0, index).filter((person) => interventionRole(person) === "secondHolder").length;
+      setSelected(restartLosesSecondHolder ? index - before : index);
+      // Their form starts over too (the NIF typed, what its fields hold), ready for the NIF
+      setRestarts((n) => n + 1);
+      setRestartAsked(null);
+      requestAnimationFrame(() => document.getElementById(`entity-lookup-${ref}-nif`)?.focus());
+    } catch (error) {
+      setRestartError(error);
+    } finally {
+      setRestarting(false);
+    }
+  };
+
   const remove = (index: number) => {
-    const person = interventions[index];
-    if (
-      !window.confirm(`Remove ${interventionName(person)} from this proposal?`)
-    )
-      return;
+    setRemoveAsked(null);
     dispatch(
       patchCredoper({
         interventions: interventions.filter((_, i) => i !== index),
@@ -143,6 +197,8 @@ function InterventionsStep({ errors }: StepProps) {
     setSelected(shifted);
     // Removing never moves the row shown (only a page that no longer exists falls back to the last)
     setPageOf(shifted);
+    // What opened the question has gone with them
+    requestAnimationFrame(() => document.querySelector<HTMLElement>(".app-person-card.is-selected .app-person-card-main")?.focus());
   };
 
   const personCard = (index: number) => {
@@ -158,7 +214,7 @@ function InterventionsStep({ errors }: StepProps) {
           aria-pressed={isSelected}
           onClick={() => setSelected(index)}
         >
-          <i className={`bi ${ROLE_ICONS[role]} fs-5 text-primary`} aria-hidden="true" />
+          <i className={`bi ${isCompany(person) ? "bi-building" : ROLE_ICONS[role]} fs-5 text-primary`} aria-hidden="true" />
           <span className="overflow-hidden">
             <span className="d-block fw-semibold text-truncate">{interventionName(person)}</span>
             <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis">{ROLE_LABELS[role]}</span>
@@ -168,12 +224,26 @@ function InterventionsStep({ errors }: StepProps) {
             {roleError && <span className="d-block small text-danger mt-1">{roleError}</span>}
           </span>
         </button>
-        {role !== "customer" && (
+        {role === "customer" ? (
+          <button
+            type="button"
+            className="btn btn-sm btn-link text-body-secondary app-person-card-remove"
+            aria-label="Restart customer"
+            title={block ?? "Restart customer"}
+            disabled={!!block}
+            onClick={() => {
+              setRestartError(null);
+              setRestartAsked(index);
+            }}
+          >
+            <i className="bi bi-arrow-counterclockwise" aria-hidden="true" />
+          </button>
+        ) : (
           <button
             type="button"
             className="btn btn-sm btn-link text-danger app-person-card-remove"
             aria-label={`Remove ${interventionName(person)}`}
-            onClick={() => remove(index)}
+            onClick={() => setRemoveAsked(index)}
           >
             <i className="bi bi-trash" />
           </button>
@@ -204,8 +274,26 @@ function InterventionsStep({ errors }: StepProps) {
     </button>
   );
 
+  // On Financial data when there is one, here too while it stands in the way; with no such step, only here
+  const showClassification = !!credoper && (!!block || !hasFinancing(credoper));
+  const conflict = credoper && !showClassification ? savedCustomerConflict(credoper, classifications) : null;
+  const askedToRemove = removeAsked !== null ? interventions[removeAsked] : undefined;
+  const removedRole = askedToRemove ? ROLE_LABELS[interventionRole(askedToRemove)].toLowerCase() : "";
+
   return (
     <>
+      {showClassification && (
+        <ClassificationField
+          options={classifications}
+          loading={formProps.fetchingOptions?.credOperClassifications}
+          error={credoper && !hasCustomer(credoper) ? (errors["interventions.customer"] ?? null) : null}
+        />
+      )}
+      {conflict && (
+        <div className="alert alert-warning small py-2" role="alert">
+          {conflict}
+        </div>
+      )}
       <section className="app-people mb-3" aria-label="People on this proposal">
         <div className="app-section-head mb-2">
           <span className="small text-body-secondary">
@@ -282,18 +370,57 @@ function InterventionsStep({ errors }: StepProps) {
         </div>
       )}
 
+      {restartAsked !== null && interventions[restartAsked] && (
+        <ConfirmPrompt
+          title="Restart customer?"
+          icon="bi-arrow-counterclockwise"
+          confirmLabel="Restart customer"
+          busyLabel="Restarting…"
+          cancelLabel="Keep customer"
+          busy={restarting}
+          error={restartError}
+          errorLead="Couldn't restart the customer, so nothing changed."
+          onCancel={() => setRestartAsked(null)}
+          onConfirm={() => void restart(restartAsked)}
+        >
+          <p className="mb-2">
+            {namedOrNull(interventions[restartAsked]) ? `${namedOrNull(interventions[restartAsked])}'s details` : "The customer's details"} will be cleared and you'll go back to the NIF search.
+          </p>
+          {restartLosesSecondHolder && <div className="alert alert-warning small py-2 mb-2">{SECOND_HOLDER_LOST}</div>}
+          <p className="mb-0">
+            The rest of this proposal stays as it is.
+            {!!credoper?.id && " The saved proposal only changes when you save."}
+          </p>
+        </ConfirmPrompt>
+      )}
+
+      {removeAsked !== null && askedToRemove && (
+        <ConfirmPrompt
+          title={`Remove ${namedOrNull(askedToRemove) ?? `this ${removedRole}`}?`}
+          icon="bi-trash"
+          confirmLabel={`Remove ${removedRole}`}
+          cancelLabel={`Keep ${removedRole}`}
+          onCancel={() => setRemoveAsked(null)}
+          onConfirm={() => remove(removeAsked)}
+        >
+          <p className="mb-0">
+            {namedOrNull(askedToRemove) ?? `This ${removedRole}`} will be taken off this proposal, with the details filled in for them. The rest of this proposal stays as it is.
+            {!!credoper?.id && " The saved proposal only changes when you save."}
+          </p>
+        </ConfirmPrompt>
+      )}
+
       {intervention ? (
-        <div className="border rounded-3 p-3">
-          <InterventionsSection
-            key={intervention.correlationID ?? current}
-            index={current}
-            intervention={intervention}
-            errors={errors}
-          />
-        </div>
+        <InterventionsSection
+          // Their form starts over when they do: restarted, or replaced by another kind of customer
+          key={`${intervention.correlationID ?? current}#${restarts}#${entityKindOf(intervention)}`}
+          index={current}
+          intervention={intervention}
+          errors={errors}
+        />
       ) : (
         <p className="text-body-secondary mb-0">
-          No people on this proposal yet.
+          {block ? CUSTOMER_NEEDED : "No people on this proposal yet."}
         </p>
       )}
     </>

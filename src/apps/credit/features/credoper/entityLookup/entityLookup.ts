@@ -1,14 +1,15 @@
+import type { IntervEntityKind } from "@platform/api/generated/MontraPOSApi";
 import type { CredOperDto, CredOperIntervDto, EntityLegalDocDto } from "@platform/api/legacy/legacyApi";
 import { newId } from "@platform/utils/newId";
 import { interventionRole } from "../model/credOperDraft";
-import type { EntityData } from "./entityLookupApi";
+import type { EntityData } from "../api/entityMapping";
 import type { EntityLookup } from "./entityLookupSlice";
 
 // A person of a proposal starts from their VAT number (NIF): found in the database, their data
 // comes from there (once a code confirms it); otherwise, or whenever the user prefers, it's typed.
 // Their NIF is their VAT legal document.
 
-/** LEGAL_DOCUMENT_TYPES: VAT */
+/** The NIF is kept as a document of this app-only type in entity.legalDocs (the API's documents are entity.documents) */
 export const VAT_DOC_TYPE = 3;
 
 /** As typed: without spaces, dots or a "PT" prefix */
@@ -22,6 +23,20 @@ export function isValidNif(value: string): boolean {
   const check = 11 - (sum % 11);
   return digits[8] === (check >= 10 ? 0 : check);
 }
+
+/** A NIF of an entity that can't be this intervention, by that entity's kind (null when it has none) */
+export const kindMismatchMessage = (kind: IntervEntityKind | null | undefined): string =>
+  kind === "Company"
+    ? "This NIF belongs to a company"
+    : kind === "Person"
+      ? "This NIF belongs to a person"
+      : "This NIF can't be used here";
+
+/** The entity's kind in a 400 entity_kind_mismatch: the API's when it says, otherwise the only other one there is */
+export const refusedKind = (error: unknown, asked: IntervEntityKind): IntervEntityKind => {
+  const kind = (error as { data?: { kind?: IntervEntityKind | null } | null }).data?.kind;
+  return kind ?? (asked === "Person" ? "Company" : "Person");
+};
 
 /** The person's NIF: their VAT legal document's number */
 export const vatOf = (intervention: CredOperIntervDto | undefined): string =>
@@ -85,10 +100,10 @@ export function withQuotationCustomer(intervention: CredOperIntervDto, op: CredO
     out.entityEmail = { ...out.entityEmail, email: op.customerEmail?.email };
   }
   if (blank(out.entityMobilePhone?.phoneNumber) && !blank(op.customerPhone?.phoneNumber)) {
-    out.entityMobilePhone = { ...out.entityMobilePhone, phoneNumber: op.customerPhone?.phoneNumber };
+    out.entityMobilePhone = { ...out.entityMobilePhone, phoneNumber: op.customerPhone?.phoneNumber, countryId: op.customerPhone?.countryId };
   }
   if (blank(out.entityLandlinePhone?.phoneNumber) && !blank(op.customerLandLine?.phoneNumber)) {
-    out.entityLandlinePhone = { ...out.entityLandlinePhone, phoneNumber: op.customerLandLine?.phoneNumber };
+    out.entityLandlinePhone = { ...out.entityLandlinePhone, phoneNumber: op.customerLandLine?.phoneNumber, countryId: op.customerLandLine?.countryId };
   }
   return out;
 }

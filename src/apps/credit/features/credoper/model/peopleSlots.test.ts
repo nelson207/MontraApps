@@ -22,6 +22,14 @@ describe("people of a proposal: places on the row", () => {
   it("the second holder is next to the customer, whenever they were added", () =>
     expect(layout(op(CUSTOMER, GUARANTOR, SECOND))).toEqual([0, 2, 1, "+guarantor"]));
 
+  it("nobody can be added yet: both cards say why", () => {
+    const slots = peopleSlots(op(), "Choose a contract classification first.");
+    expect(slots).toEqual([
+      { kind: "add", person: "secondHolder", blocked: "Choose a contract classification first." },
+      { kind: "add", person: "guarantor", blocked: "Choose a contract classification first." },
+    ]);
+  });
+
   it("a company customer: the second holder's place says why there's none", () => {
     const company = op(CUSTOMER, GUARANTOR);
     company.interventions![0].entity = { entityTypeId: COMPANY_ENTITY_TYPE_ID };

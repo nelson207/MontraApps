@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { selectCredoperRevision, useAppDispatch, useAppSelector } from "@credit/store";
-import { useCalculateCredOper } from "../api/credOperApi";
+import { CredOperRefusedError, useCalculateCredOper } from "../api/credOperApi";
 import { DEFAULT_TERM_RESTRICTIONS } from "../constants";
 import { setCredoper, updateConditionAt } from "../credoperSlice";
 import type { CredOperDraft } from "../model/credOperDraft";
+import type { OperationMessage } from "../model/operationMessages";
 
 export const money = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
 export const percent = (value?: number | null) =>
@@ -28,6 +29,8 @@ export function useCalculation(operation: CredOperDraft) {
   const [calculate, { isLoading, error: requestError, reset }] = useCalculateCredOper();
   const [failure, setFailure] = useState<unknown>(null);
   const error = requestError ?? failure;
+  // What the API said about the last calculation
+  const [messages, setMessages] = useState<OperationMessage[]>([]);
   // A saved operation opened with its monthly payment is up to date until edited; a new one
   // isn't, whatever its template brings (its flows may come with an amount)
   const [calculatedFor, setCalculatedFor] = useState<string | null>(() =>
@@ -47,14 +50,17 @@ export function useCalculation(operation: CredOperDraft) {
   const run = async () => {
     reset();
     setFailure(null);
+    setMessages([]);
     try {
-      const result = await calculate(operation);
+      const { operation: result, messages: said } = await calculate(operation);
       // Ignored by the store when the user changed something meanwhile
       dispatch(setCredoper(result, revision));
       setCalculatedFor(calculationInputs({ ...result, insurances: operation.insurances }));
+      setMessages(said);
     } catch (failed) {
       // Request errors are exposed by the mutation; a calculation the API refused, here
       setFailure(failed);
+      if (failed instanceof CredOperRefusedError) setMessages(failed.messages);
     }
   };
 
@@ -75,5 +81,7 @@ export function useCalculation(operation: CredOperDraft) {
     run,
     isLoading,
     error,
+    /** About the values on screen: a successful calculation's go once they change (a refusal's stay until the next try) */
+    messages: isStale && !error ? [] : messages,
   };
 }

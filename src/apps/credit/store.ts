@@ -32,6 +32,10 @@ export const selectCredoperIsDirty = (state: RootState): boolean => state.credop
 /** A new operation still without the server's template (its business isn't chosen yet) */
 export const selectCredoperAwaitingTemplate = (state: RootState): boolean => state.credoper.awaitingTemplate;
 
+/** A proposal was saved from this quotation (by its id or number) in this session: it can't be converted again */
+export const selectQuotationConverted = (id: string | null | undefined, number?: number | null) => (state: RootState): boolean =>
+  (!!id && state.credoper.convertedQuotations.includes(id)) || (number != null && state.credoper.convertedQuotations.includes(`#${number}`));
+
 /** Where the VAT number (NIF) lookup of a person of the proposal stands (by correlationID) */
 export const selectEntityLookup = (ref: string | undefined) => (state: RootState): EntityLookup | undefined =>
   ref ? state.entityLookup[ref] : undefined;

@@ -98,7 +98,7 @@ describe("the quotation's customer moves to the proposal's customer card", () =>
 });
 
 describe("entityLookupSlice", () => {
-  const otp = { requestId: "r1", validUntil: "2026-11-01T10:05:00Z" };
+  const otp = { channel: "Sms" as const, sentTo: "+351 9•• ••• 321", validUntil: "2026-11-01T10:05:00Z" };
 
   it("a code request stays resumable after choosing to fill in by hand, until filled", () => {
     let state = reducer(undefined, lookedUp({ ref: "c1", vat: "123456789", found: true, phone: "+351 9•• ••• 321" }));

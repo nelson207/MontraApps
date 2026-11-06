@@ -13,7 +13,7 @@ export function newAssetKey(assetType: AssetTypeId | undefined, businessId: numb
     ? `${assetType}|${businessId}|${companyId}`
     : null;
 }
-import { API_STEP_OF_STAGE, type CredOperDraft, type Stage } from "../model/credOperDraft";
+import { API_STEP_OF_STAGE, classificationOf, hasCustomer, type ClassificationOption, type CredOperDraft, type Stage } from "../model/credOperDraft";
 
 /** What new-credoper is asked for: the business in the company, for the asset type; null until all three are decided */
 export function templateRequest(op: CredOperDraft): { businessId: number; companyId: number; assetType: AssetTypeId } | null {
@@ -29,33 +29,36 @@ export function templateRequest(op: CredOperDraft): { businessId: number; compan
  * when the business offers only one in the company (the business and the company are decided
  * before it). It's merged under what was chosen and typed until then. The backend sets its values
  * (currency included): the app sets none the user doesn't see. A proposal's customer
- * (GET /api/credit-operations/new-intervention) is asked for at once: its Customer step may come
- * first.
+ * (GET /api/credit-operations/new-intervention) is asked for when it has none and its classification
+ * says what the customer must be, and only then: another classification asks for its own, and one
+ * with no customer kind asks for nothing. A saved proposal stays as the API has it.
  */
-export function useCredOperTemplate(stage: Stage, operation: CredOperDraft) {
+export function useCredOperTemplate(stage: Stage, operation: CredOperDraft, classifications?: ClassificationOption[]) {
   const dispatch = useAppDispatch();
   const awaiting = useAppSelector(selectCredoperAwaitingTemplate);
-  const needsCustomer = awaiting && stage === "proposal" && !operation.interventions?.length;
-  const [failure, setFailure] = useState<{ error: unknown; attempt: number } | null>(null);
+  const needsCustomer =
+    stage === "proposal" && !operation.id && !hasCustomer(operation) && !!classificationOf(operation, classifications)?.entitySuperType;
+  const classificationId = needsCustomer ? operation.credOperClassification! : null;
+  const [failure, setFailure] = useState<{ error: unknown; attempt: number; classificationId?: number } | null>(null);
   const [attempt, setAttempt] = useState(0);
   // The attempt the template was asked for: once (a later change of business, company or asset
   // type doesn't ask again)
   const askedFor = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!needsCustomer) return;
+    if (classificationId === null) return;
     let cancelled = false;
-    newIntervention(dispatch, "Customer")
+    newIntervention(dispatch, { kind: "Customer", credOperClassificationId: classificationId })
       .then((customer) => {
         if (!cancelled) dispatch(presetCustomer(customer));
       })
       .catch((error: unknown) => {
-        if (!cancelled) setFailure({ error, attempt });
+        if (!cancelled) setFailure({ error, attempt, classificationId });
       });
     return () => {
       cancelled = true;
     };
-  }, [needsCustomer, attempt, dispatch]);
+  }, [classificationId, attempt, dispatch]);
 
   // An answer after leaving (another operation may be waiting for its own) is dropped
   const left = useRef(false);
@@ -85,11 +88,14 @@ export function useCredOperTemplate(stage: Stage, operation: CredOperDraft) {
       });
   }, [awaiting, businessId, companyId, assetType, attempt, stage, dispatch]);
 
-  const error = awaiting && failure?.attempt === attempt ? failure.error : null;
+  // A customer's failure is about its classification: not said anymore once another one is chosen
+  const failureStands =
+    failure?.attempt === attempt && (failure.classificationId === undefined || failure.classificationId === classificationId);
+  const error = (awaiting || needsCustomer) && failureStands ? failure.error : null;
   return {
     /** Waiting for the server's blank operation (until the asset type is decided, and while it's loading) */
     awaiting,
-    /** A proposal's customer is loading: the steps after Business can't be shown yet */
+    /** A proposal's customer is on its way: the steps that show people wait for it */
     isPending: needsCustomer,
     /** The asset the template brings (newAssetKey), once asked for */
     assetKey: askedKey,

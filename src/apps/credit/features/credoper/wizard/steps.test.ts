@@ -67,22 +67,32 @@ describe("steps by business", () => {
 });
 
 describe("proposal converted from a quotation", () => {
-  const converted = (business?: number) => ({ ...op(business, 2), quotationId: 41 }) as CredOperDraft;
+  const converted = (business?: number) => op(business, 2, { sourceCredOperId: "AQquote" });
 
-  it("step 1 is the read-only quotation, and the business can't change", () =>
-    expect(ids("proposal", converted(4))).toEqual(["quotation", "equipment", "financial", "interventions", "insurances", "summary"]));
+  it("first its own Quotation step; no Business, Company or Asset type step (they're the quotation's); the customer as usual", () => {
+    const steps = stepsFor("proposal", converted(4), { chooseCompany: true, chooseAssetType: true }).map((s) => s.id);
+    expect(steps).toEqual(["quotation", "customer", "equipment", "financial", "interventions", "insurances", "summary"]);
+  });
 
-  it("the quotation step has nothing to fix", () =>
-    expect(stepsFor("proposal", converted(4))[0].validate({ ...converted(4), customerName: "" }, today)).toEqual({}));
+  it("the Quotation step is read-only: nothing to fix there", () =>
+    expect(stepsFor("proposal", converted(4))[0].validate(converted(4), today)).toEqual({}));
+
+  it("reopened after its first save: still the same steps", () =>
+    expect(ids("proposal", { ...converted(4), id: "APtoken", rowVersion: "rv-1" })).toEqual(ids("proposal", converted(4))));
+
+  it("a proposal not made from a quotation chooses them as usual, and has no Quotation step", () => {
+    expect(ids("proposal", op(4, 2))[0]).toBe("business");
+    expect(ids("proposal", op(4, 2))).not.toContain("quotation");
+  });
 });
 
 describe("validateStages", () => {
   it("reports the first step with errors, and errors per step", () => {
-    const o = op(4, 1, { customerName: "Ana", assets: [{ correlationID: "a1", equipment: { registrationDate: "2026-10-06" } }] });
+    const o = op(4, 1, { customerName: "Ana", assets: [{ correlationID: "a1", equipment: { equipYear: 1500 } }] });
     const result = validateStages(stepsFor("quotation", o), o, today);
     expect(result.firstInvalidStep).toBe("equipment");
-    expect(result.byStep.equipment?.["assets.0.equipment.registrationDate"]).toBeDefined();
-    expect(result.errors["assets.0.equipment.registrationDate"]).toBeDefined();
+    expect(result.byStep.equipment?.["assets.0.equipment.equipYear"]).toBeDefined();
+    expect(result.errors["assets.0.equipment.equipYear"]).toBeDefined();
   });
 
   it("no business: the Business step is invalid", () =>
@@ -111,7 +121,11 @@ describe("issuesByStep", () => {
 describe("interventionTabOfErrorKey", () => {
   it("maps intervention errors to the person sub-tab that edits them", () => {
     expect(interventionTabOfErrorKey("interventions.c1.entity.fullName")).toBe(1);
-    expect(interventionTabOfErrorKey("interventions.c1.entity.legalDocs.0.validDate")).toBe(3);
+    expect(interventionTabOfErrorKey("interventions.c1.entity.documents.0.validDate")).toBe(3);
+    expect(interventionTabOfErrorKey("interventions.c1.fiscalAddress.street")).toBe(2);
+    expect(interventionTabOfErrorKey("interventions.c1.person.firstName")).toBe(1);
+    expect(interventionTabOfErrorKey("interventions.c1.company.leafActivityTypeId")).toBe(1);
+    expect(interventionTabOfErrorKey("interventions.c1.entity.phone")).toBe(1);
     expect(interventionTabOfErrorKey("interventions.c1.person.birthDate")).toBe(4);
   });
 });
@@ -131,7 +145,7 @@ describe("Company step", () => {
 
   it("first when the only business is chosen for the user; never on a converted proposal", () => {
     expect(stepsFor("quotation", op(2), { chooseBusiness: false, chooseCompany: true })[0].id).toBe("company");
-    const converted = op(4, 2, { quotationId: "tok-q" } as Partial<CredOperDraft>);
+    const converted = op(4, 2, { sourceCredOperId: "tok-q" });
     expect(stepsFor("proposal", converted, { chooseCompany: true }).map((s) => s.id)).not.toContain("company");
   });
 

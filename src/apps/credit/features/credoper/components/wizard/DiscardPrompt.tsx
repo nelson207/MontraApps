@@ -3,12 +3,14 @@ import { useEffect, useRef } from "react";
 type Props = {
   /** e.g. "Quotation #12" or "a new proposal" */
   label: string;
+  /** What discarding leads to: a new operation, the saved one being opened (Search), or a quotation's new proposal */
+  discardsTo?: "new" | "open" | "convert";
   onContinue: () => void;
   onDiscard: () => void;
 };
 
-// Asked when a new operation would replace one with unsaved changes (spec §2).
-function DiscardPrompt({ label, onContinue, onDiscard }: Props) {
+// Asked when a new or opened operation would replace one with unsaved changes (spec §2).
+function DiscardPrompt({ label, discardsTo = "new", onContinue, onDiscard }: Props) {
   const continueRef = useRef<HTMLButtonElement>(null);
   const onContinueRef = useRef(onContinue);
   useEffect(() => {
@@ -33,13 +35,18 @@ function DiscardPrompt({ label, onContinue, onDiscard }: Props) {
                 Unsaved changes
               </h2>
               <p className="mb-0 text-body-secondary">
-                You have unsaved changes to {label}. Do you want to keep editing it, or discard the changes and start a
-                new one?
+                You have unsaved changes to {label}. Do you want to keep editing it, or discard the changes and{" "}
+                {discardsTo === "open"
+                  ? "open the operation you chose"
+                  : discardsTo === "convert"
+                    ? "convert the quotation to a proposal"
+                    : "start a new one"}
+                ?
               </p>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-outline-danger" onClick={onDiscard}>
-                Discard and start new
+                {discardsTo === "open" ? "Discard and open" : discardsTo === "convert" ? "Discard and convert" : "Discard and start new"}
               </button>
               <button ref={continueRef} type="button" className="btn btn-primary" onClick={onContinue}>
                 Continue editing

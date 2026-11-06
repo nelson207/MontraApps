@@ -6,14 +6,15 @@ import {
   EQUIPMENT_ASSET,
   amountLabel,
   assetTypeOf,
-  assetTypesOf,
   changeAssetType,
+  checkAssetType,
   businessOf,
   changeBusiness,
   equipmentModeOf,
   hasEquipment,
   hasFinancing,
   productsOf,
+  toAssetTypeOptions,
   toAvailableBusinesses,
   retakeBaseOf,
   withAssetAmount,
@@ -177,20 +178,6 @@ describe("toAvailableBusinesses (GET /api/credit-operations/businesses)", () => 
     expect(productsOf(business, null).map((p) => p.id)).toEqual([1041, 2041, 2042]);
   });
 
-  it("each company's asset types (no asset = null), named by the API or the app", () => {
-    const [business] = toAvailableBusinesses([
-      { ...credit(1, []), assetTypes: [{ id: null, abbreviation: null }, { id: 1, abbreviation: "Cars" }] },
-      { ...credit(2, []), assetTypes: [{ id: 2 }, { id: 1, abbreviation: "Cars" }] },
-    ]);
-    expect(assetTypesOf(business, 1)).toEqual([{ id: null, label: "No asset" }, { id: 1, label: "Cars" }]);
-    expect(assetTypesOf(business, 2)).toEqual([{ id: 2, label: "Building" }, { id: 1, label: "Cars" }]);
-    expect(assetTypesOf(business, null).map((a) => a.id)).toEqual([null, 1, 2]);
-  });
-
-  it("an asset type without an id is no asset", () => {
-    const [business] = toAvailableBusinesses([{ ...credit(1, []), assetTypes: [{ abbreviation: "Sem bem" }, { id: 1 }] }]);
-    expect(assetTypesOf(business, 1)).toEqual([{ id: null, label: "Sem bem" }, { id: 1, label: "Equipment" }]);
-  });
 
   it("keeps the API's names, with the app's traits; unknown ids get defaults", () => {
     const [renting, other] = toAvailableBusinesses([
@@ -200,29 +187,74 @@ describe("toAvailableBusinesses (GET /api/credit-operations/businesses)", () => 
     ]);
     expect(renting).toMatchObject({ id: 13, label: "Renting (API)", description: "Fleet", equipment: "multiple" });
     expect(other).toMatchObject({ id: 77, label: "Factoring", equipment: "none", financing: true });
-    expect(other.offers).toEqual([{ companyId: 1, companyLabel: "Company 1", financialProducts: [], assetTypes: [] }]);
+    expect(other.offers).toEqual([{ companyId: 1, companyLabel: "Company 1", financialProducts: [] }]);
     // The operation stores the id only: its name is remembered for the header and the summary
     expect(businessOf(op(77))?.label).toBe("Factoring");
   });
 });
 
+describe("checkAssetType (against the asset types offered)", () => {
+  const equipment = { id: EQUIPMENT_ASSET, label: "Equipment" };
+  const building = { id: BUILDING_ASSET, label: "Building" };
+  const none = { id: null, label: "No asset" };
+  const draft = (changes: Partial<CredOperDraft>): CredOperDraft => ({ insurances: [], ...changes });
+  const withCar = draft({ assetTypeId: EQUIPMENT_ASSET, assets: [{ equipment: { brand: "VW", model: "Golf" } }] });
+
+  it("while unknown, the step is there (loading)", () => expect(checkAssetType(draft({}), undefined)).toEqual({ userChooses: true }));
+
+  it("one offered, nothing chosen: decided for the user", () =>
+    expect(checkAssetType(draft({}), [equipment])).toEqual({ userChooses: false, preset: EQUIPMENT_ASSET }));
+
+  it("still offered: kept; the step only with several", () => {
+    expect(checkAssetType(withCar, [equipment])).toEqual({ userChooses: false });
+    expect(checkAssetType(withCar, [equipment, building])).toEqual({ userChooses: true });
+  });
+
+  it("not offered anymore and only one that would remove the vehicle: the user confirms on the step", () =>
+    expect(checkAssetType(withCar, [none])).toEqual({ userChooses: true, clear: true }));
+
+  it("not offered anymore, several: chosen again", () =>
+    expect(checkAssetType(draft({ assetTypeId: EQUIPMENT_ASSET }), [building, none])).toEqual({ userChooses: true, clear: true }));
+
+  it("not offered anymore but nothing to lose: the only one is taken", () =>
+    expect(checkAssetType(draft({ assetTypeId: EQUIPMENT_ASSET, assets: [{}] }), [none])).toEqual({ userChooses: false, preset: null }));
+
+  it("a saved operation keeps its asset type", () =>
+    expect(checkAssetType({ ...withCar, id: "op1" }, [none])).toEqual({ userChooses: true }));
+});
+
+describe("toAssetTypeOptions (GET /api/credit-operations/asset-types)", () => {
+  it("named by the API or the app; no asset = null, also without an id", () =>
+    expect(toAssetTypeOptions([{ id: null, abbreviation: null }, { abbreviation: "Sem bem 2" }, { id: 1, abbreviation: "Cars" }, { id: 2 }])).toEqual([
+      { id: null, label: "No asset" },
+      { id: 1, label: "Cars" },
+      { id: 2, label: "Building" },
+    ]));
+
+  it("in the answer's order, without repeats", () =>
+    expect(toAssetTypeOptions([{ id: 2 }, { id: 1 }, { id: 2, abbreviation: "Again" }]).map((a) => a.id)).toEqual([2, 1]));
+});
+
 describe("withAssetAmount", () => {
   const assets = [{ equipment: { netAmount: 1, quantity: 3 } }, { equipment: { netAmount: 2 } }];
 
-  it.each([4, 1])("business %i: also the purchase amount, and the asset's amount and base amount × the quantity", (aplBusinessId) => {
+  it.each([4, 1])("business %i: also the purchase amount, and the asset's amount × the quantity", (aplBusinessId) => {
     const next = withAssetAmount({ aplBusinessId, assets }, 0, 1000);
-    expect(next[0]).toMatchObject({ amount: 3000, baseAmount: 3000, equipment: { netAmount: 1000, purchaseAmount: 1000, quantity: 3 } });
+    expect(next[0]).toMatchObject({ amount: 3000, equipment: { netAmount: 1000, purchaseAmount: 1000, quantity: 3 } });
     expect(next[1]).toBe(assets[1]);
   });
 
+  it("the base amount is the API's (retake, calculate): never set here", () =>
+    expect(withAssetAmount({ aplBusinessId: 4, assets: [{ baseAmount: 900, equipment: {} }] }, 0, 1000)[0].baseAmount).toBe(900));
+
   it("no quantity counts as one", () =>
-    expect(withAssetAmount({ aplBusinessId: 4, assets }, 1, 500)[1]).toMatchObject({ amount: 500, baseAmount: 500 }));
+    expect(withAssetAmount({ aplBusinessId: 4, assets }, 1, 500)[1]).toMatchObject({ amount: 500 }));
 
   it("other businesses: only the net amount", () =>
     expect(withAssetAmount({ aplBusinessId: 13, assets }, 0, 1000)[0]).toEqual({ equipment: { netAmount: 1000, quantity: 3 } }));
 
   it("no asset yet: the first one is made", () =>
-    expect(withAssetAmount({ aplBusinessId: 1 }, 0, 10)).toEqual([{ amount: 10, baseAmount: 10, equipment: { netAmount: 10, purchaseAmount: 10 } }]));
+    expect(withAssetAmount({ aplBusinessId: 1 }, 0, 10)).toEqual([{ amount: 10, equipment: { netAmount: 10, purchaseAmount: 10 } }]));
 });
 
 describe("the initial entry: amount ⇄ percentage", () => {
