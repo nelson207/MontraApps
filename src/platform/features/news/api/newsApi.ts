@@ -3,7 +3,7 @@ import { emptySplitApi } from "@platform/api/emptyApi";
 import { isMissingEndpoint, unexpectedResponse } from "@platform/api/devFallback";
 import { isInvalidId } from "@platform/api/problemCode";
 import { APP_SETTINGS } from "@app/appSettings";
-import type { NewsDto, NewsDtoPagedResult } from "@platform/api/generated/MontraPOSApi";
+import type { NewsDto, PagedResultOfNewsDto } from "@platform/api/generated/MontraPOSApi";
 import type { NewsSearchParams } from "../newsSearchModel";
 import { cachedNewsImage, rememberNewsImage } from "./newsImageCache";
 import { SAMPLE_NEWS, sampleNewsSearch } from "./sampleNews";
@@ -51,7 +51,7 @@ const newsApi = emptySplitApi.injectEndpoints({
         if (error) {
           return shouldUseSampleNews(error) ? { data: { ...sampleNewsSearch(params), isSample: true } } : { error };
         }
-        const page = result.data as NewsDtoPagedResult | null;
+        const page = result.data as PagedResultOfNewsDto | null;
         if (!page || !Array.isArray(page.items)) return { error: unexpectedResponse("news search") };
         return {
           data: {

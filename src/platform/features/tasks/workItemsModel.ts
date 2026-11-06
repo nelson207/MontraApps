@@ -6,7 +6,7 @@
 
 import type {
   WorkItemDto,
-  WorkItemDtoPagedResult,
+  PagedResultOfWorkItemDto,
   WorkItemPositionDto,
   AplWorkItemSortingType,
   AplWorkItemInternalState,
@@ -48,7 +48,7 @@ export const positionParam = (position: WorkItemPosition | null): string | undef
 
 export type WorkItem = WorkItemDto & { id: string };
 
-export const workItemsOf = (page: WorkItemDtoPagedResult | undefined): WorkItem[] =>
+export const workItemsOf = (page: PagedResultOfWorkItemDto | undefined): WorkItem[] =>
   (page?.items ?? []).filter((item): item is WorkItem => typeof item?.id === "string" && item.id !== "");
 
 const MOMENT = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/;

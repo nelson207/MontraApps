@@ -324,6 +324,8 @@
 
 // --- Wizard steps (components/ui/StepTransition) -------------------------------
 // The new step fades in, sliding from the side it comes from; a plain fade with reduced motion.
+// Fill mode `backwards`, never `both`/`forwards`: an animation that stays filled keeps the step a
+// stacking context, trapping its dropdowns under what follows (e.g. the action bar's alert).
 
 @keyframes app-step-in-forward {
   from {
@@ -348,16 +350,16 @@
 .app-step-transition {
   &.is-forward,
   &.is-back {
-    animation: app-step-fade-in 0.2s ease both;
+    animation: app-step-fade-in 0.2s ease backwards;
   }
 
   @media (prefers-reduced-motion: no-preference) {
     &.is-forward {
-      animation: app-step-in-forward 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation: app-step-in-forward 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
     }
 
     &.is-back {
-      animation: app-step-in-back 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation: app-step-in-back 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
     }
   }
 }
@@ -409,6 +411,91 @@
 .app-setting-scroll {
   max-height: 32rem;
   overflow-y: auto;
+}
+
+// --- Wizard action bar ---------------------------------------------------------
+
+// The wizard's actions, always at the bottom of the screen, beside the sidebar as the top bar is.
+// Below the field drop-downs ($zindex-dropdown), which may open over it; modals stay above.
+$app-wizard-bar-height: 4rem;
+$app-wizard-bar-height-phone: 8rem;
+
+.app-wizard-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: $zindex-dropdown - 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: map-get($spacers, 2);
+  padding: map-get($spacers, 2) map-get($spacers, 3);
+  padding-bottom: calc(#{map-get($spacers, 2)} + env(safe-area-inset-bottom, 0px));
+  background-color: var(--#{$prefix}body-bg);
+  border-top: 1px solid var(--#{$prefix}border-color);
+  box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, 0.06);
+  @include transition(left $app-shell-transition);
+
+  @include media-breakpoint-up(lg) {
+    left: var(--app-sidebar-width);
+    padding-inline: map-get($spacers, 4);
+  }
+
+  // On a phone the result gets a row of its own
+  @include media-breakpoint-down(sm) {
+    .app-wizard-bar-status {
+      order: -1;
+      flex: 1 0 100%;
+    }
+
+    .app-wizard-bar-hint {
+      flex: 1 0 100%;
+      text-align: right;
+    }
+  }
+}
+
+.app-wizard-bar-status {
+  min-width: 0;
+}
+
+.app-wizard-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: map-get($spacers, 2);
+  margin-left: auto;
+}
+
+// What's behind the bar stays reachable: the page ends above it, and a focused field never lands under it
+.app-has-wizard-bar {
+  padding-bottom: $app-wizard-bar-height;
+
+  @include media-breakpoint-down(sm) {
+    padding-bottom: $app-wizard-bar-height-phone;
+  }
+}
+
+html:has(.app-wizard-bar) {
+  scroll-padding-bottom: $app-wizard-bar-height + 1rem;
+
+  @include media-breakpoint-down(sm) {
+    scroll-padding-bottom: $app-wizard-bar-height-phone + 1rem;
+  }
+}
+
+// While typing on a phone the keyboard needs the room: the bar goes back into the page
+@include media-breakpoint-down(md) {
+  .app-has-wizard-bar:has(:is(input, textarea):focus) {
+    padding-bottom: 0;
+
+    .app-wizard-bar {
+      position: relative;
+      z-index: auto;
+    }
+  }
 }
 
 // Save / discard stay in view while there are changes

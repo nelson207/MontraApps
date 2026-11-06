@@ -7,17 +7,17 @@ import {
   dialCodeCountry,
   parsePhone,
   phoneDigits,
-  toE164,
   type PhoneCountry,
   type PhoneType,
+  type PhoneValue,
 } from "../phoneModel";
 
 type Props = {
   id: string;
-  /** E.164 ("+351912345678"); "" / null when empty */
-  value: string | null | undefined;
-  /** Gets the E.164 number, or "" when empty */
-  onChange: (value: string) => void;
+  /** The number without its dial code, and the country's id */
+  value: PhoneValue | null | undefined;
+  /** Gets the local digits ("" when empty) and the id of the country chosen */
+  onChange: (value: PhoneValue) => void;
   /** Which example the placeholder shows */
   type?: PhoneType;
   disabled?: boolean;
@@ -29,9 +29,16 @@ type Props = {
   "aria-describedby"?: string;
 };
 
+/** What identifies a stored phone: an empty number has no country to speak of */
+const keyOf = (value: PhoneValue | null | undefined) => {
+  const number = value?.phoneNumber?.trim();
+  return number ? `${value?.countryId ?? ""}|${number}` : "";
+};
+
 // Phone field (every Montra app): the country ("PT +351") inside the field in the main colour,
-// a searchable list of the API's countries, the number grouped as the country writes it, and the
-// E.164 value in and out. Same look as every other field (styles/forms.scss).
+// a searchable list of the API's countries, the number grouped as the country writes it. The dial
+// code is only shown: the value in and out is the local number and the country's id.
+// Same look as every other field (styles/forms.scss).
 function PhoneInput({
   id,
   value,
@@ -45,7 +52,7 @@ function PhoneInput({
 }: Props) {
   const { data: countries = [] } = useGetPhoneCountriesQuery();
   const fallback = countries[0];
-  const stored = value ?? "";
+  const stored = keyOf(value);
 
   // What is shown, and for which stored value: a new value from outside replaces it, the one we
   // just sent back doesn't (so the chosen country and a half-typed number are kept)
@@ -61,7 +68,7 @@ function PhoneInput({
   });
   if (fallback && (shown.value !== stored || !shown.country)) {
     const parsed = parsePhone(
-      stored,
+      value,
       countries,
       shown.value === stored && shown.country ? shown.country : fallback,
     );
@@ -78,20 +85,21 @@ function PhoneInput({
         id={id}
         type="tel"
         className={`form-control ${invalid ? "is-invalid" : ""}`}
-        value={stored}
+        value={value?.phoneNumber ?? ""}
         disabled={disabled}
         autoComplete="tel"
         aria-describedby={aria["aria-describedby"]}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange({ phoneNumber: e.target.value, countryId: value?.countryId ?? null })}
       />
     );
   }
   const country = shown.country;
 
   const emit = (next: PhoneCountry, digits: string) => {
-    const e164 = toE164(digits, next);
-    setShown({ value: e164, country: next, digits });
-    if (e164 !== stored) onChange(e164);
+    const phone = { phoneNumber: digits, countryId: next.id };
+    const key = keyOf(phone);
+    setShown({ value: key, country: next, digits });
+    if (key !== stored) onChange(phone);
     onValidityChange?.(isValidPhone(digits, next));
   };
 
@@ -101,11 +109,11 @@ function PhoneInput({
     if (text.trim().startsWith("+")) {
       const matched = dialCodeCountry(text, countries);
       if (matched) {
-        const parsed = parsePhone(text, countries, matched);
+        const parsed = parsePhone({ phoneNumber: text }, countries, matched);
         return emit(parsed.country, parsed.digits);
       }
       setShown({ value: "", country, digits: "", raw: text });
-      if (stored) onChange("");
+      if (stored) onChange({ phoneNumber: "", countryId: country.id });
       onValidityChange?.(false);
       return;
     }

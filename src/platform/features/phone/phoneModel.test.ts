@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { dialCodeCountry, formatPhone, isValidPhone, parsePhone, phoneDigits, toE164, toPhoneCountries, type PhoneCountry } from "./phoneModel";
+import { dialCodeCountry, formatPhone, isValidPhone, parsePhone, phoneDigits, toPhoneCountries, type PhoneCountry } from "./phoneModel";
 
 const PT: PhoneCountry = {
+  id: "PRT",
   code: "PT",
   name: "Portugal",
   dialCode: "351",
@@ -10,7 +11,7 @@ const PT: PhoneCountry = {
   maxDigits: 9,
   examples: { mobile: "912 345 678", landline: "212 345 678" },
 };
-const ES: PhoneCountry = { ...PT, code: "ES", name: "Spain", dialCode: "34" };
+const ES: PhoneCountry = { ...PT, id: "ESP", code: "ES", name: "Spain", dialCode: "34" };
 const COUNTRIES = [PT, ES];
 
 describe("phoneDigits", () => {
@@ -29,22 +30,19 @@ describe("formatPhone", () => {
 });
 
 describe("parsePhone", () => {
-  it("splits an international number into its country and local digits", () => {
-    expect(parsePhone("+351912345678", COUNTRIES, PT)).toEqual({ country: PT, digits: "912345678" });
-    expect(parsePhone("+34612345678", COUNTRIES, PT)).toEqual({ country: ES, digits: "612345678" });
+  it("the country of its countryId, with the number as it is", () => {
+    expect(parsePhone({ phoneNumber: "612345678", countryId: "ESP" }, COUNTRIES, PT)).toEqual({ country: ES, digits: "612345678" });
   });
 
-  it("keeps the default country for empty or local numbers", () => {
-    expect(parsePhone("", COUNTRIES, PT)).toEqual({ country: PT, digits: "" });
+  it("a number with its dial code is split into its country and local digits", () => {
+    expect(parsePhone({ phoneNumber: "+351912345678" }, COUNTRIES, ES)).toEqual({ country: PT, digits: "912345678" });
+    expect(parsePhone({ phoneNumber: "+34612345678", countryId: "PRT" }, COUNTRIES, PT)).toEqual({ country: ES, digits: "612345678" });
+  });
+
+  it("keeps the default country without a countryId", () => {
+    expect(parsePhone({ phoneNumber: "" }, COUNTRIES, PT)).toEqual({ country: PT, digits: "" });
     expect(parsePhone(null, COUNTRIES, PT)).toEqual({ country: PT, digits: "" });
-    expect(parsePhone("912345678", COUNTRIES, PT)).toEqual({ country: PT, digits: "912345678" });
-  });
-});
-
-describe("toE164", () => {
-  it("adds the dial code; empty stays empty", () => {
-    expect(toE164("912345678", PT)).toBe("+351912345678");
-    expect(toE164("", PT)).toBe("");
+    expect(parsePhone({ phoneNumber: "912345678" }, COUNTRIES, PT)).toEqual({ country: PT, digits: "912345678" });
   });
 });
 
@@ -80,17 +78,17 @@ describe("toPhoneCountries (GET /api/companies/countries)", () => {
 
   it("leaves out countries without a code or a prefix; a missing name is the code", () => {
     const countries = toPhoneCountries([
-      { alpha2Code: "PT", phonePrefix: null },
-      { alpha2Code: null, phonePrefix: 34 },
-      { alpha2Code: "FR", phonePrefix: 33, abbreviation: " " },
+      { id: "PRT", alpha2Code: "PT", phonePrefix: null },
+      { id: "ESP", alpha2Code: null, phonePrefix: 34 },
+      { alpha2Code: "ITA", phonePrefix: 39 },
+      { id: "FRA", alpha2Code: "FR", phonePrefix: 33, abbreviation: " " },
     ]);
     expect(countries.map((c) => [c.code, c.name])).toEqual([["FR", "FR"]]);
     expect(toPhoneCountries(undefined)).toEqual([]);
   });
 
   it("works with the rest of the phone rules: +33 picks France, shown as the API's prefix", () => {
-    const countries = toPhoneCountries([{ alpha2Code: "PT", phonePrefix: 351 }, { alpha2Code: "FR", phonePrefix: 33 }]);
-    expect(parsePhone("+33612345678", countries, countries[0])).toMatchObject({ country: { code: "FR" }, digits: "612345678" });
-    expect(toE164("612345678", countries[1])).toBe("+33612345678");
+    const countries = toPhoneCountries([{ id: "PRT", alpha2Code: "PT", phonePrefix: 351 }, { id: "FRA", alpha2Code: "FR", phonePrefix: 33 }]);
+    expect(parsePhone({ phoneNumber: "+33612345678" }, countries, countries[0])).toMatchObject({ country: { id: "FRA" }, digits: "612345678" });
   });
 });

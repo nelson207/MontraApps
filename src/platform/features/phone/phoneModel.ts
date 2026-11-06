@@ -1,10 +1,15 @@
 import type { CountryDto } from "@platform/api/generated/MontraPOSApi";
 
-// Phone numbers in every Montra app: a country (from the API) + its local digits, exchanged as
-// E.164 ("+351912345678"). Formatting and the validity check follow the country's data.
+// Phone numbers in every Montra app: a country (from the API, by its id) + its local digits, never
+// joined: the dial code is only shown. Formatting and the validity check follow the country's data.
+
+/** As the API's PhoneDto has it: the number without its dial code, and the country's id */
+export type PhoneValue = { phoneNumber?: string | null; countryId?: string | null };
 
 export type PhoneCountry = {
-  /** ISO 3166-1 alpha-2, e.g. "PT" */
+  /** What's sent as countryId (GET /api/companies/countries), e.g. "PRT" */
+  id: string;
+  /** ISO 3166-1 alpha-2, e.g. "PT": only shown */
   code: string;
   name: string;
   /** Without "+", e.g. "351" */
@@ -24,17 +29,18 @@ const E164_MAX_DIGITS = 15;
 
 /**
  * GET /api/companies/countries → the phone countries, in the API's order (the backend orders
- * them; the first is the default). Only countries with an alpha-2 code and a phone prefix. The API
+ * them; the first is the default). Only countries with an id, an alpha-2 code and a phone prefix. The API
  * doesn't say how each country groups or counts its digits: grouped in threes, from 6 digits up to
  * what E.164 allows after the dial code, no placeholder.
  */
 export function toPhoneCountries(countries: CountryDto[] | null | undefined): PhoneCountry[] {
   return (countries ?? []).flatMap((c) => {
     const code = c.alpha2Code?.trim().toUpperCase();
-    if (!code || typeof c.phonePrefix !== "number" || c.phonePrefix <= 0) return [];
+    if (!c.id || !code || typeof c.phonePrefix !== "number" || c.phonePrefix <= 0) return [];
     const dialCode = String(c.phonePrefix);
     return [
       {
+        id: c.id,
         code,
         name: c.abbreviation?.trim() || code,
         dialCode,
@@ -75,15 +81,16 @@ export function dialCodeCountry(text: string, countries: PhoneCountry[]): PhoneC
 }
 
 /**
- * A stored number → its country and local digits. "+<dial code>…" picks the country with the
- * longest matching dial code; anything else (empty, local, unknown code) keeps `fallback`.
+ * A stored phone → its country and local digits: the country of its countryId, or else `fallback`.
+ * A number with its dial code ("+351…": typed or pasted, or saved that way before) picks the country
+ * with the longest matching one, and the digits are what's after it.
  */
 export function parsePhone(
-  value: string | null | undefined,
+  value: PhoneValue | null | undefined,
   countries: PhoneCountry[],
   fallback: PhoneCountry,
 ): { country: PhoneCountry; digits: string } {
-  const text = (value ?? "").trim();
+  const text = (value?.phoneNumber ?? "").trim();
   if (text.startsWith("+")) {
     const all = text.replace(/\D/g, "");
     const country = [...countries]
@@ -91,11 +98,9 @@ export function parsePhone(
       .find((c) => all.startsWith(c.dialCode));
     if (country) return { country, digits: phoneDigits(all.slice(country.dialCode.length), country) };
   }
-  return { country: fallback, digits: phoneDigits(text, fallback) };
+  const country = countries.find((c) => c.id === value?.countryId) ?? fallback;
+  return { country, digits: phoneDigits(text, country) };
 }
-
-/** Local digits → "+351912345678"; "" when there are none */
-export const toE164 = (digits: string, country: PhoneCountry) => (digits ? `+${country.dialCode}${digits}` : "");
 
 /** Enough digits for the country (an empty number isn't invalid: "required" is checked elsewhere) */
 export const isValidPhone = (digits: string, country: PhoneCountry) =>

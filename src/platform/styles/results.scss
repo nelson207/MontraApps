@@ -413,6 +413,34 @@ $results-tones: (
   }
 }
 
+// A row with a button of its own beside it (outside its link)
+.app-results-item {
+  display: flex;
+  align-items: center;
+
+  > .app-results-row {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.app-results-action {
+  flex-shrink: 0;
+  padding-right: 1.25rem;
+
+  // Same column on every row, filled or not
+  @include media-breakpoint-up(md) {
+    min-width: 11rem;
+    text-align: end;
+  }
+
+  &:empty {
+    @include media-breakpoint-down(md) {
+      display: none;
+    }
+  }
+}
+
 .app-results-chevron {
   flex-shrink: 0;
   color: var(--#{$prefix}tertiary-color);

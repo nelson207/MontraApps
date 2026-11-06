@@ -8,7 +8,7 @@ import ResultsFooter from "@platform/components/results/ResultsFooter";
 import ResultsPanel from "@platform/components/results/ResultsPanel";
 import ResultsToolbar from "@platform/components/results/ResultsToolbar";
 import { useDebouncedValue } from "@platform/hooks/useDebouncedValue";
-import type { WorkItemDtoPagedResult } from "@platform/api/generated/MontraPOSApi";
+import type { PagedResultOfWorkItemDto } from "@platform/api/generated/MontraPOSApi";
 import {
   useWorkItemPositionsQuery,
   useWorkItemsDashboardQuery,
@@ -177,7 +177,7 @@ function TaskList({ mode, state, extraTabs = [], viewAll = false }: TaskListProp
   const positionId = positionsQuery.data ? positionParam(position) : (view.positionId ?? undefined);
 
   const { currentData, isFetching, isError, error, refetch, noState } = useWorkItemsPage(mode, view, positionId);
-  const result = currentData as WorkItemDtoPagedResult | undefined;
+  const result = currentData as PagedResultOfWorkItemDto | undefined;
   const tasks = workItemsOf(result);
   const total = result?.totalCount ?? tasks.length;
   const problem = isError ? workItemsProblem(error) : null;

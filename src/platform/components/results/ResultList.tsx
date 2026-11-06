@@ -21,6 +21,11 @@ type RowProps = {
   /** Columns from md up, wrapped under the title on small screens */
   meta?: ReactNode[];
   trailing?: ReactNode;
+  /**
+   * A button of its own beside the row (outside its link). Pass null on the rows without one, so
+   * every row of the list keeps the same column for it.
+   */
+  action?: ReactNode;
 } & (
   | { to: string; /** Router state for the page opened */ state?: unknown; onClick?: never; dialog?: never }
   | { onClick: () => void; to?: never; /** Opens a popup */ dialog?: boolean }
@@ -29,7 +34,7 @@ type RowProps = {
 );
 
 // One compact result: the whole row opens it (a router link or a button), or shows it only.
-export function ResultRow({ accent, accentLabel, leading, title, secondary, meta = [], trailing, ...action }: RowProps) {
+export function ResultRow({ accent, accentLabel, leading, title, secondary, meta = [], trailing, action: rowAction, ...action }: RowProps) {
   const content = (
     <>
       <span className={`app-results-accent ${accent ? `tone-${accent}` : ""}`} title={accentLabel} aria-hidden="true" />
@@ -51,8 +56,9 @@ export function ResultRow({ accent, accentLabel, leading, title, secondary, meta
     </>
   );
 
+  const hasActionColumn = rowAction !== undefined;
   return (
-    <li>
+    <li className={hasActionColumn ? "app-results-item" : undefined}>
       {action.to !== undefined ? (
         <Link to={action.to} state={action.state} className="app-results-row">
           {content}
@@ -64,6 +70,7 @@ export function ResultRow({ accent, accentLabel, leading, title, secondary, meta
           {content}
         </button>
       )}
+      {hasActionColumn && <span className="app-results-action">{rowAction}</span>}
     </li>
   );
 }
