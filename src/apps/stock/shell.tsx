@@ -1,11 +1,13 @@
-import ImpersonationBanner from "@platform/features/workContext/components/ImpersonationBanner";
-import WorkContextMenu from "@platform/features/workContext/components/WorkContextMenu";
+// Montra Stock Credit's slots in the shared layout (see platform/app/contract.ts): none. The login
+// user's entity decides what the stock API shows, so a working context (or acting on someone's
+// behalf) would change nothing here and only suggest it does.
 
-// Montra Stock Credit's slots in the shared layout (see platform/app/contract.ts): the shared working
-// context — its menu in the top bar and, while acting on someone's behalf, the banner.
+function Nothing() {
+  return null;
+}
 
 /** Top bar, between the notifications and the user menu */
-export const TopbarExtras = WorkContextMenu;
+export const TopbarExtras = Nothing;
 
 /** Above every page */
-export const LayoutBanner = ImpersonationBanner;
+export const LayoutBanner = Nothing;

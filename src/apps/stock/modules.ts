@@ -38,11 +38,36 @@ export const APP_MODULES: AppModule[] = [
     component: lazy(() => import("@platform/features/tasks/pages/TasksPage")),
   },
   {
+    path: "/stock/agreements",
+    label: "Agreements",
+    icon: "bi-file-earmark-text",
+    section: "Stock",
+    component: lazy(() => import("./features/stock/pages/AgreementsPage")),
+  },
+  {
+    path: "/stock/agreements/:id",
+    label: "Agreement",
+    icon: "bi-file-earmark-text",
+    component: lazy(() => import("./features/stock/pages/AgreementDetailPage")),
+  },
+  {
+    path: "/stock/agreements/:id/pay",
+    label: "Pay stocks",
+    icon: "bi-cash-coin",
+    component: lazy(() => import("./features/stock/pages/PayStocksPage")),
+  },
+  {
     path: "/stock/units",
     label: "Stock units",
     icon: "bi-car-front",
     section: "Stock",
     component: lazy(() => import("./features/stock/pages/StockUnitsPage")),
+  },
+  {
+    path: "/stock/units/:id",
+    label: "Stock unit",
+    icon: "bi-car-front",
+    component: lazy(() => import("./features/stock/pages/StockUnitDetailPage")),
   },
   {
     path: "/stock/new",

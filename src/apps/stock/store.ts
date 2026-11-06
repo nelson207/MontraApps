@@ -1,8 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { createMontraStore } from "@platform/app/store";
 
-// Montra Stock Credit store: the platform slices (the stock units use RTK Query, no slice yet).
+// Montra Stock Credit store: the platform slices (the stock screens use RTK Query, no slice yet).
 export * from "@platform/app/store";
+
+// Development only (signed in with "Demo access" and no API): the demo backend's answers
+if (import.meta.env.DEV) void import("./demo/stockDemoBackend");
 
 export const store = createMontraStore({});
 
