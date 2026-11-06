@@ -1133,6 +1133,80 @@
         }
       }
     },
+    "/api/credit-operations/asset-types": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "application",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MontraAplApplications"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "businessId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "financialProductIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssetTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssetTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssetTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/credit-operations/search": {
       "get": {
         "tags": ["CreditOperations"],
@@ -1183,17 +1257,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/CredOperSummaryDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfCredOperSummaryDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CredOperSummaryDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfCredOperSummaryDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CredOperSummaryDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfCredOperSummaryDto"
                 }
               }
             }
@@ -1271,6 +1345,14 @@
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/NewInterventionKind"
+            }
+          },
+          {
+            "name": "credOperClassificationId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -1455,6 +1537,552 @@
         }
       }
     },
+    "/api/credit-operations/credoper/{id}/quotation-to-proposal": {
+      "get": {
+        "tags": ["CreditOperations"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotationToProposalDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotationToProposalDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotationToProposalDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/genders": {
+      "get": {
+        "tags": ["Entities"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/marital-statuses": {
+      "get": {
+        "tags": ["Entities"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/professions": {
+      "get": {
+        "tags": ["Entities"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/legal-doc-types": {
+      "get": {
+        "tags": ["Entities"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfEntityOptionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/phone-types": {
+      "get": {
+        "tags": ["Entities"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhoneTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhoneTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhoneTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/activity-types": {
+      "get": {
+        "tags": ["Entities"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contextId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfActivityTypeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfActivityTypeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfActivityTypeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/juridical-types": {
+      "get": {
+        "tags": ["Entities"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/IntervEntityKind"
+            }
+          },
+          {
+            "name": "countryId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfJuridicalTypeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfJuridicalTypeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfJuridicalTypeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/lookup": {
+      "post": {
+        "tags": ["Entities"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntityLookupRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntityLookupRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntityLookupRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityLookupResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityLookupResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityLookupResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/otp": {
+      "post": {
+        "tags": ["Entities"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpSendRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpSendRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpSendRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpSentDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpSentDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpSentDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/entities/otp/verify": {
+      "post": {
+        "tags": ["Entities"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifyRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifyRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifyRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityPreloadDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityPreloadDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityPreloadDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/equipments/new": {
       "get": {
         "tags": ["Equipment"],
@@ -1478,6 +2106,52 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperAssetDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperAssetDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredOperAssetDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipments/retake": {
+      "post": {
+        "tags": ["Equipment"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipmentRetakeRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipmentRetakeRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipmentRetakeRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -2229,17 +2903,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/NewsDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfNewsDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NewsDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfNewsDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NewsDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfNewsDto"
                 }
               }
             }
@@ -2348,6 +3022,454 @@
         }
       }
     },
+    "/api/stock/contracts": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStockContractDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStockContractDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStockContractDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/contracts/{id}/units": {
+      "post": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewStockUnitDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewStockUnitDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewStockUnitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockUnitSaveResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockUnitSaveResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockUnitSaveResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/contracts/{id}/cash-flow": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockCashFlowDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockCashFlowDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockCashFlowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/contracts/{id}/netting-accounts": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StockNettingAccountDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StockNettingAccountDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StockNettingAccountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/contracts/{id}/payment-end-reasons": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StockPaymentEndReasonDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StockPaymentEndReasonDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StockPaymentEndReasonDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/payments": {
+      "post": {
+        "tags": ["Stock"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewStockPaymentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewStockPaymentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewStockPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockPaymentResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockPaymentResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockPaymentResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/payments/{id}": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockPaymentStatusDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockPaymentStatusDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockPaymentStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/units": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStockUnitListItemDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStockUnitListItemDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfStockUnitListItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/units/{id}": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockUnitListItemDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockUnitListItemDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockUnitListItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/units/{id}/cash-flow": {
+      "get": {
+        "tags": ["Stock"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockCashFlowDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockCashFlowDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockCashFlowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/struct-nodes/me": {
       "get": {
         "tags": ["StructNodes"],
@@ -2409,17 +3531,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               }
             }
@@ -2470,17 +3592,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               }
             }
@@ -2531,17 +3653,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               }
             }
@@ -2583,17 +3705,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               }
             }
@@ -2644,17 +3766,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               }
             }
@@ -2705,17 +3827,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StructNodeDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfStructNodeDto"
                 }
               }
             }
@@ -3165,17 +4287,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfWorkItemDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfWorkItemDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfWorkItemDto"
                 }
               }
             }
@@ -3252,17 +4374,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfWorkItemDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfWorkItemDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkItemDtoPagedResult"
+                  "$ref": "#/components/schemas/PagedResultOfWorkItemDto"
                 }
               }
             }
@@ -3273,6 +4395,29 @@
   },
   "components": {
     "schemas": {
+      "ActivityTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "contextId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "AddressDetailsDto": {
         "type": "object",
         "properties": {
@@ -3479,13 +4624,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AvailableFinancialProductDto"
-            },
-            "nullable": true
-          },
-          "assetTypes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AssetTypeDto"
             },
             "nullable": true
           }
@@ -4261,6 +5399,9 @@
           },
           "isValid": {
             "type": "boolean"
+          },
+          "entitySuperType": {
+            "$ref": "#/components/schemas/IntervEntityKind"
           }
         },
         "additionalProperties": false
@@ -4331,6 +5472,21 @@
             "type": "boolean",
             "nullable": true
           },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rowVersion": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "sourceCredOperId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
           "entryMoment": {
             "type": "string",
             "format": "date-time",
@@ -4364,7 +5520,7 @@
             "description": "Protected id (opaque token).",
             "nullable": true
           },
-          "localStructNodeId": {
+          "branchStructNodeId": {
             "type": "string",
             "description": "Protected id (opaque token).",
             "nullable": true
@@ -4379,15 +5535,6 @@
             "nullable": true
           },
           "descr": {
-            "type": "string",
-            "nullable": true
-          },
-          "personStructNodeId": {
-            "type": "string",
-            "description": "Protected id (opaque token).",
-            "nullable": true
-          },
-          "personName": {
             "type": "string",
             "nullable": true
           },
@@ -4476,6 +5623,9 @@
         "properties": {
           "role": {
             "$ref": "#/components/schemas/CredOperIntervRole"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/CredOperIntervEntityDto"
           },
           "agreementNumber": {
             "type": "string",
@@ -4799,6 +5949,74 @@
         },
         "additionalProperties": false
       },
+      "CredOperIntervEntityDto": {
+        "type": "object",
+        "properties": {
+          "vatNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IntervEntityKind"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "juridicalTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "person": {
+            "$ref": "#/components/schemas/PersonDto"
+          },
+          "company": {
+            "$ref": "#/components/schemas/EntityCompanyDto"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/PhoneDto"
+          },
+          "email": {
+            "$ref": "#/components/schemas/EmailDto"
+          },
+          "fiscalAddress": {
+            "$ref": "#/components/schemas/AddressDto"
+          },
+          "postalAddress": {
+            "$ref": "#/components/schemas/AddressDto"
+          },
+          "legalDocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegalDocDto"
+            },
+            "nullable": true
+          },
+          "availablePhones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneDto"
+            },
+            "nullable": true
+          },
+          "availableEmails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailDto"
+            },
+            "nullable": true
+          },
+          "availableAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CredOperIntervRole": {
         "enum": [
           "Customer",
@@ -4913,35 +6131,10 @@
             "description": "Protected id (opaque token).",
             "nullable": true
           },
-          "personStructNodeId": {
+          "branchStructNodeId": {
             "type": "string",
             "description": "Protected id (opaque token).",
             "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CredOperSummaryDtoPagedResult": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CredOperSummaryDto"
-            },
-            "nullable": true
-          },
-          "page": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -5042,6 +6235,269 @@
           "work": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntityCompanyDto": {
+        "type": "object",
+        "properties": {
+          "amlReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "activityBeginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "activityPurpose": {
+            "type": "string",
+            "nullable": true
+          },
+          "buFinancialResponsability": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "buMajorParticipation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "beginYear": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "businessVolumeYear1": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "businessVolumeYear1Amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "businessVolumeYear2": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "businessVolumeYear2Amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "commercialRegistryValidDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "complexityLevelId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "deedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "economicFinality": {
+            "type": "string",
+            "nullable": true
+          },
+          "economicGroupId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "employees": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "equityCapital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fiscalValidationCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupActivityTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "hasRealEstate": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "headQuartersCountryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isListedCompany": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isManagedByGovernment": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isVATPayer": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leafActivityTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "publicContractObligation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "publicSectorClassId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "publicSectorId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "registryDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "registryEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "registryNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntityLookupRequestDto": {
+        "type": "object",
+        "properties": {
+          "vatNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IntervEntityKind"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntityLookupResultDto": {
+        "type": "object",
+        "properties": {
+          "exists": {
+            "type": "boolean"
+          },
+          "mobilePhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IntervEntityKind"
+          },
+          "kindMatches": {
+            "type": "boolean"
+          },
+          "preload": {
+            "$ref": "#/components/schemas/EntityPreloadDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntityOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntityPreloadDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "entityTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "person": {
+            "$ref": "#/components/schemas/PersonDto"
+          },
+          "company": {
+            "$ref": "#/components/schemas/EntityCompanyDto"
+          },
+          "phones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhoneDto"
+            },
+            "nullable": true
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailDto"
+            },
+            "nullable": true
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressDto"
+            },
             "nullable": true
           }
         },
@@ -5930,6 +7386,18 @@
           "description": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EquipmentRetakeRequestDto": {
+        "type": "object",
+        "properties": {
+          "calculate": {
+            "$ref": "#/components/schemas/RetakeCalculation"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/CredOperAssetDto"
           }
         },
         "additionalProperties": false
@@ -7756,6 +9224,40 @@
         },
         "additionalProperties": false
       },
+      "IntervEntityKind": {
+        "enum": ["Person", "Company"],
+        "type": "string"
+      },
+      "JuridicalTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasActivity": {
+            "type": "boolean"
+          },
+          "activityTypeContextId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LegalDocDto": {
         "type": "object",
         "properties": {
@@ -7954,6 +9456,80 @@
         "enum": ["Customer", "SecondHolder", "Guarantor"],
         "type": "string"
       },
+      "NewStockPaymentDto": {
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "nettingAccountId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "stockIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protected ids (opaque tokens)."
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "endReasonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "allowPartialPayment": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NewStockUnitDto": {
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "supplierInterventionId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentDto"
+          },
+          "km": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "NewsDto": {
         "type": "object",
         "properties": {
@@ -8014,7 +9590,179 @@
         },
         "additionalProperties": false
       },
-      "NewsDtoPagedResult": {
+      "NewsTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isValid": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OtpChannel": {
+        "enum": ["Sms", "Email"],
+        "type": "string"
+      },
+      "OtpSendRequestDto": {
+        "type": "object",
+        "properties": {
+          "vatNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "channel": {
+            "$ref": "#/components/schemas/OtpChannel"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IntervEntityKind"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OtpSentDto": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sentTo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OtpVerifyRequestDto": {
+        "type": "object",
+        "properties": {
+          "vatNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IntervEntityKind"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfActivityTypeDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityTypeDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfCredOperSummaryDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CredOperSummaryDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfEntityOptionDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntityOptionDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfJuridicalTypeDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JuridicalTypeDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfNewsDto": {
         "type": "object",
         "properties": {
           "items": {
@@ -8039,23 +9787,556 @@
         },
         "additionalProperties": false
       },
-      "NewsTypeDto": {
+      "PagedResultOfStockContractDto": {
         "type": "object",
         "properties": {
-          "id": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockContractDto"
+            },
+            "nullable": true
+          },
+          "page": {
             "type": "integer",
             "format": "int32"
           },
-          "abbreviation": {
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfStockUnitListItemDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockUnitListItemDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfStructNodeDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructNodeDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfWorkItemDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkItemDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PersonDto": {
+        "type": "object",
+        "properties": {
+          "amlReference": {
             "type": "string",
             "nullable": true
           },
-          "description": {
+          "activityBeginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "activityPurpose": {
             "type": "string",
             "nullable": true
           },
-          "isValid": {
-            "type": "boolean"
+          "activityTypeContextId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "buFinancialResponsability": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "buMajorParticipation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "birthCountryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "birthLocality": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthName": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthPlace": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthZipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessIncome": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "businessVolumeAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "councilCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "disposableIncome": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "economicFinality": {
+            "type": "string",
+            "nullable": true
+          },
+          "employerAplTableId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "employerCountryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "employerEntityPositionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "employerFiscalNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "employerRelatedId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "employerSelectionTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "employmentAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "employmentCompany": {
+            "type": "string",
+            "nullable": true
+          },
+          "employmentEntityAddressId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "fatherName": {
+            "type": "string",
+            "nullable": true
+          },
+          "financialDuties": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fiscalActivityTypeContextId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fiscalValidationCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "genderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "groupActivityTypeNodeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "groupFiscalActivityTypeNodeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "handicappedDegree": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hasCreditCard": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasDualNationality": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasPoliticalExposure": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasPublicOfficePosition": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasRealEstate": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasTaxBenefits": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "householdIncome": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "incomeTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "intervActivityTypeContextId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isHandicapped": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isListedCompany": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isSalaryValidityProlonged": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isVATPayer": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "labourAggreementBeginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "labourAggreementEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "labourAgreementTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "labourSeniority": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastProfessionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "leafActivityTypeNodeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "leafFiscalActivityTypeNodeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "livingTogether": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "maritalAgreementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maritalStatusId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "motherName": {
+            "type": "string",
+            "nullable": true
+          },
+          "namePrefixId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nameSuffixId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "newEmploymentEntityAddressId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "numOfDependents": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numOfHouseholdStatements": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "numOfPersonsInResidence": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "otherAssets": {
+            "type": "string",
+            "nullable": true
+          },
+          "otherCredits": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "otherDuties": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "otherIncomes": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "pepReference": {
+            "type": "string",
+            "nullable": true
+          },
+          "pepSourcesInitialAgreement": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pepStateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "parishCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "pension": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "professionDescr": {
+            "type": "string",
+            "nullable": true
+          },
+          "professionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "publicPlacementId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "qualificationTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rentalIncome": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residenceDebt": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residenceDuties": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residenceMarketValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "residenceSeniority": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "residenceTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "salaryAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "salaryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "savings": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "savingsDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "secondCountryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "titleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "titleNobleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalDuties": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalIncome": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -8110,6 +10391,103 @@
         },
         "additionalProperties": false
       },
+      "PhoneTypeDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PhoneTypeKind"
+          },
+          "phoneTypeId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhoneTypeKind": {
+        "enum": ["Landline", "Mobile"],
+        "type": "string"
+      },
+      "QuotationSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "aplCompanyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "aplBusinessId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "credOperTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "financialProductId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "stateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "customerEntityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "QuotationToProposalDto": {
+        "type": "object",
+        "properties": {
+          "proposal": {
+            "$ref": "#/components/schemas/CredOperDto"
+          },
+          "quotation": {
+            "$ref": "#/components/schemas/QuotationSummaryDto"
+          }
+        },
+        "additionalProperties": false
+      },
       "ReferenceDataHealthDto": {
         "type": "object",
         "properties": {
@@ -8155,6 +10533,10 @@
           }
         },
         "additionalProperties": false
+      },
+      "RetakeCalculation": {
+        "enum": ["Amount", "Percentage"],
+        "type": "string"
       },
       "SaveScreenCustomizationRequest": {
         "type": "object",
@@ -8204,6 +10586,533 @@
         },
         "additionalProperties": false
       },
+      "StockCashFlowDto": {
+        "type": "object",
+        "properties": {
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "initialDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finalDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "capital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "plafondAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalCapital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalInterest": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalExpenses": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalTaxes": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalWithoutTaxes": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalWithTaxes": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "flows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockCashFlowLineDto"
+            },
+            "nullable": true
+          },
+          "otherFlows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockCashFlowOtherLineDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockCashFlowLineDto": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "invoiceDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "capital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "interest": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "outstandingCapital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockCashFlowOtherLineDto": {
+        "type": "object",
+        "properties": {
+          "valueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expenseAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "amountWithTaxes": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockContractDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyAbbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "suppliers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockSupplierDto"
+            },
+            "nullable": true
+          },
+          "availableAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxPerVehicle": {
+            "type": "number",
+            "format": "double"
+          },
+          "termDays": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "ratePhases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockRatePhaseDto"
+            },
+            "nullable": true
+          },
+          "equipmentStateIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "equipmentTypeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "canAddStock": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockNettingAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "relation": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "plafondAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalCapital": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalInterest": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalWithTaxes": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockPaymentEndReasonDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockPaymentResultDto": {
+        "type": "object",
+        "properties": {
+          "isStarted": {
+            "type": "boolean"
+          },
+          "isUncertain": {
+            "type": "boolean"
+          },
+          "paymentId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockPaymentStatusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "isSuccessful": {
+            "type": "boolean"
+          },
+          "stocksPaid": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "stocksInError": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockRatePhaseDto": {
+        "type": "object",
+        "properties": {
+          "rate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockSupplierDto": {
+        "type": "object",
+        "properties": {
+          "interventionId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "item": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockUnitListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "item": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "autUserStateId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "beginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "supplierName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vin": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockUnitSaveResultDto": {
+        "type": "object",
+        "properties": {
+          "isSaved": {
+            "type": "boolean"
+          },
+          "stock": {
+            "$ref": "#/components/schemas/StockUnitDto"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "StructNodeDto": {
         "type": "object",
         "properties": {
@@ -8232,31 +11141,6 @@
           },
           "isMine": {
             "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "StructNodeDtoPagedResult": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/StructNodeDto"
-            },
-            "nullable": true
-          },
-          "page": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -8618,31 +11502,6 @@
         },
         "additionalProperties": false
       },
-      "WorkItemDtoPagedResult": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/WorkItemDto"
-            },
-            "nullable": true
-          },
-          "page": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "WorkItemPositionDto": {
         "type": "object",
         "properties": {
@@ -8696,6 +11555,9 @@
       "name": "CreditOperations"
     },
     {
+      "name": "Entities"
+    },
+    {
       "name": "Equipment"
     },
     {
@@ -8709,6 +11571,9 @@
     },
     {
       "name": "Parametrization"
+    },
+    {
+      "name": "Stock"
     },
     {
       "name": "StructNodes"

@@ -14,6 +14,8 @@ export const PROBLEM = {
   invalidEmailConfirmationCode: "invalid_email_confirmation_code",
   backendUnavailable: "backend_unavailable",
   invalidId: "invalid_id",
+  concurrencyConflict: "concurrency_conflict",
+  entityKindMismatch: "entity_kind_mismatch",
 } as const;
 
 /** The ProblemDetails `code` of an RTK Query error, if any */

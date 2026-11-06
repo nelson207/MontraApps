@@ -1,4 +1,11 @@
 import { emptySplitApi as api } from "../emptyApi";
+import type {
+  AddressDto as ApiAddressDto,
+  EmailDto as ApiEmailDto,
+  JuridicalTypeDto,
+  LegalDocDto as ApiLegalDocDto,
+  PhoneDto as ApiPhoneDto,
+} from "../generated/MontraPOSApi";
 
 // LEGACY (TODO): the previous generated API (2026-10-05), kept by hand while the backend's new API
 // (generated/MontraPOSApi.ts, 2026-10-21) doesn't cover everything the apps use:
@@ -692,6 +699,7 @@ export type FinConditionDto = {
   dueRegime?: number | null;
   implicitRate?: number | null;
   annualRate?: number | null;
+  totalAmountChargedToCustomer?: number | null;
   dayRent?: number | null;
   simulationType?: number | null;
   finInitialEntryTypeId?: number | null;
@@ -885,6 +893,8 @@ export type EquipmentDto = {
   taxAmount?: number | null;
   licencePlate?: string | null;
   registrationDate?: string | null;
+  equipYear?: number | null;
+  equipMonth?: number | null;
   description?: string | null;
   brand?: string | null;
   model?: string | null;
@@ -1077,14 +1087,21 @@ export type EntityPhoneFieldApiFieldMetadataDto = {
   isVisible?: boolean;
   isReadOnly?: boolean;
 };
+/** A legal document of the entity, in the API's shape; `correlationID` and `typeLabel` are the app's */
+export type DraftLegalDoc = ApiLegalDocDto & { correlationID?: string; typeLabel?: string | null };
 export type EntityPhoneDto = {
   id?: string | null;
   correlationID?: string;
   status?: InstanceStatus;
+  /** Without its dial code: that's the country's */
   phoneNumber?: string | null;
+  /** The country's id (GET /api/companies/countries), e.g. PRT */
+  countryId?: string | null;
   countryCode?: string | null;
   isPrimary?: boolean;
   type?: PhoneType;
+  /** The API's phone type (GET /api/entities/phone-types) */
+  phoneTypeId?: number | null;
   entityId?: number | null;
   metadataResponse?: EntityPhoneFieldApiFieldMetadataDto[] | null;
 };
@@ -1120,7 +1137,7 @@ export type EntityLegalDocFieldApiFieldMetadataDto = {
 export type EntityLegalDocDto = {
   id?: string | null;
   correlationID?: string;
-  /** App-only: the kind of document chosen in the form (LEGAL_DOCUMENT_TYPES in credoper/model/legalDocumentTypes); never a record id */
+  /** App-only: VAT_DOC_TYPE marks the NIF (entityLookup); never a record id */
   legalDocTypeId?: number | null;
   status?: InstanceStatus;
   legalDocNumber?: string | null;
@@ -1324,6 +1341,7 @@ export type CompanyDto = {
   headQuartersCountryId?: string | null;
   isListedCompany?: boolean | null;
   isManagedByGovernment?: boolean | null;
+  isVATPayer?: boolean | null;
   leafActivityTypeId?: number | null;
   publicContractObligation?: boolean | null;
   publicSectorClassId?: number | null;
@@ -1595,7 +1613,14 @@ export type EntityDto = {
   addresses?: EntityAddressDto[] | null;
   roles?: EntityRoleDto[] | null;
   phones?: EntityPhoneDto[] | null;
+  /** App-only: holds the NIF as a VAT document (entityLookup), never sent as documents */
   legalDocs?: EntityLegalDocDto[] | null;
+  /** The entity's legal documents (the API's entity.legalDocs): with an id read-only, without one added here */
+  documents?: DraftLegalDoc[] | null;
+  /** App-only: the legal form chosen (what decides the activity list), when known */
+  juridicalType?: JuridicalTypeDto | null;
+  /** App-only: the names of what was chosen in lazy lists, whose items may not be loaded */
+  optionLabels?: Record<string, string> | null;
   emails?: EntityEmailDto[] | null;
   customer?: CustomerDto;
   contacts?: EntityContactDto[] | null;
@@ -1689,10 +1714,17 @@ export type CredOperIntervDto = {
   consentUseData?: boolean | null;
   credOperIntervType?: number | null;
   fiscalEntityAddress?: EntityAddressDto;
+  /** The postal address (the API's entity.postalAddress) */
   entityAddress?: EntityAddressDto;
+  /** App-only: the postal address is the fiscal one */
+  samePostalAddress?: boolean;
   entityEmail?: EntityEmailDto;
   entityMobilePhone?: EntityPhoneDto;
   entityLandlinePhone?: EntityPhoneDto;
+  /** What the entity has on file to choose from (API only, never sent back) */
+  availablePhones?: ApiPhoneDto[] | null;
+  availableEmails?: ApiEmailDto[] | null;
+  availableAddresses?: ApiAddressDto[] | null;
   entity?: EntityDto;
   company?: CompanyDto;
   person?: PersonDto;

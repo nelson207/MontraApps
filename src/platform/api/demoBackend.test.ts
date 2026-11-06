@@ -23,6 +23,15 @@ describe("demoResponse", () => {
   registerDemoHandlers({
     "GET /api/Demo/Echo": (req) => ({ echoed: req.params.value }),
     "POST /api/Demo/Save": (req) => ({ saved: req.body }),
+    "GET /api/Demo/things/:id": (req) => ({ id: req.params.id }),
+    "GET /api/Demo/things/latest": () => ({ latest: true }),
+  });
+
+  it("fills :name segments from the path; an exact path wins", async () => {
+    expect(await demoResponse("/api/Demo/things/AQ%2Fx1")).toEqual({ data: { id: "AQ/x1" } });
+    expect(await demoResponse("/api/Demo/things/latest")).toEqual({ data: { latest: true } });
+    expect(await demoResponse("/api/Demo/things/1/more")).toBeNull();
+    expect(await demoResponse("/api/Demo/things/")).toBeNull();
   });
 
   it("answers a registered method + path", async () => {

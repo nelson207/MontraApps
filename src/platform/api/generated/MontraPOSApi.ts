@@ -247,6 +247,20 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
+    getApiCreditOperationsAssetTypes: build.query<
+      GetApiCreditOperationsAssetTypesApiResponse,
+      GetApiCreditOperationsAssetTypesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/credit-operations/asset-types`,
+        params: {
+          application: queryArg.application,
+          companyId: queryArg.companyId,
+          businessId: queryArg.businessId,
+          financialProductIds: queryArg.financialProductIds,
+        },
+      }),
+    }),
     getApiCreditOperationsSearch: build.query<
       GetApiCreditOperationsSearchApiResponse,
       GetApiCreditOperationsSearchApiArg
@@ -284,6 +298,7 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/credit-operations/new-intervention`,
         params: {
           kind: queryArg.kind,
+          credOperClassificationId: queryArg.credOperClassificationId,
         },
       }),
     }),
@@ -321,6 +336,131 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/credit-operations/credoper/${queryArg.id}`,
       }),
     }),
+    getApiCreditOperationsCredoperByIdQuotationToProposal: build.query<
+      GetApiCreditOperationsCredoperByIdQuotationToProposalApiResponse,
+      GetApiCreditOperationsCredoperByIdQuotationToProposalApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/credit-operations/credoper/${queryArg.id}/quotation-to-proposal`,
+      }),
+    }),
+    getApiEntitiesGenders: build.query<
+      GetApiEntitiesGendersApiResponse,
+      GetApiEntitiesGendersApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/genders`,
+        params: {
+          search: queryArg.search,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiEntitiesMaritalStatuses: build.query<
+      GetApiEntitiesMaritalStatusesApiResponse,
+      GetApiEntitiesMaritalStatusesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/marital-statuses`,
+        params: {
+          search: queryArg.search,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiEntitiesProfessions: build.query<
+      GetApiEntitiesProfessionsApiResponse,
+      GetApiEntitiesProfessionsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/professions`,
+        params: {
+          search: queryArg.search,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiEntitiesLegalDocTypes: build.query<
+      GetApiEntitiesLegalDocTypesApiResponse,
+      GetApiEntitiesLegalDocTypesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/legal-doc-types`,
+        params: {
+          search: queryArg.search,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiEntitiesPhoneTypes: build.query<
+      GetApiEntitiesPhoneTypesApiResponse,
+      GetApiEntitiesPhoneTypesApiArg
+    >({
+      query: () => ({ url: `/api/entities/phone-types` }),
+    }),
+    getApiEntitiesActivityTypes: build.query<
+      GetApiEntitiesActivityTypesApiResponse,
+      GetApiEntitiesActivityTypesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/activity-types`,
+        params: {
+          search: queryArg.search,
+          contextId: queryArg.contextId,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiEntitiesJuridicalTypes: build.query<
+      GetApiEntitiesJuridicalTypesApiResponse,
+      GetApiEntitiesJuridicalTypesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/juridical-types`,
+        params: {
+          search: queryArg.search,
+          kind: queryArg.kind,
+          countryId: queryArg.countryId,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    postApiEntitiesLookup: build.mutation<
+      PostApiEntitiesLookupApiResponse,
+      PostApiEntitiesLookupApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/lookup`,
+        method: "POST",
+        body: queryArg.entityLookupRequestDto,
+      }),
+    }),
+    postApiEntitiesOtp: build.mutation<
+      PostApiEntitiesOtpApiResponse,
+      PostApiEntitiesOtpApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/otp`,
+        method: "POST",
+        body: queryArg.otpSendRequestDto,
+      }),
+    }),
+    postApiEntitiesOtpVerify: build.mutation<
+      PostApiEntitiesOtpVerifyApiResponse,
+      PostApiEntitiesOtpVerifyApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/entities/otp/verify`,
+        method: "POST",
+        body: queryArg.otpVerifyRequestDto,
+      }),
+    }),
     getApiEquipmentsNew: build.query<
       GetApiEquipmentsNewApiResponse,
       GetApiEquipmentsNewApiArg
@@ -331,6 +471,16 @@ const injectedRtkApi = api.injectEndpoints({
           companyId: queryArg.companyId,
           businessId: queryArg.businessId,
         },
+      }),
+    }),
+    postApiEquipmentsRetake: build.mutation<
+      PostApiEquipmentsRetakeApiResponse,
+      PostApiEquipmentsRetakeApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/equipments/retake`,
+        method: "POST",
+        body: queryArg.equipmentRetakeRequestDto,
       }),
     }),
     getApiEquipmentsCategories: build.query<
@@ -508,6 +658,95 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/parametrization/screen-customizations`,
         method: "POST",
         body: queryArg.saveScreenCustomizationRequest,
+      }),
+    }),
+    getApiStockContracts: build.query<
+      GetApiStockContractsApiResponse,
+      GetApiStockContractsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/contracts`,
+        params: {
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    postApiStockContractsByIdUnits: build.mutation<
+      PostApiStockContractsByIdUnitsApiResponse,
+      PostApiStockContractsByIdUnitsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/contracts/${queryArg.id}/units`,
+        method: "POST",
+        body: queryArg.newStockUnitDto,
+      }),
+    }),
+    getApiStockContractsByIdCashFlow: build.query<
+      GetApiStockContractsByIdCashFlowApiResponse,
+      GetApiStockContractsByIdCashFlowApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/contracts/${queryArg.id}/cash-flow`,
+      }),
+    }),
+    getApiStockContractsByIdNettingAccounts: build.query<
+      GetApiStockContractsByIdNettingAccountsApiResponse,
+      GetApiStockContractsByIdNettingAccountsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/contracts/${queryArg.id}/netting-accounts`,
+      }),
+    }),
+    getApiStockContractsByIdPaymentEndReasons: build.query<
+      GetApiStockContractsByIdPaymentEndReasonsApiResponse,
+      GetApiStockContractsByIdPaymentEndReasonsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/contracts/${queryArg.id}/payment-end-reasons`,
+      }),
+    }),
+    postApiStockPayments: build.mutation<
+      PostApiStockPaymentsApiResponse,
+      PostApiStockPaymentsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/payments`,
+        method: "POST",
+        body: queryArg.newStockPaymentDto,
+      }),
+    }),
+    getApiStockPaymentsById: build.query<
+      GetApiStockPaymentsByIdApiResponse,
+      GetApiStockPaymentsByIdApiArg
+    >({
+      query: (queryArg) => ({ url: `/api/stock/payments/${queryArg.id}` }),
+    }),
+    getApiStockUnits: build.query<
+      GetApiStockUnitsApiResponse,
+      GetApiStockUnitsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/units`,
+        params: {
+          contractId: queryArg.contractId,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiStockUnitsById: build.query<
+      GetApiStockUnitsByIdApiResponse,
+      GetApiStockUnitsByIdApiArg
+    >({
+      query: (queryArg) => ({ url: `/api/stock/units/${queryArg.id}` }),
+    }),
+    getApiStockUnitsByIdCashFlow: build.query<
+      GetApiStockUnitsByIdCashFlowApiResponse,
+      GetApiStockUnitsByIdCashFlowApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/stock/units/${queryArg.id}/cash-flow`,
       }),
     }),
     getApiStructNodesMe: build.query<
@@ -828,8 +1067,16 @@ export type GetApiCreditOperationsBusinessesApiArg = {
   includeProductsWithoutImporters?: boolean;
   credOperStep?: CreditOperationStep;
 };
+export type GetApiCreditOperationsAssetTypesApiResponse =
+  /** status 200 OK */ AssetTypeDto[];
+export type GetApiCreditOperationsAssetTypesApiArg = {
+  application?: MontraAplApplications;
+  companyId: number;
+  businessId: number;
+  financialProductIds?: number[];
+};
 export type GetApiCreditOperationsSearchApiResponse =
-  /** status 200 OK */ CredOperSummaryDtoPagedResult;
+  /** status 200 OK */ PagedResultOfCredOperSummaryDto;
 export type GetApiCreditOperationsSearchApiArg = {
   number?: number;
   step?: CreditOperationStep;
@@ -849,6 +1096,7 @@ export type GetApiCreditOperationsNewInterventionApiResponse =
   /** status 200 OK */ CredOperIntervDto;
 export type GetApiCreditOperationsNewInterventionApiArg = {
   kind?: NewInterventionKind;
+  credOperClassificationId?: number;
 };
 export type GetApiCreditOperationsNewInsuranceApiResponse =
   /** status 200 OK */ InsurancePolicyDto;
@@ -868,11 +1116,83 @@ export type GetApiCreditOperationsCredoperByIdApiResponse =
 export type GetApiCreditOperationsCredoperByIdApiArg = {
   id: string;
 };
+export type GetApiCreditOperationsCredoperByIdQuotationToProposalApiResponse =
+  /** status 200 OK */ QuotationToProposalDto;
+export type GetApiCreditOperationsCredoperByIdQuotationToProposalApiArg = {
+  id: string;
+};
+export type GetApiEntitiesGendersApiResponse =
+  /** status 200 OK */ PagedResultOfEntityOptionDto;
+export type GetApiEntitiesGendersApiArg = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiEntitiesMaritalStatusesApiResponse =
+  /** status 200 OK */ PagedResultOfEntityOptionDto;
+export type GetApiEntitiesMaritalStatusesApiArg = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiEntitiesProfessionsApiResponse =
+  /** status 200 OK */ PagedResultOfEntityOptionDto;
+export type GetApiEntitiesProfessionsApiArg = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiEntitiesLegalDocTypesApiResponse =
+  /** status 200 OK */ PagedResultOfEntityOptionDto;
+export type GetApiEntitiesLegalDocTypesApiArg = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiEntitiesPhoneTypesApiResponse =
+  /** status 200 OK */ PhoneTypeDto[];
+export type GetApiEntitiesPhoneTypesApiArg = void;
+export type GetApiEntitiesActivityTypesApiResponse =
+  /** status 200 OK */ PagedResultOfActivityTypeDto;
+export type GetApiEntitiesActivityTypesApiArg = {
+  search?: string;
+  contextId?: number;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiEntitiesJuridicalTypesApiResponse =
+  /** status 200 OK */ PagedResultOfJuridicalTypeDto;
+export type GetApiEntitiesJuridicalTypesApiArg = {
+  search?: string;
+  kind?: IntervEntityKind;
+  countryId?: string;
+  page?: number;
+  pageSize?: number;
+};
+export type PostApiEntitiesLookupApiResponse =
+  /** status 200 OK */ EntityLookupResultDto;
+export type PostApiEntitiesLookupApiArg = {
+  entityLookupRequestDto: EntityLookupRequestDto;
+};
+export type PostApiEntitiesOtpApiResponse = /** status 200 OK */ OtpSentDto;
+export type PostApiEntitiesOtpApiArg = {
+  otpSendRequestDto: OtpSendRequestDto;
+};
+export type PostApiEntitiesOtpVerifyApiResponse =
+  /** status 200 OK */ EntityPreloadDto;
+export type PostApiEntitiesOtpVerifyApiArg = {
+  otpVerifyRequestDto: OtpVerifyRequestDto;
+};
 export type GetApiEquipmentsNewApiResponse =
   /** status 200 OK */ CredOperAssetDto;
 export type GetApiEquipmentsNewApiArg = {
   companyId: number;
   businessId: number;
+};
+export type PostApiEquipmentsRetakeApiResponse =
+  /** status 200 OK */ CredOperAssetDto;
+export type PostApiEquipmentsRetakeApiArg = {
+  equipmentRetakeRequestDto: EquipmentRetakeRequestDto;
 };
 export type GetApiEquipmentsCategoriesApiResponse =
   /** status 200 OK */ EquipmentClassDto[];
@@ -947,7 +1267,7 @@ export type GetApiNewsApiArg = {
   portal?: MontraAplApplications;
 };
 export type GetApiNewsSearchApiResponse =
-  /** status 200 OK */ NewsDtoPagedResult;
+  /** status 200 OK */ PagedResultOfNewsDto;
 export type GetApiNewsSearchApiArg = {
   portal?: MontraAplApplications;
   search?: string;
@@ -969,18 +1289,72 @@ export type PostApiParametrizationScreenCustomizationsApiResponse =
 export type PostApiParametrizationScreenCustomizationsApiArg = {
   saveScreenCustomizationRequest: SaveScreenCustomizationRequest;
 };
+export type GetApiStockContractsApiResponse =
+  /** status 200 OK */ PagedResultOfStockContractDto;
+export type GetApiStockContractsApiArg = {
+  page?: number;
+  pageSize?: number;
+};
+export type PostApiStockContractsByIdUnitsApiResponse =
+  /** status 200 OK */ StockUnitSaveResultDto;
+export type PostApiStockContractsByIdUnitsApiArg = {
+  id: string;
+  newStockUnitDto: NewStockUnitDto;
+};
+export type GetApiStockContractsByIdCashFlowApiResponse =
+  /** status 200 OK */ StockCashFlowDto;
+export type GetApiStockContractsByIdCashFlowApiArg = {
+  id: string;
+};
+export type GetApiStockContractsByIdNettingAccountsApiResponse =
+  /** status 200 OK */ StockNettingAccountDto[];
+export type GetApiStockContractsByIdNettingAccountsApiArg = {
+  id: string;
+};
+export type GetApiStockContractsByIdPaymentEndReasonsApiResponse =
+  /** status 200 OK */ StockPaymentEndReasonDto[];
+export type GetApiStockContractsByIdPaymentEndReasonsApiArg = {
+  id: string;
+};
+export type PostApiStockPaymentsApiResponse =
+  /** status 200 OK */ StockPaymentResultDto;
+export type PostApiStockPaymentsApiArg = {
+  newStockPaymentDto: NewStockPaymentDto;
+};
+export type GetApiStockPaymentsByIdApiResponse =
+  /** status 200 OK */ StockPaymentStatusDto;
+export type GetApiStockPaymentsByIdApiArg = {
+  id: string;
+};
+export type GetApiStockUnitsApiResponse =
+  /** status 200 OK */ PagedResultOfStockUnitListItemDto;
+export type GetApiStockUnitsApiArg = {
+  contractId?: string | null;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiStockUnitsByIdApiResponse =
+  /** status 200 OK */ StockUnitListItemDto;
+export type GetApiStockUnitsByIdApiArg = {
+  id: string;
+};
+export type GetApiStockUnitsByIdCashFlowApiResponse =
+  /** status 200 OK */ StockCashFlowDto;
+export type GetApiStockUnitsByIdCashFlowApiArg = {
+  id: string;
+};
 export type GetApiStructNodesMeApiResponse =
   /** status 200 OK */ StructScopeDto;
 export type GetApiStructNodesMeApiArg = void;
 export type GetApiStructNodesIntermediariesApiResponse =
-  /** status 200 OK */ StructNodeDtoPagedResult;
+  /** status 200 OK */ PagedResultOfStructNodeDto;
 export type GetApiStructNodesIntermediariesApiArg = {
   search?: string;
   page?: number;
   pageSize?: number;
 };
 export type GetApiStructNodesIntermediariesByIdSuppliersApiResponse =
-  /** status 200 OK */ StructNodeDtoPagedResult;
+  /** status 200 OK */ PagedResultOfStructNodeDto;
 export type GetApiStructNodesIntermediariesByIdSuppliersApiArg = {
   id: string;
   search?: string;
@@ -988,7 +1362,7 @@ export type GetApiStructNodesIntermediariesByIdSuppliersApiArg = {
   pageSize?: number;
 };
 export type GetApiStructNodesSuppliersByIdPersonsApiResponse =
-  /** status 200 OK */ StructNodeDtoPagedResult;
+  /** status 200 OK */ PagedResultOfStructNodeDto;
 export type GetApiStructNodesSuppliersByIdPersonsApiArg = {
   id: string;
   search?: string;
@@ -996,14 +1370,14 @@ export type GetApiStructNodesSuppliersByIdPersonsApiArg = {
   pageSize?: number;
 };
 export type GetApiStructNodesLawOfficesApiResponse =
-  /** status 200 OK */ StructNodeDtoPagedResult;
+  /** status 200 OK */ PagedResultOfStructNodeDto;
 export type GetApiStructNodesLawOfficesApiArg = {
   search?: string;
   page?: number;
   pageSize?: number;
 };
 export type GetApiStructNodesLawOfficesByIdDepartmentsApiResponse =
-  /** status 200 OK */ StructNodeDtoPagedResult;
+  /** status 200 OK */ PagedResultOfStructNodeDto;
 export type GetApiStructNodesLawOfficesByIdDepartmentsApiArg = {
   id: string;
   search?: string;
@@ -1011,7 +1385,7 @@ export type GetApiStructNodesLawOfficesByIdDepartmentsApiArg = {
   pageSize?: number;
 };
 export type GetApiStructNodesDepartmentsByIdLawyersApiResponse =
-  /** status 200 OK */ StructNodeDtoPagedResult;
+  /** status 200 OK */ PagedResultOfStructNodeDto;
 export type GetApiStructNodesDepartmentsByIdLawyersApiArg = {
   id: string;
   search?: string;
@@ -1063,14 +1437,14 @@ export type GetApiWorkItemsPositionsApiResponse =
   /** status 200 OK */ WorkItemPositionDto[];
 export type GetApiWorkItemsPositionsApiArg = void;
 export type GetApiWorkItemsDashboardApiResponse =
-  /** status 200 OK */ WorkItemDtoPagedResult;
+  /** status 200 OK */ PagedResultOfWorkItemDto;
 export type GetApiWorkItemsDashboardApiArg = {
   positionId?: string | null;
   page?: number;
   pageSize?: number;
 };
 export type GetApiWorkItemsSearchApiResponse =
-  /** status 200 OK */ WorkItemDtoPagedResult;
+  /** status 200 OK */ PagedResultOfWorkItemDto;
 export type GetApiWorkItemsSearchApiArg = {
   positionId?: string | null;
   states?: AplWorkItemInternalState[];
@@ -1459,11 +1833,13 @@ export type EquipmentCategoryTypeDto = {
   abbreviation?: string | null;
   description?: string | null;
 };
+export type IntervEntityKind = "Person" | "Company";
 export type CredOperClassificationDto = {
   id?: number;
   abbreviation?: string | null;
   description?: string | null;
   isValid?: boolean;
+  entitySuperType?: IntervEntityKind;
 };
 export type AssetTypeDto = {
   id?: number | null;
@@ -1515,7 +1891,6 @@ export type AvailableBusinessDto = {
   abbreviation?: string | null;
   description?: string | null;
   financialProducts?: AvailableFinancialProductDto[] | null;
-  assetTypes?: AssetTypeDto[] | null;
 };
 export type CredOperSummaryDto = {
   /** Protected id (opaque token). */
@@ -1537,9 +1912,9 @@ export type CredOperSummaryDto = {
   /** Protected id (opaque token). */
   importerStructNodeId?: string | null;
   /** Protected id (opaque token). */
-  personStructNodeId?: string | null;
+  branchStructNodeId?: string | null;
 };
-export type CredOperSummaryDtoPagedResult = {
+export type PagedResultOfCredOperSummaryDto = {
   items?: CredOperSummaryDto[] | null;
   page?: number;
   pageSize?: number;
@@ -1700,8 +2075,251 @@ export type CredOperIntervRole =
   | "Broker"
   | "Other"
   | "FinancialInstitution";
+export type PersonDto = {
+  amlReference?: string | null;
+  activityBeginDate?: string | null;
+  activityPurpose?: string | null;
+  activityTypeContextId?: number | null;
+  buFinancialResponsability?: boolean | null;
+  buMajorParticipation?: boolean | null;
+  birthCountryId?: string | null;
+  birthDate?: string | null;
+  birthLocality?: string | null;
+  birthName?: string | null;
+  birthPlace?: string | null;
+  birthZipCode?: string | null;
+  businessIncome?: number | null;
+  businessVolumeAmount?: number | null;
+  councilCode?: number | null;
+  countryId?: string | null;
+  disposableIncome?: number | null;
+  districtCode?: number | null;
+  economicFinality?: string | null;
+  employerAplTableId?: number | null;
+  employerCountryId?: string | null;
+  employerEntityPositionId?: number | null;
+  employerFiscalNumber?: string | null;
+  /** Protected id (opaque token). */
+  employerRelatedId?: string | null;
+  employerSelectionTypeId?: number | null;
+  employmentAddress?: string | null;
+  employmentCompany?: string | null;
+  /** Protected id (opaque token). */
+  employmentEntityAddressId?: string | null;
+  fatherName?: string | null;
+  financialDuties?: number | null;
+  firstName?: string | null;
+  fiscalActivityTypeContextId?: number | null;
+  fiscalValidationCode?: string | null;
+  genderId?: number | null;
+  groupActivityTypeNodeId?: number | null;
+  groupFiscalActivityTypeNodeId?: number | null;
+  handicappedDegree?: number | null;
+  hasCreditCard?: boolean | null;
+  hasDualNationality?: boolean | null;
+  hasPoliticalExposure?: boolean | null;
+  hasPublicOfficePosition?: boolean | null;
+  hasRealEstate?: boolean | null;
+  hasTaxBenefits?: boolean | null;
+  householdIncome?: number | null;
+  incomeTypeId?: number | null;
+  intervActivityTypeContextId?: number | null;
+  isHandicapped?: boolean | null;
+  isListedCompany?: boolean | null;
+  isSalaryValidityProlonged?: boolean | null;
+  isVATPayer?: boolean | null;
+  labourAggreementBeginDate?: string | null;
+  labourAggreementEndDate?: string | null;
+  labourAgreementTypeId?: number | null;
+  labourSeniority?: number | null;
+  lastName?: string | null;
+  lastProfessionId?: number | null;
+  leafActivityTypeNodeId?: number | null;
+  leafFiscalActivityTypeNodeId?: number | null;
+  livingTogether?: boolean | null;
+  maritalAgreementId?: number | null;
+  maritalStatusId?: number | null;
+  motherName?: string | null;
+  namePrefixId?: number | null;
+  nameSuffixId?: number | null;
+  /** Protected id (opaque token). */
+  newEmploymentEntityAddressId?: string | null;
+  numOfDependents?: number | null;
+  numOfHouseholdStatements?: number | null;
+  numOfPersonsInResidence?: number | null;
+  otherAssets?: string | null;
+  otherCredits?: number | null;
+  otherDuties?: number | null;
+  otherIncomes?: number | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  pepReference?: string | null;
+  pepSourcesInitialAgreement?: boolean | null;
+  pepStateDate?: string | null;
+  parishCode?: string | null;
+  pension?: number | null;
+  professionDescr?: string | null;
+  professionId?: number | null;
+  publicPlacementId?: number | null;
+  qualificationTypeId?: number | null;
+  rentalIncome?: number | null;
+  residenceDebt?: number | null;
+  residenceDuties?: number | null;
+  residenceMarketValue?: number | null;
+  residenceSeniority?: number | null;
+  residenceTypeId?: number | null;
+  salaryAmount?: number | null;
+  salaryDate?: string | null;
+  savings?: number | null;
+  savingsDate?: string | null;
+  secondCountryId?: string | null;
+  titleId?: number | null;
+  titleNobleId?: number | null;
+  totalDuties?: number | null;
+  totalIncome?: number | null;
+};
+export type EntityCompanyDto = {
+  amlReference?: string | null;
+  activityBeginDate?: string | null;
+  activityPurpose?: string | null;
+  buFinancialResponsability?: boolean | null;
+  buMajorParticipation?: boolean | null;
+  beginYear?: number | null;
+  businessVolumeYear1?: number | null;
+  businessVolumeYear1Amount?: number | null;
+  businessVolumeYear2?: number | null;
+  businessVolumeYear2Amount?: number | null;
+  commercialRegistryValidDate?: string | null;
+  complexityLevelId?: number | null;
+  countryId?: string | null;
+  currencyId?: string | null;
+  deedDate?: string | null;
+  economicFinality?: string | null;
+  economicGroupId?: number | null;
+  employees?: number | null;
+  equityCapital?: number | null;
+  fiscalValidationCode?: string | null;
+  groupActivityTypeId?: number | null;
+  hasRealEstate?: boolean | null;
+  headQuartersCountryId?: string | null;
+  isListedCompany?: boolean | null;
+  isManagedByGovernment?: boolean | null;
+  isVATPayer?: boolean | null;
+  leafActivityTypeId?: number | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  publicContractObligation?: boolean | null;
+  publicSectorClassId?: number | null;
+  publicSectorId?: number | null;
+  registryDescription?: string | null;
+  /** Protected id (opaque token). */
+  registryEntityId?: string | null;
+  registryNumber?: string | null;
+};
+export type PhoneDto = {
+  areaCode?: string | null;
+  countryId?: string | null;
+  extension?: string | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  isInactive?: boolean | null;
+  isMain?: boolean | null;
+  lastCallMoment?: string | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  phoneNumber?: string | null;
+  phoneTypeId?: number | null;
+};
+export type EmailDto = {
+  consentToCommunicate?: boolean | null;
+  emailAddress?: string | null;
+  entityEmailTypeId?: number | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  invalidDate?: string | null;
+  isMain?: boolean | null;
+  isValidated?: boolean | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+};
+export type AddressLinesDto = {
+  street?: string | null;
+  others?: string | null;
+  postalCode?: string | null;
+  locality?: string | null;
+  country?: string | null;
+};
+export type AddressDetailsDto = {
+  street?: string | null;
+  streetNumber?: string | null;
+  houseNumber?: string | null;
+  building?: string | null;
+  apartment?: string | null;
+  occupiedPoint?: string | null;
+  place?: string | null;
+  poBox?: string | null;
+  postalCode?: string | null;
+  locality?: string | null;
+  parish?: string | null;
+  council?: string | null;
+  district?: string | null;
+  region?: string | null;
+  countryId?: string | null;
+  extraInfo?: string | null;
+  isPostal?: boolean;
+  isFiscal?: boolean;
+  isHeadquarters?: boolean;
+  isPoBox?: boolean;
+  isResidential?: boolean;
+};
+export type AddressDto = {
+  /** Protected id (opaque token). */
+  id?: string | null;
+  addressTypeId?: number | null;
+  singleLine?: string | null;
+  lines?: AddressLinesDto;
+  details?: AddressDetailsDto;
+};
+export type LegalDocDto = {
+  countryId?: string | null;
+  documentName?: string | null;
+  /** Protected id (opaque token). */
+  id?: string | null;
+  initialValidDate?: string | null;
+  isMain?: boolean | null;
+  isReadOnly?: boolean | null;
+  issueDate?: string | null;
+  issuedBy?: string | null;
+  /** Protected id (opaque token). */
+  issuerEntityId?: string | null;
+  legalDocControl?: string | null;
+  legalDocNumber?: string | null;
+  legalDocStateId?: number | null;
+  legalDocTypeId?: number | null;
+  numSeries?: string | null;
+  /** Protected id (opaque token). */
+  ownerId?: string | null;
+  validDate?: string | null;
+};
+export type CredOperIntervEntityDto = {
+  vatNumber?: string | null;
+  kind?: IntervEntityKind;
+  name?: string | null;
+  juridicalTypeId?: number | null;
+  person?: PersonDto;
+  company?: EntityCompanyDto;
+  phone?: PhoneDto;
+  email?: EmailDto;
+  fiscalAddress?: AddressDto;
+  postalAddress?: AddressDto;
+  legalDocs?: LegalDocDto[] | null;
+  availablePhones?: PhoneDto[] | null;
+  availableEmails?: EmailDto[] | null;
+  availableAddresses?: AddressDto[] | null;
+};
 export type CredOperIntervDto = {
   role?: CredOperIntervRole;
+  entity?: CredOperIntervEntityDto;
   agreementNumber?: string | null;
   arrearsRateId?: number | null;
   assetRetakeAmount?: number | null;
@@ -2036,53 +2654,6 @@ export type ExpenseDto = {
   wasModifiedByUser?: boolean | null;
   wasTaxInvoiced?: boolean | null;
 };
-export type EmailDto = {
-  consentToCommunicate?: boolean | null;
-  emailAddress?: string | null;
-  entityEmailTypeId?: number | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  invalidDate?: string | null;
-  isMain?: boolean | null;
-  isValidated?: boolean | null;
-  /** Protected id (opaque token). */
-  ownerId?: string | null;
-};
-export type PhoneDto = {
-  areaCode?: string | null;
-  countryId?: string | null;
-  extension?: string | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  isInactive?: boolean | null;
-  isMain?: boolean | null;
-  lastCallMoment?: string | null;
-  /** Protected id (opaque token). */
-  ownerId?: string | null;
-  phoneNumber?: string | null;
-  phoneTypeId?: number | null;
-};
-export type LegalDocDto = {
-  countryId?: string | null;
-  documentName?: string | null;
-  /** Protected id (opaque token). */
-  id?: string | null;
-  initialValidDate?: string | null;
-  isMain?: boolean | null;
-  isReadOnly?: boolean | null;
-  issueDate?: string | null;
-  issuedBy?: string | null;
-  /** Protected id (opaque token). */
-  issuerEntityId?: string | null;
-  legalDocControl?: string | null;
-  legalDocNumber?: string | null;
-  legalDocStateId?: number | null;
-  legalDocTypeId?: number | null;
-  numSeries?: string | null;
-  /** Protected id (opaque token). */
-  ownerId?: string | null;
-  validDate?: string | null;
-};
 export type CredOperDto = {
   /** Protected id (opaque token). */
   id?: string | null;
@@ -2098,6 +2669,10 @@ export type CredOperDto = {
   credOperChannelId?: number | null;
   currencyId?: string | null;
   hasFinConditions?: boolean | null;
+  correlationId?: string | null;
+  rowVersion?: string | null;
+  /** Protected id (opaque token). */
+  sourceCredOperId?: string | null;
   entryMoment?: string | null;
   entryDate?: string | null;
   autUserStateId?: number | null;
@@ -2108,13 +2683,10 @@ export type CredOperDto = {
   /** Protected id (opaque token). */
   importerStructNodeId?: string | null;
   /** Protected id (opaque token). */
-  localStructNodeId?: string | null;
+  branchStructNodeId?: string | null;
   credOperClassificationId?: number | null;
   entityName?: string | null;
   descr?: string | null;
-  /** Protected id (opaque token). */
-  personStructNodeId?: string | null;
-  personName?: string | null;
   conditions?: FinConditionsDto[] | null;
   assets?: CredOperAssetDto[] | null;
   interventions?: CredOperIntervDto[] | null;
@@ -2144,6 +2716,112 @@ export type CredOperSaveResultDto = {
   credOper?: CredOperDto;
   calculationMessages?: CalculationMessageDto[] | null;
   saveMessages?: CalculationMessageDto[] | null;
+};
+export type QuotationSummaryDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number | null;
+  aplCompanyId?: number | null;
+  aplBusinessId?: number | null;
+  credOperTypeId?: number | null;
+  financialProductId?: number | null;
+  amount?: number | null;
+  currencyId?: string | null;
+  beginDate?: string | null;
+  stateId?: number | null;
+  stateDate?: string | null;
+  /** Protected id (opaque token). */
+  customerEntityId?: string | null;
+  customerName?: string | null;
+};
+export type QuotationToProposalDto = {
+  proposal?: CredOperDto;
+  quotation?: QuotationSummaryDto;
+};
+export type EntityOptionDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+};
+export type PagedResultOfEntityOptionDto = {
+  items?: EntityOptionDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type PhoneTypeKind = "Landline" | "Mobile";
+export type PhoneTypeDto = {
+  kind?: PhoneTypeKind;
+  phoneTypeId?: number;
+};
+export type ActivityTypeDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+  contextId?: number | null;
+};
+export type PagedResultOfActivityTypeDto = {
+  items?: ActivityTypeDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type JuridicalTypeDto = {
+  id?: number;
+  abbreviation?: string | null;
+  description?: string | null;
+  countryId?: string | null;
+  hasActivity?: boolean;
+  activityTypeContextId?: number | null;
+};
+export type PagedResultOfJuridicalTypeDto = {
+  items?: JuridicalTypeDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type EntityPreloadDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  entityTypeId?: number | null;
+  name?: string | null;
+  person?: PersonDto;
+  company?: EntityCompanyDto;
+  phones?: PhoneDto[] | null;
+  emails?: EmailDto[] | null;
+  addresses?: AddressDto[] | null;
+};
+export type EntityLookupResultDto = {
+  exists?: boolean;
+  mobilePhone?: string | null;
+  email?: string | null;
+  kind?: IntervEntityKind;
+  kindMatches?: boolean;
+  preload?: EntityPreloadDto;
+};
+export type EntityLookupRequestDto = {
+  vatNumber?: string | null;
+  kind?: IntervEntityKind;
+};
+export type OtpSentDto = {
+  expiresAt?: string;
+  sentTo?: string | null;
+};
+export type OtpChannel = "Sms" | "Email";
+export type OtpSendRequestDto = {
+  vatNumber?: string | null;
+  channel?: OtpChannel;
+  kind?: IntervEntityKind;
+};
+export type OtpVerifyRequestDto = {
+  vatNumber?: string | null;
+  code?: string | null;
+  kind?: IntervEntityKind;
+};
+export type RetakeCalculation = "Amount" | "Percentage";
+export type EquipmentRetakeRequestDto = {
+  calculate?: RetakeCalculation;
+  asset?: CredOperAssetDto;
 };
 export type EquipmentClassDto = {
   id?: number;
@@ -2189,7 +2867,7 @@ export type NewsDto = {
   creationMoment?: string | null;
   lastChangeMoment?: string | null;
 };
-export type NewsDtoPagedResult = {
+export type PagedResultOfNewsDto = {
   items?: NewsDto[] | null;
   page?: number;
   pageSize?: number;
@@ -2228,6 +2906,167 @@ export type SaveScreenCustomizationRequest = {
   screenIdentifier?: MontraAplApplications;
   configuration?: ScreenCustomizationConfigurationDto;
 };
+export type StockSupplierDto = {
+  /** Protected id (opaque token). */
+  interventionId?: string;
+  /** Protected id (opaque token). */
+  entityId?: string | null;
+  name?: string | null;
+};
+export type StockRatePhaseDto = {
+  rate?: number | null;
+  fromDate?: string | null;
+};
+export type StockContractDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number | null;
+  description?: string | null;
+  companyId?: number | null;
+  companyAbbreviation?: string | null;
+  currencyId?: string | null;
+  suppliers?: StockSupplierDto[] | null;
+  availableAmount?: number;
+  totalAmount?: number;
+  maxPerVehicle?: number;
+  termDays?: number | null;
+  ratePhases?: StockRatePhaseDto[] | null;
+  equipmentStateIds?: number[] | null;
+  equipmentTypeIds?: number[] | null;
+  canAddStock?: boolean;
+};
+export type PagedResultOfStockContractDto = {
+  items?: StockContractDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type StockUnitDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  item?: number | null;
+  autUserStateId?: number | null;
+  amount?: number | null;
+  beginDate?: string | null;
+  dueDate?: string | null;
+  endDate?: string | null;
+};
+export type StockUnitSaveResultDto = {
+  isSaved?: boolean;
+  stock?: StockUnitDto;
+  messages?: CalculationMessageDto[] | null;
+};
+export type NewStockUnitDto = {
+  correlationId?: string | null;
+  /** Protected id (opaque token). */
+  supplierInterventionId?: string | null;
+  amount?: number | null;
+  equipment?: EquipmentDto;
+  km?: number | null;
+  invoiceNumber?: string | null;
+};
+export type StockCashFlowLineDto = {
+  number?: number | null;
+  valueDate?: string | null;
+  invoiceDate?: string | null;
+  capital?: number | null;
+  interest?: number | null;
+  taxAmount?: number | null;
+  amount?: number | null;
+  outstandingCapital?: number | null;
+};
+export type StockCashFlowOtherLineDto = {
+  valueDate?: string | null;
+  expenseAmount?: number | null;
+  taxAmount?: number | null;
+  amountWithTaxes?: number | null;
+};
+export type StockCashFlowDto = {
+  currencyId?: string | null;
+  initialDate?: string | null;
+  finalDate?: string | null;
+  rate?: number | null;
+  capital?: number | null;
+  plafondAmount?: number | null;
+  totalCapital?: number | null;
+  totalInterest?: number | null;
+  totalExpenses?: number | null;
+  totalTaxes?: number | null;
+  totalWithoutTaxes?: number | null;
+  totalWithTaxes?: number | null;
+  flows?: StockCashFlowLineDto[] | null;
+  otherFlows?: StockCashFlowOtherLineDto[] | null;
+};
+export type StockNettingAccountDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number | null;
+  relation?: string | null;
+  currencyId?: string | null;
+  plafondAmount?: number | null;
+  totalCapital?: number | null;
+  totalInterest?: number | null;
+  totalWithTaxes?: number | null;
+};
+export type StockPaymentEndReasonDto = {
+  id?: number;
+  name?: string | null;
+};
+export type StockPaymentResultDto = {
+  isStarted?: boolean;
+  isUncertain?: boolean;
+  /** Protected id (opaque token). */
+  paymentId?: string | null;
+  messages?: CalculationMessageDto[] | null;
+};
+export type NewStockPaymentDto = {
+  correlationId?: string | null;
+  /** Protected id (opaque token). */
+  nettingAccountId?: string | null;
+  /** Protected ids (opaque tokens). */
+  stockIds?: string[];
+  amount?: number | null;
+  endReasonId?: number | null;
+  valueDate?: string | null;
+  allowPartialPayment?: boolean;
+};
+export type StockPaymentStatusDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  status?: string | null;
+  isFinished?: boolean;
+  isSuccessful?: boolean;
+  stocksPaid?: number | null;
+  stocksInError?: number | null;
+  messages?: CalculationMessageDto[] | null;
+};
+export type StockUnitListItemDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  /** Protected id (opaque token). */
+  contractId?: string | null;
+  contractNumber?: number | null;
+  item?: number | null;
+  autUserStateId?: number | null;
+  state?: string | null;
+  amount?: number | null;
+  currencyId?: string | null;
+  beginDate?: string | null;
+  dueDate?: string | null;
+  endDate?: string | null;
+  supplierName?: string | null;
+  vin?: string | null;
+  licencePlate?: string | null;
+  brand?: string | null;
+  model?: string | null;
+  invoiceNumber?: string | null;
+};
+export type PagedResultOfStockUnitListItemDto = {
+  items?: StockUnitListItemDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
 export type StructNodeDto = {
   /** Protected id (opaque token). */
   id?: string;
@@ -2246,7 +3085,7 @@ export type StructScopeDto = {
   /** Protected ids (opaque tokens). */
   anchors?: string[];
 };
-export type StructNodeDtoPagedResult = {
+export type PagedResultOfStructNodeDto = {
   items?: StructNodeDto[] | null;
   page?: number;
   pageSize?: number;
@@ -2273,44 +3112,6 @@ export type ContactDto = {
   type?: string | null;
   value?: string | null;
   isPrimary?: boolean;
-};
-export type AddressLinesDto = {
-  street?: string | null;
-  others?: string | null;
-  postalCode?: string | null;
-  locality?: string | null;
-  country?: string | null;
-};
-export type AddressDetailsDto = {
-  street?: string | null;
-  streetNumber?: string | null;
-  houseNumber?: string | null;
-  building?: string | null;
-  apartment?: string | null;
-  occupiedPoint?: string | null;
-  place?: string | null;
-  poBox?: string | null;
-  postalCode?: string | null;
-  locality?: string | null;
-  parish?: string | null;
-  council?: string | null;
-  district?: string | null;
-  region?: string | null;
-  countryId?: string | null;
-  extraInfo?: string | null;
-  isPostal?: boolean;
-  isFiscal?: boolean;
-  isHeadquarters?: boolean;
-  isPoBox?: boolean;
-  isResidential?: boolean;
-};
-export type AddressDto = {
-  /** Protected id (opaque token). */
-  id?: string | null;
-  addressTypeId?: number | null;
-  singleLine?: string | null;
-  lines?: AddressLinesDto;
-  details?: AddressDetailsDto;
 };
 export type UserContactsDto = {
   emails?: EmailDto[] | null;
@@ -2400,7 +3201,7 @@ export type WorkItemDto = {
   companyId?: number | null;
   company?: string | null;
 };
-export type WorkItemDtoPagedResult = {
+export type PagedResultOfWorkItemDto = {
   items?: WorkItemDto[] | null;
   page?: number;
   pageSize?: number;
@@ -2441,6 +3242,7 @@ export const {
   useGetApiCompaniesCountriesQuery,
   useGetApiCreditOperationsClassificationsQuery,
   useGetApiCreditOperationsBusinessesQuery,
+  useGetApiCreditOperationsAssetTypesQuery,
   useGetApiCreditOperationsSearchQuery,
   useGetApiCreditOperationsNewCredoperQuery,
   useGetApiCreditOperationsNewInterventionQuery,
@@ -2448,7 +3250,19 @@ export const {
   usePostApiCreditOperationsCalculateCredoperMutation,
   usePostApiCreditOperationsSaveCredoperMutation,
   useGetApiCreditOperationsCredoperByIdQuery,
+  useGetApiCreditOperationsCredoperByIdQuotationToProposalQuery,
+  useGetApiEntitiesGendersQuery,
+  useGetApiEntitiesMaritalStatusesQuery,
+  useGetApiEntitiesProfessionsQuery,
+  useGetApiEntitiesLegalDocTypesQuery,
+  useGetApiEntitiesPhoneTypesQuery,
+  useGetApiEntitiesActivityTypesQuery,
+  useGetApiEntitiesJuridicalTypesQuery,
+  usePostApiEntitiesLookupMutation,
+  usePostApiEntitiesOtpMutation,
+  usePostApiEntitiesOtpVerifyMutation,
   useGetApiEquipmentsNewQuery,
+  usePostApiEquipmentsRetakeMutation,
   useGetApiEquipmentsCategoriesQuery,
   useGetApiEquipmentsTypesQuery,
   useGetApiEquipmentsBrandsQuery,
@@ -2465,6 +3279,16 @@ export const {
   useGetApiNewsByIdImageQuery,
   useGetApiParametrizationScreenCustomizationsQuery,
   usePostApiParametrizationScreenCustomizationsMutation,
+  useGetApiStockContractsQuery,
+  usePostApiStockContractsByIdUnitsMutation,
+  useGetApiStockContractsByIdCashFlowQuery,
+  useGetApiStockContractsByIdNettingAccountsQuery,
+  useGetApiStockContractsByIdPaymentEndReasonsQuery,
+  usePostApiStockPaymentsMutation,
+  useGetApiStockPaymentsByIdQuery,
+  useGetApiStockUnitsQuery,
+  useGetApiStockUnitsByIdQuery,
+  useGetApiStockUnitsByIdCashFlowQuery,
   useGetApiStructNodesMeQuery,
   useGetApiStructNodesIntermediariesQuery,
   useGetApiStructNodesIntermediariesByIdSuppliersQuery,
