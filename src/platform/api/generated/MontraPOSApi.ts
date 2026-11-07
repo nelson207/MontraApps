@@ -344,6 +344,74 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/api/credit-operations/credoper/${queryArg.id}/quotation-to-proposal`,
       }),
     }),
+    getApiCustomerPortalDashboard: build.query<
+      GetApiCustomerPortalDashboardApiResponse,
+      GetApiCustomerPortalDashboardApiArg
+    >({
+      query: () => ({ url: `/api/customer-portal/dashboard` }),
+    }),
+    getApiCustomerPortalContracts: build.query<
+      GetApiCustomerPortalContractsApiResponse,
+      GetApiCustomerPortalContractsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/customer-portal/contracts`,
+        params: {
+          role: queryArg.role,
+        },
+      }),
+    }),
+    getApiCustomerPortalContractsById: build.query<
+      GetApiCustomerPortalContractsByIdApiResponse,
+      GetApiCustomerPortalContractsByIdApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/customer-portal/contracts/${queryArg.id}`,
+      }),
+    }),
+    getApiCustomerPortalContractsByIdCashFlow: build.query<
+      GetApiCustomerPortalContractsByIdCashFlowApiResponse,
+      GetApiCustomerPortalContractsByIdCashFlowApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/customer-portal/contracts/${queryArg.id}/cash-flow`,
+        params: {
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+          from: queryArg["from"],
+          to: queryArg.to,
+          status: queryArg.status,
+        },
+      }),
+    }),
+    getApiCustomerPortalContractsByIdDocuments: build.query<
+      GetApiCustomerPortalContractsByIdDocumentsApiResponse,
+      GetApiCustomerPortalContractsByIdDocumentsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/customer-portal/contracts/${queryArg.id}/documents`,
+        params: {
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiCustomerPortalDocumentsById: build.query<
+      GetApiCustomerPortalDocumentsByIdApiResponse,
+      GetApiCustomerPortalDocumentsByIdApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/customer-portal/documents/${queryArg.id}`,
+      }),
+    }),
+    getApiCustomerPortalDocumentsByIdPdf: build.query<
+      GetApiCustomerPortalDocumentsByIdPdfApiResponse,
+      GetApiCustomerPortalDocumentsByIdPdfApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/customer-portal/documents/${queryArg.id}/pdf`,
+      }),
+    }),
     getApiEntitiesGenders: build.query<
       GetApiEntitiesGendersApiResponse,
       GetApiEntitiesGendersApiArg
@@ -1239,6 +1307,45 @@ export type GetApiCreditOperationsCredoperByIdApiArg = {
 export type GetApiCreditOperationsCredoperByIdQuotationToProposalApiResponse =
   /** status 200 OK */ QuotationToProposalDto;
 export type GetApiCreditOperationsCredoperByIdQuotationToProposalApiArg = {
+  id: string;
+};
+export type GetApiCustomerPortalDashboardApiResponse =
+  /** status 200 OK */ CustomerDashboardDto;
+export type GetApiCustomerPortalDashboardApiArg = void;
+export type GetApiCustomerPortalContractsApiResponse =
+  /** status 200 OK */ CustomerContractsDto;
+export type GetApiCustomerPortalContractsApiArg = {
+  role?: CustomerPortalRole;
+};
+export type GetApiCustomerPortalContractsByIdApiResponse =
+  /** status 200 OK */ CustomerContractDto;
+export type GetApiCustomerPortalContractsByIdApiArg = {
+  id: string;
+};
+export type GetApiCustomerPortalContractsByIdCashFlowApiResponse =
+  /** status 200 OK */ CustomerCashFlowDto;
+export type GetApiCustomerPortalContractsByIdCashFlowApiArg = {
+  id: string;
+  page?: number;
+  pageSize?: number;
+  from?: string;
+  to?: string;
+  status?: InstallmentStatus[];
+};
+export type GetApiCustomerPortalContractsByIdDocumentsApiResponse =
+  /** status 200 OK */ CustomerDocumentsDto;
+export type GetApiCustomerPortalContractsByIdDocumentsApiArg = {
+  id: string;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiCustomerPortalDocumentsByIdApiResponse =
+  /** status 200 OK */ CustomerDocumentDetailDto;
+export type GetApiCustomerPortalDocumentsByIdApiArg = {
+  id: string;
+};
+export type GetApiCustomerPortalDocumentsByIdPdfApiResponse = unknown;
+export type GetApiCustomerPortalDocumentsByIdPdfApiArg = {
   id: string;
 };
 export type GetApiEntitiesGendersApiResponse =
@@ -2929,6 +3036,233 @@ export type QuotationToProposalDto = {
   proposal?: CredOperDto;
   quotation?: QuotationSummaryDto;
 };
+export type CustomerNextPaymentDto = {
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number;
+  amount?: number;
+  dueDate?: string;
+};
+export type CustomerGuarantorTotalsDto = {
+  stillOwed?: number;
+  overdueAmount?: number;
+  contracts?: number;
+};
+export type CustomerTotalsDto = {
+  currencyId?: string | null;
+  nextPayment?: CustomerNextPaymentDto;
+  overdueAmount?: number;
+  overdueContracts?: number;
+  stillOwed?: number;
+  stillOwedContracts?: number;
+  paidEachMonth?: number;
+  guarantor?: CustomerGuarantorTotalsDto;
+};
+export type CustomerOverdueContractDto = {
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number;
+  amount?: number;
+  currencyId?: string | null;
+};
+export type CustomerMonthlyPaymentDto = {
+  month?: string;
+  currencyId?: string | null;
+  amount?: number;
+};
+export type CustomerPortalRole = "Customer" | "SecondHolder" | "Guarantor";
+export type CustomerComingUpDto = {
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number;
+  businessName?: string | null;
+  role?: CustomerPortalRole;
+  amount?: number;
+  currencyId?: string | null;
+  dueDate?: string;
+};
+export type CustomerOwedByContractDto = {
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number;
+  businessName?: string | null;
+  amount?: number;
+  currencyId?: string | null;
+};
+export type CustomerRepaidDto = {
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number;
+  role?: CustomerPortalRole;
+  paidInstallments?: number;
+  totalInstallments?: number;
+  hasOverdue?: boolean;
+  endDate?: string | null;
+  stillOwed?: number;
+  currencyId?: string | null;
+};
+export type CustomerDashboardDto = {
+  asOf?: string;
+  totals?: CustomerTotalsDto[] | null;
+  overdueContracts?: CustomerOverdueContractDto[] | null;
+  monthlyPayments?: CustomerMonthlyPaymentDto[] | null;
+  comingUp?: CustomerComingUpDto[] | null;
+  stillOwedByContract?: CustomerOwedByContractDto[] | null;
+  repaid?: CustomerRepaidDto[] | null;
+};
+export type CustomerContractPaymentDto = {
+  amount?: number;
+  dueDate?: string;
+};
+export type CustomerContractCardDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number;
+  role?: CustomerPortalRole;
+  businessName?: string | null;
+  productName?: string | null;
+  financialCompany?: string | null;
+  assetDescription?: string | null;
+  licencePlate?: string | null;
+  customerName?: string | null;
+  nextPayment?: CustomerContractPaymentDto;
+  stillOwed?: number;
+  overdueAmount?: number;
+  overdueInstallments?: number;
+  paidInstallments?: number;
+  totalInstallments?: number;
+  currencyId?: string | null;
+  isActive?: boolean;
+};
+export type CustomerRoleCountDto = {
+  role?: CustomerPortalRole;
+  count?: number;
+};
+export type CustomerContractsDto = {
+  items?: CustomerContractCardDto[] | null;
+  counts?: CustomerRoleCountDto[] | null;
+  asOf?: string;
+};
+export type CustomerPersonDto = {
+  name?: string | null;
+  role?: CustomerPortalRole;
+};
+export type CustomerContractDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number;
+  role?: CustomerPortalRole;
+  businessName?: string | null;
+  productName?: string | null;
+  financialCompany?: string | null;
+  assetDescription?: string | null;
+  licencePlate?: string | null;
+  customerName?: string | null;
+  nextPayment?: CustomerContractPaymentDto;
+  stillOwed?: number;
+  overdueAmount?: number;
+  overdueInstallments?: number;
+  paidInstallments?: number;
+  totalInstallments?: number;
+  currencyId?: string | null;
+  isActive?: boolean;
+  financedAmount?: number | null;
+  monthlyPayment?: number | null;
+  termMonths?: number | null;
+  nominalRate?: number | null;
+  effectiveRate?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  paymentMethod?: string | null;
+  maskedAccount?: string | null;
+  people?: CustomerPersonDto[] | null;
+  asOf?: string;
+};
+export type InstallmentStatus =
+  "Paid" | "Overdue" | "InCollection" | "NotInvoiced" | "Next" | "Scheduled";
+export type CustomerInstallmentDto = {
+  number?: number;
+  dueDate?: string;
+  principal?: number;
+  interest?: number;
+  fees?: number;
+  payment?: number;
+  balance?: number;
+  status?: InstallmentStatus;
+  flowClass?: string | null;
+};
+export type CustomerCashFlowDto = {
+  asOf?: string;
+  currencyId?: string | null;
+  nextPayment?: CustomerContractPaymentDto;
+  overdueAmount?: number;
+  paidAmount?: number;
+  paidInstallments?: number;
+  overdueInstallments?: number;
+  totalInstallments?: number;
+  stillToPay?: number;
+  unpaidInstallments?: number;
+  stillOwed?: number;
+  installments?: CustomerInstallmentDto[] | null;
+  nextPosition?: number | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type CustomerDocumentStatus =
+  "Paid" | "Overdue" | "Open" | "InCollection";
+export type CustomerDocumentDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  typeCode?: string | null;
+  typeName?: string | null;
+  number?: string | null;
+  description?: string | null;
+  installmentNumber?: number | null;
+  issueDate?: string | null;
+  dueDate?: string | null;
+  total?: number;
+  currencyId?: string | null;
+  status?: CustomerDocumentStatus;
+  hasPdf?: boolean;
+};
+export type CustomerDocumentsDto = {
+  items?: CustomerDocumentDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+  asOf?: string;
+};
+export type CustomerDocumentLineDto = {
+  description?: string | null;
+  taxRate?: number | null;
+  isExempt?: boolean;
+  amount?: number;
+};
+export type CustomerDocumentDetailDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  typeCode?: string | null;
+  typeName?: string | null;
+  number?: string | null;
+  description?: string | null;
+  installmentNumber?: number | null;
+  issueDate?: string | null;
+  dueDate?: string | null;
+  total?: number;
+  currencyId?: string | null;
+  status?: CustomerDocumentStatus;
+  hasPdf?: boolean;
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number;
+  lines?: CustomerDocumentLineDto[] | null;
+  net?: number;
+  tax?: number;
+  paymentMethod?: string | null;
+  maskedAccount?: string | null;
+  asOf?: string;
+};
 export type EntityOptionDto = {
   id?: number;
   abbreviation?: string | null;
@@ -3668,6 +4002,13 @@ export const {
   usePostApiCreditOperationsSaveCredoperMutation,
   useGetApiCreditOperationsCredoperByIdQuery,
   useGetApiCreditOperationsCredoperByIdQuotationToProposalQuery,
+  useGetApiCustomerPortalDashboardQuery,
+  useGetApiCustomerPortalContractsQuery,
+  useGetApiCustomerPortalContractsByIdQuery,
+  useGetApiCustomerPortalContractsByIdCashFlowQuery,
+  useGetApiCustomerPortalContractsByIdDocumentsQuery,
+  useGetApiCustomerPortalDocumentsByIdQuery,
+  useGetApiCustomerPortalDocumentsByIdPdfQuery,
   useGetApiEntitiesGendersQuery,
   useGetApiEntitiesMaritalStatusesQuery,
   useGetApiEntitiesProfessionsQuery,

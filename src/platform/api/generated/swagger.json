@@ -1575,6 +1575,300 @@
         }
       }
     },
+    "/api/customer-portal/dashboard": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDashboardDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDashboardDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDashboardDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer-portal/contracts": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CustomerPortalRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerContractsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerContractsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerContractsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer-portal/contracts/{id}": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerContractDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerContractDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerContractDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer-portal/contracts/{id}/cash-flow": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/InstallmentStatus"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerCashFlowDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerCashFlowDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerCashFlowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer-portal/contracts/{id}/documents": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocumentsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocumentsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocumentsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer-portal/documents/{id}": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocumentDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocumentDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDocumentDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customer-portal/documents/{id}/pdf": {
+      "get": {
+        "tags": ["CustomerPortal"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/entities/genders": {
       "get": {
         "tags": ["Entities"],
@@ -6745,6 +7039,852 @@
         ],
         "type": "string"
       },
+      "CustomerCashFlowDto": {
+        "type": "object",
+        "properties": {
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nextPayment": {
+            "$ref": "#/components/schemas/CustomerContractPaymentDto"
+          },
+          "overdueAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "paidAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "paidInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overdueInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stillToPay": {
+            "type": "number",
+            "format": "double"
+          },
+          "unpaidInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stillOwed": {
+            "type": "number",
+            "format": "double"
+          },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerInstallmentDto"
+            },
+            "nullable": true
+          },
+          "nextPosition": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerComingUpDto": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "businessName": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/CustomerPortalRole"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerContractCardDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "role": {
+            "$ref": "#/components/schemas/CustomerPortalRole"
+          },
+          "businessName": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "financialCompany": {
+            "type": "string",
+            "nullable": true
+          },
+          "assetDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "nextPayment": {
+            "$ref": "#/components/schemas/CustomerContractPaymentDto"
+          },
+          "stillOwed": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdueAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdueInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paidInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerContractDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "role": {
+            "$ref": "#/components/schemas/CustomerPortalRole"
+          },
+          "businessName": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "financialCompany": {
+            "type": "string",
+            "nullable": true
+          },
+          "assetDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "licencePlate": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "nextPayment": {
+            "$ref": "#/components/schemas/CustomerContractPaymentDto"
+          },
+          "stillOwed": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdueAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdueInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paidInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "financedAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "monthlyPayment": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "termMonths": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nominalRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "effectiveRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "maskedAccount": {
+            "type": "string",
+            "nullable": true
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerPersonDto"
+            },
+            "nullable": true
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerContractPaymentDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerContractsDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerContractCardDto"
+            },
+            "nullable": true
+          },
+          "counts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerRoleCountDto"
+            },
+            "nullable": true
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerDashboardDto": {
+        "type": "object",
+        "properties": {
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerTotalsDto"
+            },
+            "nullable": true
+          },
+          "overdueContracts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerOverdueContractDto"
+            },
+            "nullable": true
+          },
+          "monthlyPayments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerMonthlyPaymentDto"
+            },
+            "nullable": true
+          },
+          "comingUp": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerComingUpDto"
+            },
+            "nullable": true
+          },
+          "stillOwedByContract": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerOwedByContractDto"
+            },
+            "nullable": true
+          },
+          "repaid": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerRepaidDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerDocumentDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "typeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "number": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "installmentNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/CustomerDocumentStatus"
+          },
+          "hasPdf": {
+            "type": "boolean"
+          },
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerDocumentLineDto"
+            },
+            "nullable": true
+          },
+          "net": {
+            "type": "number",
+            "format": "double"
+          },
+          "tax": {
+            "type": "number",
+            "format": "double"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "maskedAccount": {
+            "type": "string",
+            "nullable": true
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerDocumentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "typeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "number": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "installmentNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/CustomerDocumentStatus"
+          },
+          "hasPdf": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerDocumentLineDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxRate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "isExempt": {
+            "type": "boolean"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerDocumentStatus": {
+        "enum": ["Paid", "Overdue", "Open", "InCollection"],
+        "type": "string"
+      },
+      "CustomerDocumentsDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerDocumentDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerGuarantorTotalsDto": {
+        "type": "object",
+        "properties": {
+          "stillOwed": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdueAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "contracts": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerInstallmentDto": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "principal": {
+            "type": "number",
+            "format": "double"
+          },
+          "interest": {
+            "type": "number",
+            "format": "double"
+          },
+          "fees": {
+            "type": "number",
+            "format": "double"
+          },
+          "payment": {
+            "type": "number",
+            "format": "double"
+          },
+          "balance": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InstallmentStatus"
+          },
+          "flowClass": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerMonthlyPaymentDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerNextPaymentDto": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerOverdueContractDto": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerOwedByContractDto": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "businessName": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerPersonDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/CustomerPortalRole"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerPortalRole": {
+        "enum": ["Customer", "SecondHolder", "Guarantor"],
+        "type": "string"
+      },
+      "CustomerRepaidDto": {
+        "type": "object",
+        "properties": {
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "role": {
+            "$ref": "#/components/schemas/CustomerPortalRole"
+          },
+          "paidInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalInstallments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasOverdue": {
+            "type": "boolean"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "stillOwed": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerRoleCountDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/CustomerPortalRole"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerTotalsDto": {
+        "type": "object",
+        "properties": {
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nextPayment": {
+            "$ref": "#/components/schemas/CustomerNextPaymentDto"
+          },
+          "overdueAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdueContracts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stillOwed": {
+            "type": "number",
+            "format": "double"
+          },
+          "stillOwedContracts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paidEachMonth": {
+            "type": "number",
+            "format": "double"
+          },
+          "guarantor": {
+            "$ref": "#/components/schemas/CustomerGuarantorTotalsDto"
+          }
+        },
+        "additionalProperties": false
+      },
       "EmailConfirmationRequest": {
         "type": "object",
         "properties": {
@@ -10014,6 +11154,17 @@
         },
         "additionalProperties": false
       },
+      "InstallmentStatus": {
+        "enum": [
+          "Paid",
+          "Overdue",
+          "InCollection",
+          "NotInvoiced",
+          "Next",
+          "Scheduled"
+        ],
+        "type": "string"
+      },
       "InsurancePolicyDto": {
         "type": "object",
         "properties": {
@@ -12969,6 +14120,9 @@
     },
     {
       "name": "CreditOperations"
+    },
+    {
+      "name": "CustomerPortal"
     },
     {
       "name": "Entities"
