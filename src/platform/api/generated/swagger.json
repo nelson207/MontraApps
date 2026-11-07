@@ -2533,6 +2533,597 @@
         }
       }
     },
+    "/api/factoring/contracts": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FactoringKind"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringContractDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringContractDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringContractDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/contracts/{id}/counterparties": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          },
+          {
+            "name": "includePending",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FactoringCounterpartyDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FactoringCounterpartyDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FactoringCounterpartyDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringCounterpartyDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringCounterpartyDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringCounterpartyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCounterpartyResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCounterpartyResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCounterpartyResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/contracts/{id}/cessions": {
+      "post": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringCessionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringCessionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringCessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCessionResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCessionResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCessionResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/contracts/{id}/advances/summary": {
+      "post": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactoringAdvanceSummaryRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactoringAdvanceSummaryRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactoringAdvanceSummaryRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceSummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/contracts/{id}/advances": {
+      "post": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringAdvanceDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringAdvanceDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFactoringAdvanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/advances": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringAdvanceDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringAdvanceDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringAdvanceDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/advances/batches/{id}": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceBatchDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceBatchDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringAdvanceBatchDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/documents": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FactoringKind"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FactoringDocumentStatus"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringDocumentPageDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringDocumentPageDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringDocumentPageDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/cessions": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "contractId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token).",
+              "nullable": true
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringCessionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringCessionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfFactoringCessionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/factoring/cessions/{id}": {
+      "get": {
+        "tags": ["Factoring"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Protected id (opaque token)."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCessionDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCessionDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactoringCessionDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/financial-products": {
       "get": {
         "tags": ["FinancialProduct"],
@@ -7671,6 +8262,665 @@
         },
         "additionalProperties": false
       },
+      "FactoringAdvanceBatchDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFinished": {
+            "type": "boolean"
+          },
+          "isSuccessful": {
+            "type": "boolean"
+          },
+          "advanceId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "advanceStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          },
+          "result": {
+            "$ref": "#/components/schemas/FactoringAdvanceBatchResult"
+          },
+          "advanceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protected ids (opaque tokens)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringAdvanceBatchResult": {
+        "enum": ["Running", "Succeeded", "Failed", "Unknown"],
+        "type": "string"
+      },
+      "FactoringAdvanceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringAdvanceResultDto": {
+        "type": "object",
+        "properties": {
+          "isStarted": {
+            "type": "boolean"
+          },
+          "isUncertain": {
+            "type": "boolean"
+          },
+          "advanceId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "batchId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringAdvanceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "netAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "interestAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "commissionAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "discountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "isucAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "regularizationAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "netCost": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringAdvanceSummaryLineDto"
+            },
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          },
+          "maxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "availableAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "plafondAvailableAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "costsAvailable": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringAdvanceSummaryLineDto": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "advanceAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringAdvanceSummaryRequestDto": {
+        "type": "object",
+        "properties": {
+          "documentIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protected ids (opaque tokens)."
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCessionDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "balance": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FactoringCessionStatus"
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringDocumentDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "balance": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FactoringCessionStatus"
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCessionResultDto": {
+        "type": "object",
+        "properties": {
+          "isSubmitted": {
+            "type": "boolean"
+          },
+          "isUncertain": {
+            "type": "boolean"
+          },
+          "cessionId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "cessionNumber": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCessionStatus": {
+        "enum": [
+          "Unknown",
+          "Open",
+          "Submitted",
+          "Active",
+          "Cancelled",
+          "InProgress"
+        ],
+        "type": "string"
+      },
+      "FactoringContractDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FactoringKind"
+          },
+          "financialInstitution": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "withoutRecourse": {
+            "type": "boolean"
+          },
+          "availableAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "withoutRecourseAvailableAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "withoutRecourseTotalAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "advancePercentage": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxTermDays": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rate": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "canSubmit": {
+            "type": "boolean"
+          },
+          "canAdvance": {
+            "type": "boolean"
+          },
+          "hasAdvanceInProgress": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCounterpartyDto": {
+        "type": "object",
+        "properties": {
+          "interventionId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FactoringCounterpartyKind"
+          },
+          "availableAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "withoutRecourseAvailableAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "withoutRecourseTotalAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/FactoringCounterpartyState"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCounterpartyKind": {
+        "enum": ["Debtor", "Supplier"],
+        "type": "string"
+      },
+      "FactoringCounterpartyResultDto": {
+        "type": "object",
+        "properties": {
+          "isAdded": {
+            "type": "boolean"
+          },
+          "isUncertain": {
+            "type": "boolean"
+          },
+          "counterparty": {
+            "$ref": "#/components/schemas/FactoringCounterpartyDto"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalculationMessageDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringCounterpartyState": {
+        "enum": ["Active", "Pending", "Ended"],
+        "type": "string"
+      },
+      "FactoringDocumentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "cessionId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "cessionNumber": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "counterparty": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "contractId": {
+            "type": "string",
+            "description": "Protected id (opaque token)."
+          },
+          "contractNumber": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FactoringKind"
+          },
+          "financialInstitution": {
+            "type": "string",
+            "nullable": true
+          },
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "amountNotPaid": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "advancedAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/FactoringDocumentStatus"
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringDocumentPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringDocumentDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "outstandingAmounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringOutstandingDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactoringDocumentStatus": {
+        "enum": [
+          "Submitted",
+          "Approved",
+          "Financed",
+          "Paid",
+          "Overdue",
+          "Attention",
+          "Closed"
+        ],
+        "type": "string"
+      },
+      "FactoringKind": {
+        "enum": ["Factoring", "Confirming"],
+        "type": "string"
+      },
+      "FactoringOutstandingDto": {
+        "type": "object",
+        "properties": {
+          "currencyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "FinConditionsDto": {
         "type": "object",
         "properties": {
@@ -9452,6 +10702,97 @@
         ],
         "type": "string"
       },
+      "NewFactoringAdvanceDto": {
+        "required": ["correlationId"],
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "documentIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protected ids (opaque tokens)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "NewFactoringCessionDto": {
+        "required": ["correlationId"],
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supplierInterventionId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewFactoringDocumentDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NewFactoringCounterpartyDto": {
+        "type": "object",
+        "properties": {
+          "taxNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NewFactoringDocumentDto": {
+        "type": "object",
+        "properties": {
+          "debtorInterventionId": {
+            "type": "string",
+            "description": "Protected id (opaque token).",
+            "nullable": true
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "NewInterventionKind": {
         "enum": ["Customer", "SecondHolder", "Guarantor"],
         "type": "string"
@@ -9719,6 +11060,81 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EntityOptionDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfFactoringAdvanceDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringAdvanceDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfFactoringCessionDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringCessionDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedResultOfFactoringContractDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactoringContractDto"
             },
             "nullable": true
           },
@@ -11559,6 +12975,9 @@
     },
     {
       "name": "Equipment"
+    },
+    {
+      "name": "Factoring"
     },
     {
       "name": "FinancialProduct"

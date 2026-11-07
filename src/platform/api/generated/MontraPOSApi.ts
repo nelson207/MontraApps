@@ -556,6 +556,126 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: () => ({ url: `/api/equipments/states` }),
     }),
+    getApiFactoringContracts: build.query<
+      GetApiFactoringContractsApiResponse,
+      GetApiFactoringContractsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/contracts`,
+        params: {
+          kind: queryArg.kind,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiFactoringContractsByIdCounterparties: build.query<
+      GetApiFactoringContractsByIdCounterpartiesApiResponse,
+      GetApiFactoringContractsByIdCounterpartiesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/contracts/${queryArg.id}/counterparties`,
+        params: {
+          includePending: queryArg.includePending,
+        },
+      }),
+    }),
+    postApiFactoringContractsByIdCounterparties: build.mutation<
+      PostApiFactoringContractsByIdCounterpartiesApiResponse,
+      PostApiFactoringContractsByIdCounterpartiesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/contracts/${queryArg.id}/counterparties`,
+        method: "POST",
+        body: queryArg.newFactoringCounterpartyDto,
+      }),
+    }),
+    postApiFactoringContractsByIdCessions: build.mutation<
+      PostApiFactoringContractsByIdCessionsApiResponse,
+      PostApiFactoringContractsByIdCessionsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/contracts/${queryArg.id}/cessions`,
+        method: "POST",
+        body: queryArg.newFactoringCessionDto,
+      }),
+    }),
+    postApiFactoringContractsByIdAdvancesSummary: build.mutation<
+      PostApiFactoringContractsByIdAdvancesSummaryApiResponse,
+      PostApiFactoringContractsByIdAdvancesSummaryApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/contracts/${queryArg.id}/advances/summary`,
+        method: "POST",
+        body: queryArg.factoringAdvanceSummaryRequestDto,
+      }),
+    }),
+    postApiFactoringContractsByIdAdvances: build.mutation<
+      PostApiFactoringContractsByIdAdvancesApiResponse,
+      PostApiFactoringContractsByIdAdvancesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/contracts/${queryArg.id}/advances`,
+        method: "POST",
+        body: queryArg.newFactoringAdvanceDto,
+      }),
+    }),
+    getApiFactoringAdvances: build.query<
+      GetApiFactoringAdvancesApiResponse,
+      GetApiFactoringAdvancesApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/advances`,
+        params: {
+          contractId: queryArg.contractId,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiFactoringAdvancesBatchesById: build.query<
+      GetApiFactoringAdvancesBatchesByIdApiResponse,
+      GetApiFactoringAdvancesBatchesByIdApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/advances/batches/${queryArg.id}`,
+      }),
+    }),
+    getApiFactoringDocuments: build.query<
+      GetApiFactoringDocumentsApiResponse,
+      GetApiFactoringDocumentsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/documents`,
+        params: {
+          contractId: queryArg.contractId,
+          kind: queryArg.kind,
+          status: queryArg.status,
+          search: queryArg.search,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiFactoringCessions: build.query<
+      GetApiFactoringCessionsApiResponse,
+      GetApiFactoringCessionsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/factoring/cessions`,
+        params: {
+          contractId: queryArg.contractId,
+          page: queryArg.page,
+          pageSize: queryArg.pageSize,
+        },
+      }),
+    }),
+    getApiFactoringCessionsById: build.query<
+      GetApiFactoringCessionsByIdApiResponse,
+      GetApiFactoringCessionsByIdApiArg
+    >({
+      query: (queryArg) => ({ url: `/api/factoring/cessions/${queryArg.id}` }),
+    }),
     getApiFinancialProducts: build.query<
       GetApiFinancialProductsApiResponse,
       GetApiFinancialProductsApiArg
@@ -1234,6 +1354,77 @@ export type GetApiEquipmentsVersionsApiArg = {
 export type GetApiEquipmentsStatesApiResponse =
   /** status 200 OK */ EquipmentClassDto[];
 export type GetApiEquipmentsStatesApiArg = void;
+export type GetApiFactoringContractsApiResponse =
+  /** status 200 OK */ PagedResultOfFactoringContractDto;
+export type GetApiFactoringContractsApiArg = {
+  kind?: FactoringKind;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiFactoringContractsByIdCounterpartiesApiResponse =
+  /** status 200 OK */ FactoringCounterpartyDto[];
+export type GetApiFactoringContractsByIdCounterpartiesApiArg = {
+  id: string;
+  includePending?: boolean;
+};
+export type PostApiFactoringContractsByIdCounterpartiesApiResponse =
+  /** status 200 OK */ FactoringCounterpartyResultDto;
+export type PostApiFactoringContractsByIdCounterpartiesApiArg = {
+  id: string;
+  newFactoringCounterpartyDto: NewFactoringCounterpartyDto;
+};
+export type PostApiFactoringContractsByIdCessionsApiResponse =
+  /** status 200 OK */ FactoringCessionResultDto;
+export type PostApiFactoringContractsByIdCessionsApiArg = {
+  id: string;
+  newFactoringCessionDto: NewFactoringCessionDto;
+};
+export type PostApiFactoringContractsByIdAdvancesSummaryApiResponse =
+  /** status 200 OK */ FactoringAdvanceSummaryDto;
+export type PostApiFactoringContractsByIdAdvancesSummaryApiArg = {
+  id: string;
+  factoringAdvanceSummaryRequestDto: FactoringAdvanceSummaryRequestDto;
+};
+export type PostApiFactoringContractsByIdAdvancesApiResponse =
+  /** status 200 OK */ FactoringAdvanceResultDto;
+export type PostApiFactoringContractsByIdAdvancesApiArg = {
+  id: string;
+  newFactoringAdvanceDto: NewFactoringAdvanceDto;
+};
+export type GetApiFactoringAdvancesApiResponse =
+  /** status 200 OK */ PagedResultOfFactoringAdvanceDto;
+export type GetApiFactoringAdvancesApiArg = {
+  contractId?: string | null;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiFactoringAdvancesBatchesByIdApiResponse =
+  /** status 200 OK */ FactoringAdvanceBatchDto;
+export type GetApiFactoringAdvancesBatchesByIdApiArg = {
+  id: string;
+};
+export type GetApiFactoringDocumentsApiResponse =
+  /** status 200 OK */ FactoringDocumentPageDto;
+export type GetApiFactoringDocumentsApiArg = {
+  contractId?: string | null;
+  kind?: FactoringKind;
+  status?: FactoringDocumentStatus;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiFactoringCessionsApiResponse =
+  /** status 200 OK */ PagedResultOfFactoringCessionDto;
+export type GetApiFactoringCessionsApiArg = {
+  contractId?: string | null;
+  page?: number;
+  pageSize?: number;
+};
+export type GetApiFactoringCessionsByIdApiResponse =
+  /** status 200 OK */ FactoringCessionDetailDto;
+export type GetApiFactoringCessionsByIdApiArg = {
+  id: string;
+};
 export type GetApiFinancialProductsApiResponse =
   /** status 200 OK */ FinancialProductDto[];
 export type GetApiFinancialProductsApiArg = {
@@ -2833,6 +3024,232 @@ export type EquipmentOptionDto = {
   abbreviation?: string | null;
   description?: string | null;
 };
+export type FactoringKind = "Factoring" | "Confirming";
+export type FactoringContractDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number | null;
+  kind?: FactoringKind;
+  financialInstitution?: string | null;
+  currencyId?: string | null;
+  withoutRecourse?: boolean;
+  availableAmount?: number | null;
+  totalAmount?: number | null;
+  withoutRecourseAvailableAmount?: number | null;
+  withoutRecourseTotalAmount?: number | null;
+  advancePercentage?: number | null;
+  maxTermDays?: number | null;
+  rate?: number | null;
+  canSubmit?: boolean;
+  canAdvance?: boolean;
+  hasAdvanceInProgress?: boolean;
+};
+export type PagedResultOfFactoringContractDto = {
+  items?: FactoringContractDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type FactoringCounterpartyKind = "Debtor" | "Supplier";
+export type FactoringCounterpartyState = "Active" | "Pending" | "Ended";
+export type FactoringCounterpartyDto = {
+  /** Protected id (opaque token). */
+  interventionId?: string;
+  /** Protected id (opaque token). */
+  entityId?: string | null;
+  name?: string | null;
+  taxNumber?: string | null;
+  externalNumber?: string | null;
+  kind?: FactoringCounterpartyKind;
+  availableAmount?: number | null;
+  totalAmount?: number | null;
+  withoutRecourseAvailableAmount?: number | null;
+  withoutRecourseTotalAmount?: number | null;
+  state?: FactoringCounterpartyState;
+};
+export type FactoringCounterpartyResultDto = {
+  isAdded?: boolean;
+  isUncertain?: boolean;
+  counterparty?: FactoringCounterpartyDto;
+  messages?: CalculationMessageDto[] | null;
+};
+export type NewFactoringCounterpartyDto = {
+  taxNumber?: string | null;
+};
+export type FactoringCessionResultDto = {
+  isSubmitted?: boolean;
+  isUncertain?: boolean;
+  /** Protected id (opaque token). */
+  cessionId?: string | null;
+  cessionNumber?: number | null;
+  messages?: CalculationMessageDto[] | null;
+};
+export type NewFactoringDocumentDto = {
+  /** Protected id (opaque token). */
+  debtorInterventionId?: string | null;
+  invoiceNumber?: string | null;
+  issueDate?: string | null;
+  dueDate?: string | null;
+  amount?: number | null;
+};
+export type NewFactoringCessionDto = {
+  correlationId: string;
+  /** Protected id (opaque token). */
+  supplierInterventionId?: string | null;
+  documents?: NewFactoringDocumentDto[] | null;
+};
+export type FactoringAdvanceSummaryLineDto = {
+  /** Protected id (opaque token). */
+  documentId?: string;
+  invoiceNumber?: string | null;
+  advanceAmount?: number | null;
+  netAmount?: number | null;
+  maxAmount?: number | null;
+};
+export type FactoringAdvanceSummaryDto = {
+  netAmount?: number | null;
+  interestAmount?: number | null;
+  commissionAmount?: number | null;
+  discountAmount?: number | null;
+  taxAmount?: number | null;
+  isucAmount?: number | null;
+  regularizationAmount?: number | null;
+  netCost?: number | null;
+  documents?: FactoringAdvanceSummaryLineDto[] | null;
+  messages?: CalculationMessageDto[] | null;
+  maxAmount?: number | null;
+  availableAmount?: number | null;
+  plafondAvailableAmount?: number | null;
+  costsAvailable?: boolean;
+};
+export type FactoringAdvanceSummaryRequestDto = {
+  /** Protected ids (opaque tokens). */
+  documentIds?: string[];
+  amount?: number | null;
+  valueDate?: string | null;
+};
+export type FactoringAdvanceResultDto = {
+  isStarted?: boolean;
+  isUncertain?: boolean;
+  /** Protected id (opaque token). */
+  advanceId?: string | null;
+  /** Protected id (opaque token). */
+  batchId?: string | null;
+  messages?: CalculationMessageDto[] | null;
+};
+export type NewFactoringAdvanceDto = {
+  correlationId: string;
+  amount?: number | null;
+  valueDate?: string | null;
+  /** Protected ids (opaque tokens). */
+  documentIds?: string[];
+};
+export type FactoringAdvanceDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number;
+  /** Protected id (opaque token). */
+  contractId?: string;
+  valueDate?: string;
+  amount?: number | null;
+  status?: string | null;
+  stateName?: string | null;
+};
+export type PagedResultOfFactoringAdvanceDto = {
+  items?: FactoringAdvanceDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type FactoringAdvanceBatchResult =
+  "Running" | "Succeeded" | "Failed" | "Unknown";
+export type FactoringAdvanceBatchDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  status?: string | null;
+  isFinished?: boolean;
+  isSuccessful?: boolean;
+  /** Protected id (opaque token). */
+  advanceId?: string | null;
+  advanceStatus?: string | null;
+  messages?: CalculationMessageDto[] | null;
+  result?: FactoringAdvanceBatchResult;
+  /** Protected ids (opaque tokens). */
+  advanceIds?: string[];
+};
+export type FactoringDocumentStatus =
+  | "Submitted"
+  | "Approved"
+  | "Financed"
+  | "Paid"
+  | "Overdue"
+  | "Attention"
+  | "Closed";
+export type FactoringDocumentDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  invoiceNumber?: string | null;
+  /** Protected id (opaque token). */
+  cessionId?: string | null;
+  cessionNumber?: number | null;
+  counterparty?: string | null;
+  taxNumber?: string | null;
+  /** Protected id (opaque token). */
+  contractId?: string;
+  contractNumber?: number | null;
+  kind?: FactoringKind;
+  financialInstitution?: string | null;
+  currencyId?: string | null;
+  issueDate?: string | null;
+  dueDate?: string | null;
+  amount?: number | null;
+  amountNotPaid?: number | null;
+  advancedAmount?: number | null;
+  status?: FactoringDocumentStatus;
+  stateName?: string | null;
+};
+export type FactoringOutstandingDto = {
+  currencyId?: string | null;
+  amount?: number;
+};
+export type FactoringDocumentPageDto = {
+  items?: FactoringDocumentDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+  outstandingAmounts?: FactoringOutstandingDto[] | null;
+};
+export type FactoringCessionStatus =
+  "Unknown" | "Open" | "Submitted" | "Active" | "Cancelled" | "InProgress";
+export type FactoringCessionDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number;
+  /** Protected id (opaque token). */
+  contractId?: string;
+  valueDate?: string;
+  balance?: number;
+  status?: FactoringCessionStatus;
+  stateName?: string | null;
+};
+export type PagedResultOfFactoringCessionDto = {
+  items?: FactoringCessionDto[] | null;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+};
+export type FactoringCessionDetailDto = {
+  /** Protected id (opaque token). */
+  id?: string;
+  number?: number;
+  /** Protected id (opaque token). */
+  contractId?: string;
+  valueDate?: string;
+  balance?: number;
+  status?: FactoringCessionStatus;
+  stateName?: string | null;
+  documents?: FactoringDocumentDto[] | null;
+};
 export type FinancialProductDto = {
   id?: number;
   code?: string | null;
@@ -3269,6 +3686,17 @@ export const {
   useGetApiEquipmentsModelsQuery,
   useGetApiEquipmentsVersionsQuery,
   useGetApiEquipmentsStatesQuery,
+  useGetApiFactoringContractsQuery,
+  useGetApiFactoringContractsByIdCounterpartiesQuery,
+  usePostApiFactoringContractsByIdCounterpartiesMutation,
+  usePostApiFactoringContractsByIdCessionsMutation,
+  usePostApiFactoringContractsByIdAdvancesSummaryMutation,
+  usePostApiFactoringContractsByIdAdvancesMutation,
+  useGetApiFactoringAdvancesQuery,
+  useGetApiFactoringAdvancesBatchesByIdQuery,
+  useGetApiFactoringDocumentsQuery,
+  useGetApiFactoringCessionsQuery,
+  useGetApiFactoringCessionsByIdQuery,
   useGetApiFinancialProductsQuery,
   usePostApiFinancialProductsDefaultsMutation,
   useGetApiHealthLiveQuery,
