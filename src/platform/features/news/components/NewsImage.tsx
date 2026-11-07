@@ -6,6 +6,8 @@ import { categoryIcon, type NewsItem } from "../newsModel";
 type Props = {
   item: Pick<NewsItem, "id" | "image" | "category">;
   className?: string;
+  /** Shows the whole picture, uncropped, over a blurred copy that fills what the picture doesn't */
+  whole?: boolean;
 };
 
 /** Becomes true once `ref` is on screen (always true where IntersectionObserver doesn't exist) */
@@ -32,7 +34,7 @@ function useSeen<T extends Element>() {
 // API pictures need the bearer token: they're loaded (once on screen) through the API client
 // into the session cache, and shown through an object URL this component creates and revokes
 // (on unmount or when it shows another news). Sample news link their picture directly.
-function NewsImage({ item, className = "" }: Props) {
+function NewsImage({ item, className = "", whole = false }: Props) {
   const [placeholderRef, seen] = useSeen<HTMLDivElement>();
   const direct = item.image;
   // Cached for the session: no refetch on mount, so a 404 is never asked again
@@ -42,6 +44,7 @@ function NewsImage({ item, className = "" }: Props) {
     refetchOnMountOrArgChange: false,
   });
   const imgRef = useRef<HTMLImageElement>(null);
+  const backdropRef = useRef<HTMLImageElement>(null);
   // Remember which picture failed to display, so moving to another news retries
   const [failed, setFailed] = useState<string | number | null>(null);
   const key = direct ?? item.id;
@@ -50,11 +53,14 @@ function NewsImage({ item, className = "" }: Props) {
     if (direct || !hasImage) return;
     const blob = cachedNewsImage(item.id);
     const img = imgRef.current;
+    const backdrop = backdropRef.current;
     if (!blob || !img) return;
     const url = URL.createObjectURL(blob);
     img.src = url;
+    if (backdrop) backdrop.src = url;
     return () => {
       img.removeAttribute("src");
+      backdrop?.removeAttribute("src");
       URL.revokeObjectURL(url);
     };
   }, [item.id, direct, hasImage]);
@@ -67,15 +73,24 @@ function NewsImage({ item, className = "" }: Props) {
     );
   }
 
-  return (
+  const picture = (
     <img
       ref={imgRef}
       src={direct ?? undefined}
       alt=""
       loading="lazy"
-      className={`app-news-image ${className}`}
+      className={`app-news-image ${whole ? "app-news-image-contain" : ""} ${className}`}
       onError={() => setFailed(key)}
     />
+  );
+
+  if (!whole) return picture;
+
+  return (
+    <span className="app-news-image-whole">
+      <img ref={backdropRef} src={direct ?? undefined} alt="" loading="lazy" className="app-news-image app-news-image-backdrop" />
+      {picture}
+    </span>
   );
 }
 

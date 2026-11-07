@@ -31,6 +31,42 @@ describe("dashboard news (GET /api/news?portal=)", () => {
     expect(new URL(feed.url).searchParams.get("portal")).toBe("MONTRA_APPLICATION_CREDIT");
   });
 
+  it("shows up to four at a time; the rest are on the next page", async () => {
+    answers(() => ({ json: [1, 2, 3, 4, 5].map((id) => apiNews(id, { title: `News ${id}` })) }));
+    renderWithApi(<NewsGallery />);
+
+    expect(await screen.findAllByRole("button", { name: /News \d/ })).toHaveLength(4);
+    await userEvent.click(screen.getByRole("button", { name: "Next news" }));
+    expect(await screen.findAllByRole("button", { name: /News \d/ })).toHaveLength(1);
+  });
+
+  it("a tile has the category, title and the summary to reveal, and opens the preview", async () => {
+    answers(() => ({ json: [apiNews(1, { title: "New rates", subtitle: "A lower TAN from today" })] }));
+    renderWithApi(<NewsGallery />);
+
+    const tile = await screen.findByRole("button", { name: /New rates/ });
+    expect(tile.querySelector(".app-news-card-meta")).toBeTruthy();
+    expect(tile.querySelector(".app-news-card-reveal")?.textContent).toBe("A lower TAN from today");
+    await userEvent.click(tile);
+    expect(await screen.findByRole("dialog")).toBeTruthy();
+  });
+
+  it("a tile with no summary has nothing to reveal", async () => {
+    answers(() => ({ json: [apiNews(1, { title: "New rates", subtitle: null })] }));
+    renderWithApi(<NewsGallery />);
+
+    const tile = await screen.findByRole("button", { name: /New rates/ });
+    expect(tile.querySelector(".app-news-card-reveal")).toBeNull();
+  });
+
+  it("four fit on one page, with no paging", async () => {
+    answers(() => ({ json: [1, 2, 3, 4].map((id) => apiNews(id, { title: `News ${id}` })) }));
+    renderWithApi(<NewsGallery />);
+
+    expect(await screen.findAllByRole("button", { name: /News \d/ })).toHaveLength(4);
+    expect(screen.queryByRole("button", { name: "Next news" })).toBeNull();
+  });
+
   it("shows the empty state for [] (no news is not an error)", async () => {
     answers(() => ({ json: [] }));
     renderWithApi(<NewsGallery />);

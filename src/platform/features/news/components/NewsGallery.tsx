@@ -7,7 +7,7 @@ import type { NewsItem } from "../newsModel";
 import NewsImage from "./NewsImage";
 import NewsPreviewModal from "./NewsPreviewModal";
 
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 4;
 
 const when = (item: NewsItem) =>
   item.publishedAt ? formatRelativeTime(item.publishedAt) : "";
@@ -40,8 +40,9 @@ const allNewsLink = (label: string) => (
   </Link>
 );
 
-// Dashboard: one row of three cards with the latest current news; more than three become a
-// paged gallery (previous / next and page dots). A card opens the preview.
+// Dashboard: up to four picture tiles with the latest current news, all alike, as none matters more
+// than another. More than four become a paged gallery (previous / next and page dots). Hovering or
+// focusing a tile shows its summary; opening it shows the preview.
 function NewsGallery() {
   const { items, active, isLoading, isError, error, refetch, isSample } =
     useNews();
@@ -155,18 +156,19 @@ function NewsGallery() {
             onClick={() => setPreviewIndex(active.indexOf(item))}
           >
             <span className="app-news-card-image">
-              <NewsImage item={item} />
+              <NewsImage item={item} whole />
             </span>
             <span className="app-news-card-body">
-              <small className="text-body-secondary text-truncate">
-                {item.category} · {when(item)}
+              <small className="app-news-card-meta">
+                <span className="text-truncate">{item.category}</span>
+                <span className="text-nowrap">{when(item)}</span>
               </small>
               <span className="app-news-card-title app-news-clamp-2">
                 {item.title}
               </span>
               {item.subtitle && (
-                <span className="app-news-card-excerpt app-news-clamp-2">
-                  {item.subtitle}
+                <span className="app-news-card-reveal">
+                  <span className="app-news-card-excerpt">{item.subtitle}</span>
                 </span>
               )}
             </span>

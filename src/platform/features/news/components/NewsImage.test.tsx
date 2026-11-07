@@ -30,6 +30,26 @@ afterEach(() => {
 });
 
 describe("news pictures (GET /api/news/{id}/image)", () => {
+  it("whole: the picture and its backdrop show the same object URL, revoked once", async () => {
+    mockFetch((url) => (url.pathname === "/api/news/AQ7c2L0x-9/image" ? { blob: new Blob(["png"], { type: "image/png" }) } : undefined));
+    const { container, unmount } = renderWithApi(<NewsImage item={item("AQ7c2L0x-9")} whole />);
+
+    await waitFor(() => expect(container.querySelector(".app-news-image-contain")?.getAttribute("src")).toBe("blob:test/1"));
+    expect(container.querySelector(".app-news-image-backdrop")?.getAttribute("src")).toBe("blob:test/1");
+    expect(created).toHaveLength(1);
+    unmount();
+    expect(revoked).toEqual(["blob:test/1"]);
+  });
+
+  it("not whole: only the picture", async () => {
+    mockFetch((url) => (url.pathname === "/api/news/AQ7c2L0x-8/image" ? { blob: new Blob(["png"], { type: "image/png" }) } : undefined));
+    const { container } = renderWithApi(<NewsImage item={item("AQ7c2L0x-8")} />);
+
+    await waitFor(() => expect(container.querySelector("img")?.getAttribute("src")).toBe("blob:test/1"));
+    expect(container.querySelector(".app-news-image-backdrop")).toBeNull();
+    expect(container.querySelectorAll("img")).toHaveLength(1);
+  });
+
   it("is fetched with the bearer token and shown through an object URL, revoked on unmount", async () => {
     const { requests } = mockFetch((url) =>
       url.pathname === "/api/news/AQ7c2L0x-7/image" ? { blob: new Blob(["png"], { type: "image/png" }) } : undefined,
