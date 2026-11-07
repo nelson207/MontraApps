@@ -1,32 +1,33 @@
 import { useState } from "react";
 import Pagination from "@platform/components/ui/Pagination";
 import { useGetCashflowQuery } from "../api/contractsApi";
-import { cashflowSummary, formatDate, formatEuro, type CashflowRow, type Contract } from "../model/contracts";
+import { formatDate, formatMoney, openingPage, repaidShare, type CashflowFilter, type ContractCard } from "../model/contracts";
 import { PaymentStatusBadge } from "./DocumentStatusBadge";
 
 const PAGE_SIZE = 12;
 
-type Filter = "all" | "upcoming" | "paid" | "overdue";
-
-const FILTERS: { id: Filter; label: string }[] = [
+const FILTERS: { id: CashflowFilter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "upcoming", label: "To pay" },
   { id: "paid", label: "Paid" },
   { id: "overdue", label: "Overdue" },
 ];
 
-const matches = (row: CashflowRow, filter: Filter) =>
-  filter === "all" ||
-  (filter === "upcoming" && row.status !== "paid") ||
-  (filter === "paid" && row.status === "paid") ||
-  (filter === "overdue" && row.status === "overdue");
-
 // The contract's payment schedule: what is paid, overdue and still to pay, then every installment
 // (principal, interest, fees, total, balance after it), a year per page, opening on the next one.
-function CashflowTab({ contract }: { contract: Contract }) {
-  const { data: rows, isLoading, isError, refetch } = useGetCashflowQuery(contract.id);
-  const [filter, setFilter] = useState<Filter>("all");
+function CashflowTab({ contract }: { contract: ContractCard }) {
+  const [filter, setFilter] = useState<CashflowFilter>("all");
   const [page, setPage] = useState<number | null>(null);
+  const { data, currentData, isLoading, isFetching, isError, refetch } = useGetCashflowQuery({
+    contractId: contract.id,
+    filter,
+    page: page ?? 1,
+    pageSize: PAGE_SIZE,
+  });
+
+  // Until a page is chosen, the whole schedule opens on the next payment. (A filtered list starts
+  // at its first row: the API's position is for the whole schedule.)
+  if (page === null && filter === "all" && currentData && !isFetching) setPage(openingPage(currentData.nextPosition, PAGE_SIZE));
 
   if (isError)
     return (
@@ -38,7 +39,7 @@ function CashflowTab({ contract }: { contract: Contract }) {
       </div>
     );
 
-  if (isLoading || !rows)
+  if (isLoading || !data)
     return (
       <div className="d-flex justify-content-center py-5">
         <div className="spinner-border text-primary" role="status">
@@ -47,13 +48,9 @@ function CashflowTab({ contract }: { contract: Contract }) {
       </div>
     );
 
-  const summary = cashflowSummary(rows);
-  const shown = rows.filter((r) => matches(r, filter));
-  const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
-  // Until a page is chosen: the page with the next payment (or the first one)
-  const nextIndex = shown.findIndex((r) => r.status === "due" || r.status === "overdue");
-  const current = Math.min(page ?? (nextIndex >= 0 ? Math.floor(nextIndex / PAGE_SIZE) + 1 : 1), pageCount);
-  const pageRows = shown.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+  const money = (value: number) => formatMoney(value, data.currency);
+  const paidShare = repaidShare(data.paid.count, data.totalInstallments);
+  const pageCount = Math.max(1, Math.ceil((currentData ?? data).totalCount / PAGE_SIZE));
 
   return (
     <div className="d-flex flex-column gap-3">
@@ -61,33 +58,35 @@ function CashflowTab({ contract }: { contract: Contract }) {
         <div className="col-6 col-lg-3">
           <div className="app-figure">
             <span className="app-figure-label">Next payment</span>
-            <span className="app-figure-value">{summary.next ? formatEuro(summary.next.total) : "—"}</span>
-            <span className="app-figure-note">{summary.next ? formatDate(summary.next.dueDate) : "Nothing left to pay"}</span>
+            <span className="app-figure-value">{data.next ? money(data.next.amount) : "—"}</span>
+            <span className="app-figure-note">{data.next ? formatDate(data.next.dueDate) : data.remaining.count > 0 ? "None scheduled" : "Nothing left to pay"}</span>
           </div>
         </div>
         <div className="col-6 col-lg-3">
-          <div className={`app-figure ${summary.overdue.count ? "is-danger" : ""}`}>
+          <div className={`app-figure ${data.overdue.count ? "is-danger" : ""}`}>
             <span className="app-figure-label">Overdue</span>
-            <span className="app-figure-value">{formatEuro(summary.overdue.amount)}</span>
+            <span className="app-figure-value">{money(data.overdue.amount)}</span>
             <span className="app-figure-note">
-              {summary.overdue.count ? `${summary.overdue.count} ${summary.overdue.count === 1 ? "installment" : "installments"}` : "Nothing overdue"}
+              {data.overdue.count ? `${data.overdue.count} ${data.overdue.count === 1 ? "installment" : "installments"}` : "Nothing overdue"}
             </span>
           </div>
         </div>
         <div className="col-6 col-lg-3">
           <div className="app-figure">
             <span className="app-figure-label">Paid</span>
-            <span className="app-figure-value">{formatEuro(summary.paid.amount)}</span>
+            <span className="app-figure-value">{money(data.paid.amount)}</span>
             <span className="app-figure-note">
-              {summary.paid.count} of {rows.length} installments
+              {data.paid.count} of {data.totalInstallments} installments
             </span>
           </div>
         </div>
         <div className="col-6 col-lg-3">
           <div className="app-figure">
             <span className="app-figure-label">Still to pay</span>
-            <span className="app-figure-value">{formatEuro(summary.remaining.amount)}</span>
-            <span className="app-figure-note">{summary.remaining.count} installments</span>
+            <span className="app-figure-value">{money(data.remaining.amount)}</span>
+            <span className="app-figure-note">
+              {data.remaining.count} {data.remaining.count === 1 ? "installment" : "installments"}
+            </span>
           </div>
         </div>
       </div>
@@ -95,17 +94,17 @@ function CashflowTab({ contract }: { contract: Contract }) {
       <div>
         <div className="d-flex justify-content-between small mb-1">
           <span className="text-body-secondary">Repaid</span>
-          <span className="fw-semibold">{summary.paidShare}%</span>
+          <span className="fw-semibold">{paidShare}%</span>
         </div>
         <div
           className="progress app-repaid-progress"
           role="progressbar"
           aria-label="Share of the contract repaid"
-          aria-valuenow={summary.paidShare}
+          aria-valuenow={paidShare}
           aria-valuemin={0}
           aria-valuemax={100}
         >
-          <div className="progress-bar" style={{ width: `${summary.paidShare}%` }} />
+          <div className="progress-bar" style={{ width: `${paidShare}%` }} />
         </div>
       </div>
 
@@ -141,21 +140,33 @@ function CashflowTab({ contract }: { contract: Contract }) {
             </tr>
           </thead>
           <tbody>
-            {pageRows.map((row) => (
-              <tr key={row.number} className={row.status === "due" ? "is-next" : row.status === "overdue" ? "is-overdue" : ""}>
-                <td className="text-body-secondary">{row.number}</td>
-                <td className="text-nowrap">{formatDate(row.dueDate)}</td>
-                <td className="text-end app-tabular d-none d-md-table-cell">{formatEuro(row.principal)}</td>
-                <td className="text-end app-tabular d-none d-md-table-cell">{formatEuro(row.interest)}</td>
-                <td className="text-end app-tabular d-none d-lg-table-cell">{formatEuro(row.fees)}</td>
-                <td className="text-end app-tabular fw-semibold">{formatEuro(row.total)}</td>
-                <td className="text-end app-tabular d-none d-sm-table-cell text-body-secondary">{formatEuro(row.balance)}</td>
+            {currentData?.rows.map((row) => (
+              <tr key={`${row.number}-${row.isResidualValue}`} className={row.status === "due" ? "is-next" : row.status === "overdue" ? "is-overdue" : ""}>
+                <td className="text-body-secondary">{!row.isResidualValue && row.number}</td>
+                <td className="text-nowrap">
+                  {formatDate(row.dueDate)}
+                  {row.isResidualValue && <span className="d-block small text-body-secondary">Residual value</span>}
+                </td>
+                <td className="text-end app-tabular d-none d-md-table-cell">{money(row.principal)}</td>
+                <td className="text-end app-tabular d-none d-md-table-cell">{money(row.interest)}</td>
+                <td className="text-end app-tabular d-none d-lg-table-cell">{money(row.fees)}</td>
+                <td className="text-end app-tabular fw-semibold">{money(row.total)}</td>
+                <td className="text-end app-tabular d-none d-sm-table-cell text-body-secondary">{money(row.balance)}</td>
                 <td>
                   <PaymentStatusBadge status={row.status} />
                 </td>
               </tr>
             ))}
-            {pageRows.length === 0 && (
+            {!currentData && (
+              <tr>
+                <td colSpan={8} className="text-center py-4">
+                  <span className="spinner-border spinner-border-sm text-primary" role="status">
+                    <span className="visually-hidden">Loading…</span>
+                  </span>
+                </td>
+              </tr>
+            )}
+            {currentData?.rows.length === 0 && (
               <tr>
                 <td colSpan={8} className="text-center text-body-secondary py-4">
                   No installments here.
@@ -166,7 +177,7 @@ function CashflowTab({ contract }: { contract: Contract }) {
         </table>
       </div>
       <div className="d-flex justify-content-end">
-        <Pagination page={current} pageCount={pageCount} onPageChange={setPage} ariaLabel="Cashflow pages" />
+        <Pagination page={page ?? 1} pageCount={pageCount} onPageChange={setPage} ariaLabel="Cashflow pages" />
       </div>
     </div>
   );

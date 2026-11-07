@@ -1,18 +1,18 @@
 import { useState } from "react";
 import Pagination from "@platform/components/ui/Pagination";
 import { useGetDocumentsQuery } from "../api/contractsApi";
-import { DOCUMENT_TYPE_LABELS, formatDate, formatEuro, type Contract, type InvoiceDocument } from "../model/contracts";
+import { formatDate, formatMoney, joined, type ContractCard, type InvoiceDocument } from "../model/contracts";
 import DocumentModal from "./DocumentModal";
 import DocumentStatusBadge from "./DocumentStatusBadge";
 import { usePdfDownload } from "./usePdfDownload";
 
 const PAGE_SIZE = 10;
 
-// The contract's invoiced documents, newest first: open one in detail, or download its PDF.
-function DocumentsTab({ contract }: { contract: Contract }) {
-  const { data: documents, isLoading, isError, refetch } = useGetDocumentsQuery(contract.id);
-  const [open, setOpen] = useState<InvoiceDocument | null>(null);
+// The contract's invoiced documents, a page at a time: open one in detail, or download its PDF.
+function DocumentsTab({ contract }: { contract: ContractCard }) {
   const [page, setPage] = useState(1);
+  const { data, isLoading, isError, refetch } = useGetDocumentsQuery({ contractId: contract.id, page, pageSize: PAGE_SIZE });
+  const [open, setOpen] = useState<InvoiceDocument | null>(null);
   const pdf = usePdfDownload();
 
   if (isError)
@@ -25,7 +25,7 @@ function DocumentsTab({ contract }: { contract: Contract }) {
       </div>
     );
 
-  if (isLoading || !documents)
+  if (isLoading || !data)
     return (
       <div className="d-flex justify-content-center py-5">
         <div className="spinner-border text-primary" role="status">
@@ -34,11 +34,9 @@ function DocumentsTab({ contract }: { contract: Contract }) {
       </div>
     );
 
-  if (documents.length === 0) return <p className="text-body-secondary text-center py-5 mb-0">No documents yet.</p>;
+  if (data.totalCount === 0) return <p className="text-body-secondary text-center py-5 mb-0">No documents yet.</p>;
 
-  const pageCount = Math.max(1, Math.ceil(documents.length / PAGE_SIZE));
-  const current = Math.min(page, pageCount);
-  const rows = documents.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+  const pageCount = Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE));
 
   return (
     <>
@@ -62,46 +60,46 @@ function DocumentsTab({ contract }: { contract: Contract }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((doc) => (
+            {data.items.map((doc) => (
               <tr key={doc.id}>
                 <td>
                   <button type="button" className="btn btn-link p-0 fw-semibold text-start text-decoration-none" onClick={() => setOpen(doc)}>
                     {doc.number}
                   </button>
-                  <div className="small text-body-secondary">
-                    {DOCUMENT_TYPE_LABELS[doc.type]} · {doc.description}
-                  </div>
+                  <div className="small text-body-secondary">{joined(doc.typeName, doc.description)}</div>
                 </td>
-                <td className="d-none d-md-table-cell small text-nowrap">{formatDate(doc.issueDate)}</td>
-                <td className="d-none d-sm-table-cell small text-nowrap">{formatDate(doc.dueDate)}</td>
-                <td className="text-end app-tabular text-nowrap">{formatEuro(doc.total)}</td>
+                <td className="d-none d-md-table-cell small text-nowrap">{doc.issueDate ? formatDate(doc.issueDate) : "—"}</td>
+                <td className="d-none d-sm-table-cell small text-nowrap">{doc.dueDate ? formatDate(doc.dueDate) : "—"}</td>
+                <td className="text-end app-tabular text-nowrap">{formatMoney(doc.total, doc.currency)}</td>
                 <td>
                   <DocumentStatusBadge status={doc.status} />
                 </td>
                 <td className="text-end text-nowrap">
                   <button
                     type="button"
-                    className="btn btn-sm btn-outline-secondary me-1"
+                    className="btn btn-sm btn-outline-secondary"
                     aria-label={`View ${doc.number}`}
                     title="View"
                     onClick={() => setOpen(doc)}
                   >
                     <i className="bi bi-eye" aria-hidden="true" />
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    aria-label={`Download ${doc.number} as PDF`}
-                    title="Download PDF"
-                    disabled={pdf.loadingId === doc.id}
-                    onClick={() => pdf.download(contract, doc)}
-                  >
-                    {pdf.loadingId === doc.id ? (
-                      <span className="spinner-border spinner-border-sm" aria-hidden="true" />
-                    ) : (
-                      <i className="bi bi-file-earmark-pdf" aria-hidden="true" />
-                    )}
-                  </button>
+                  {doc.hasPdf && (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary ms-1"
+                      aria-label={`Download ${doc.number} as PDF`}
+                      title="Download PDF"
+                      disabled={pdf.loadingId === doc.id}
+                      onClick={() => pdf.download(doc)}
+                    >
+                      {pdf.loadingId === doc.id ? (
+                        <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+                      ) : (
+                        <i className="bi bi-file-earmark-pdf" aria-hidden="true" />
+                      )}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -110,12 +108,12 @@ function DocumentsTab({ contract }: { contract: Contract }) {
       </div>
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
         <span className="small text-body-secondary">
-          {documents.length} {documents.length === 1 ? "document" : "documents"}
+          {data.totalCount} {data.totalCount === 1 ? "document" : "documents"}
         </span>
-        <Pagination page={current} pageCount={pageCount} onPageChange={setPage} ariaLabel="Documents pages" />
+        <Pagination page={page} pageCount={pageCount} onPageChange={setPage} ariaLabel="Documents pages" />
       </div>
 
-      {open && <DocumentModal contract={contract} document={open} onClose={() => setOpen(null)} />}
+      {open && <DocumentModal document={open} contractNumber={contract.number} onClose={() => setOpen(null)} />}
     </>
   );
 }

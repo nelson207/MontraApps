@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useGetContractsQuery } from "../api/contractsApi";
 import RoleBadge from "../components/RoleBadge";
-import { formatDate, formatEuro, ROLE_LABELS, type ContractRole } from "../model/contracts";
+import { formatDate, formatMoney, joined, repaidShare, ROLE_LABELS, type ContractRole } from "../model/contracts";
 
 const ROLES: ContractRole[] = ["customer", "secondHolder", "guarantor"];
 
@@ -62,45 +62,41 @@ function ContractsPage() {
 
       <div className="row g-3">
         {shown.map((c) => {
-          const repaid = Math.round((c.paidInstallments / c.term) * 100);
+          const repaid = repaidShare(c.paidInstallments, c.totalInstallments);
           return (
             <div className="col-12 col-lg-6" key={c.id}>
-              <Link to={`/contracts/${c.id}`} className="app-contract-card">
+              <Link to={`/contracts/${encodeURIComponent(c.id)}`} className="app-contract-card">
                 <span className="d-flex align-items-start justify-content-between gap-2 mb-2">
                   <span className="min-w-0">
-                    <span className="d-block small text-body-secondary">
-                      {c.business} · {c.lender}
-                    </span>
+                    <span className="d-block small text-body-secondary">{joined(c.business, c.lender)}</span>
                     <span className="d-block fw-semibold fs-6">{c.number}</span>
                   </span>
                   <RoleBadge role={c.role} />
                 </span>
                 <span className="d-block small text-truncate mb-3">
                   {c.asset ?? c.product}
-                  {c.role !== "customer" && (
-                    <span className="text-body-secondary"> · {c.holders.find((h) => h.role === "customer")?.name}</span>
-                  )}
+                  {c.role !== "customer" && c.customerName && <span className="text-body-secondary"> · {c.customerName}</span>}
                 </span>
 
                 <span className="row g-2 small mb-3">
                   <span className="col-4">
                     <span className="d-block text-body-secondary">Next payment</span>
-                    <span className="d-block fw-semibold">{c.nextAmount != null ? formatEuro(c.nextAmount) : "—"}</span>
-                    <span className="d-block text-body-secondary">{c.nextDueDate ? formatDate(c.nextDueDate) : ""}</span>
+                    <span className="d-block fw-semibold">{c.next ? formatMoney(c.next.amount, c.currency) : "—"}</span>
+                    <span className="d-block text-body-secondary">{c.next ? formatDate(c.next.dueDate) : ""}</span>
                   </span>
                   <span className="col-4">
                     <span className="d-block text-body-secondary">Still owed</span>
-                    <span className="d-block fw-semibold">{formatEuro(c.outstanding)}</span>
+                    <span className="d-block fw-semibold">{formatMoney(c.stillOwed, c.currency)}</span>
                   </span>
                   <span className="col-4">
                     <span className="d-block text-body-secondary">Overdue</span>
-                    <span className={`d-block fw-semibold ${c.overdueAmount ? "text-danger" : ""}`}>{formatEuro(c.overdueAmount)}</span>
+                    <span className={`d-block fw-semibold ${c.overdueAmount ? "text-danger" : ""}`}>{formatMoney(c.overdueAmount, c.currency)}</span>
                   </span>
                 </span>
 
                 <span className="d-flex justify-content-between small text-body-secondary mb-1">
                   <span>
-                    {c.paidInstallments} of {c.term} installments paid
+                    {c.paidInstallments} of {c.totalInstallments} installments paid
                   </span>
                   <span>{repaid}%</span>
                 </span>
@@ -117,7 +113,7 @@ function ContractsPage() {
                 {c.overdueAmount > 0 && (
                   <span className="d-block small text-danger mt-2">
                     <i className="bi bi-exclamation-triangle me-1" aria-hidden="true" />
-                    {c.overdueCount} {c.overdueCount === 1 ? "installment" : "installments"} overdue
+                    {c.overdueInstallments} {c.overdueInstallments === 1 ? "installment" : "installments"} overdue
                   </span>
                 )}
               </Link>

@@ -9,12 +9,15 @@ const DOCUMENT_CLASSES: Record<DocumentStatus, string> = {
   paid: "bg-success-subtle text-success-emphasis border-success-subtle",
   open: "bg-info-subtle text-info-emphasis border-info-subtle",
   overdue: "bg-danger-subtle text-danger-emphasis border-danger-subtle",
+  inCollection: "bg-warning-subtle text-warning-emphasis border-warning-subtle",
 };
 
 const PAYMENT_CLASSES: Record<PaymentStatus, string> = {
   paid: "bg-success-subtle text-success-emphasis border-success-subtle",
   overdue: "bg-danger-subtle text-danger-emphasis border-danger-subtle",
+  inCollection: "bg-warning-subtle text-warning-emphasis border-warning-subtle",
   due: "bg-primary-subtle text-primary-emphasis border-primary-subtle",
+  notInvoiced: "bg-body-tertiary text-body-secondary border",
   scheduled: "bg-body-tertiary text-body-secondary border",
 };
 

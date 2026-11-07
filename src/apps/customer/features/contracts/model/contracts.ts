@@ -1,5 +1,20 @@
-// A customer's view of their credit contracts: the contracts they hold or guarantee, each one's
-// cashflow (payment schedule) and its invoiced documents. Pure model; the API is in ../api.
+import type {
+  CustomerCashFlowDto,
+  CustomerContractCardDto,
+  CustomerContractDto,
+  CustomerContractPaymentDto,
+  CustomerDashboardDto,
+  CustomerDocumentDetailDto,
+  CustomerDocumentDto,
+  CustomerDocumentStatus,
+  CustomerInstallmentDto,
+  CustomerPortalRole,
+  InstallmentStatus,
+} from "@platform/api/generated/MontraPOSApi";
+
+// A customer's view of their credit contracts, as MontraAPI's /api/customer-portal gives them. The
+// figures are the API's: nothing is calculated here, the DTOs only get their defaults and day-only
+// dates. Ids are opaque tokens.
 
 export type ContractRole = "customer" | "secondHolder" | "guarantor";
 
@@ -9,49 +24,126 @@ export const ROLE_LABELS: Record<ContractRole, string> = {
   guarantor: "Guarantor",
 };
 
-export type Contract = {
-  id: number;
-  number: string;
-  /** e.g. "Auto credit" */
-  business: string;
-  product: string;
-  /** The financial company */
-  lender: string;
-  /** The signed-in customer's part in it */
-  role: ContractRole;
-  /** Everyone on the contract */
-  holders: { name: string; role: ContractRole }[];
-  /** The financed vehicle or equipment, if any */
-  asset: string | null;
-  startDate: string;
-  endDate: string;
-  /** Months */
-  term: number;
-  financedAmount: number;
-  /** Current monthly payment */
-  installment: number;
-  /** Nominal annual rate, % */
-  tan: number;
-  /** Annual percentage rate of charge, % */
-  taeg: number;
-  paidInstallments: number;
-  /** Principal still owed */
-  outstanding: number;
-  nextDueDate: string | null;
-  nextAmount: number | null;
-  overdueAmount: number;
-  overdueCount: number;
-  /** e.g. "Direct debit · PT50 •••• 4321" */
-  paymentMethod: string;
+const ROLES: Record<CustomerPortalRole, ContractRole> = {
+  Customer: "customer",
+  SecondHolder: "secondHolder",
+  Guarantor: "guarantor",
 };
 
-export type PaymentStatus = "paid" | "overdue" | "due" | "scheduled";
+const roleOf = (role: CustomerPortalRole | undefined): ContractRole => ROLES[role ?? "Customer"];
+
+/** yyyy-mm-dd: the API's date-times are calendar days */
+const dayOf = (iso: string) => iso.slice(0, 10);
+const optionalDay = (iso: string | null | undefined) => (iso ? dayOf(iso) : null);
+
+export type Payment = { amount: number; dueDate: string };
+
+/** .NET's empty date (0001-01-01) means no payment, like a missing one */
+function paymentOf(payment: Pick<CustomerContractPaymentDto, "amount" | "dueDate"> | null | undefined): Payment | null {
+  if (!payment?.dueDate || payment.dueDate.startsWith("0001")) return null;
+  return { amount: payment.amount ?? 0, dueDate: dayOf(payment.dueDate) };
+}
+
+/** The parts that exist, joined with " · " */
+export const joined = (...parts: (string | number | null | undefined)[]) => parts.filter((part) => part || part === 0).join(" · ");
+
+export type ContractCard = {
+  id: string;
+  number: number;
+  /** The signed-in customer's part in it */
+  role: ContractRole;
+  business: string | null;
+  product: string | null;
+  /** The financial company */
+  lender: string | null;
+  /** The financed vehicle or equipment, if any */
+  asset: string | null;
+  /** The contract's customer (the first holder) */
+  customerName: string | null;
+  next: Payment | null;
+  /** Principal still owed */
+  stillOwed: number;
+  overdueAmount: number;
+  overdueInstallments: number;
+  paidInstallments: number;
+  totalInstallments: number;
+  currency: string | null;
+};
+
+export function contractCardOf(dto: CustomerContractCardDto): ContractCard {
+  return {
+    id: dto.id ?? "",
+    number: dto.number ?? 0,
+    role: roleOf(dto.role),
+    business: dto.businessName ?? null,
+    product: dto.productName ?? null,
+    lender: dto.financialCompany ?? null,
+    asset: joined(dto.assetDescription, dto.licencePlate) || null,
+    customerName: dto.customerName ?? null,
+    next: paymentOf(dto.nextPayment),
+    stillOwed: dto.stillOwed ?? 0,
+    overdueAmount: dto.overdueAmount ?? 0,
+    overdueInstallments: dto.overdueInstallments ?? 0,
+    paidInstallments: dto.paidInstallments ?? 0,
+    totalInstallments: dto.totalInstallments ?? 0,
+    currency: dto.currencyId ?? null,
+  };
+}
+
+export type Contract = ContractCard & {
+  financedAmount: number | null;
+  /** Current monthly payment */
+  monthlyPayment: number | null;
+  /** Months */
+  term: number | null;
+  /** Nominal annual rate, % */
+  tan: number | null;
+  /** Annual percentage rate of charge, % */
+  taeg: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  /** e.g. "Direct debit · PT50 •••• 4321" */
+  paymentMethod: string | null;
+  /** Everyone on the contract */
+  people: { name: string; role: ContractRole }[];
+};
+
+export function contractOf(dto: CustomerContractDto): Contract {
+  return {
+    ...contractCardOf(dto),
+    financedAmount: dto.financedAmount ?? null,
+    monthlyPayment: dto.monthlyPayment ?? null,
+    term: dto.termMonths ?? null,
+    tan: dto.nominalRate ?? null,
+    taeg: dto.effectiveRate ?? null,
+    startDate: optionalDay(dto.startDate),
+    endDate: optionalDay(dto.endDate),
+    paymentMethod: joined(dto.paymentMethod, dto.maskedAccount) || null,
+    people: (dto.people ?? []).map((person) => ({ name: person.name ?? "", role: roleOf(person.role) })),
+  };
+}
+
+/** Whole % of the installments paid */
+export const repaidShare = (paid: number, total: number) => (total > 0 ? Math.round((paid / total) * 100) : 0);
+
+export type PaymentStatus = "paid" | "overdue" | "inCollection" | "notInvoiced" | "due" | "scheduled";
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   paid: "Paid",
   overdue: "Overdue",
+  inCollection: "In collection",
+  notInvoiced: "Not invoiced",
   due: "Next",
   scheduled: "Scheduled",
+};
+
+const PAYMENT_STATUSES: Record<InstallmentStatus, PaymentStatus> = {
+  Paid: "paid",
+  Overdue: "overdue",
+  InCollection: "inCollection",
+  NotInvoiced: "notInvoiced",
+  Next: "due",
+  Scheduled: "scheduled",
 };
 
 /** One installment of the payment schedule */
@@ -65,183 +157,236 @@ export type CashflowRow = {
   /** Principal owed after this payment */
   balance: number;
   status: PaymentStatus;
+  /** The residual value: the API numbers it on its own (1), apart from the rents */
+  isResidualValue: boolean;
 };
 
-export type DocumentType = "invoice" | "debitNote" | "creditNote";
-
-export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
-  invoice: "Invoice",
-  debitNote: "Debit note",
-  creditNote: "Credit note",
-};
-
-export type DocumentStatus = "paid" | "open" | "overdue";
-
-export const DOCUMENT_STATUS_LABELS: Record<DocumentStatus, string> = { paid: "Paid", open: "Open", overdue: "Overdue" };
-
-export type InvoiceLine = { description: string; net: number; taxRate?: number };
-
-/** An invoiced document of a contract (installment invoice, late-payment debit note, credit note) */
-export type InvoiceDocument = {
-  id: number;
-  number: string;
-  type: DocumentType;
-  issueDate: string;
-  dueDate: string;
-  description: string;
-  /** The installment it bills, if any */
-  installment?: number;
-  lines: InvoiceLine[];
-  net: number;
-  tax: number;
-  total: number;
-  status: DocumentStatus;
-};
-
-const round2 = (value: number) => Math.round(value * 100) / 100;
-
-const daysInMonth = (year: number, month: number) => new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-
-/** yyyy-mm-dd `months` later, on the same day (or the month's last day when shorter) */
-export function addMonths(iso: string, months: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  const total = m - 1 + months;
-  const year = y + Math.floor(total / 12);
-  const month = ((total % 12) + 12) % 12;
-  const day = Math.min(d, daysInMonth(year, month));
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-
-/** French amortization: the same principal + interest every month, interest on the balance */
-export function amortizationSchedule({
-  amount,
-  rate,
-  term,
-  firstDueDate,
-  monthlyFee = 0,
-}: {
-  amount: number;
-  /** Annual, % */
-  rate: number;
-  term: number;
-  firstDueDate: string;
-  monthlyFee?: number;
-}): CashflowRow[] {
-  const r = rate / 100 / 12;
-  const payment = r === 0 ? amount / term : (amount * r) / (1 - (1 + r) ** -term);
-  let balance = amount;
-  return Array.from({ length: term }, (_, i) => {
-    const interest = round2(balance * r);
-    // The last payment settles whatever is left (rounding)
-    const principal = i === term - 1 ? round2(balance) : round2(payment - interest);
-    balance = round2(balance - principal);
-    return {
-      number: i + 1,
-      dueDate: addMonths(firstDueDate, i),
-      principal,
-      interest,
-      fees: monthlyFee,
-      total: round2(principal + interest + monthlyFee),
-      balance,
-      status: "scheduled" as const,
-    };
-  });
-}
-
-/** Paid up to `paidCount`; then overdue while past due; then the next one is due */
-export function withStatuses(rows: CashflowRow[], paidCount: number, today: string): CashflowRow[] {
-  let nextFound = false;
-  return rows.map((row, i) => {
-    let status: PaymentStatus;
-    if (i < paidCount) status = "paid";
-    else if (row.dueDate < today) status = "overdue";
-    else if (!nextFound) {
-      status = "due";
-      nextFound = true;
-    } else status = "scheduled";
-    return { ...row, status };
-  });
-}
+const cashflowRowOf = (dto: CustomerInstallmentDto): CashflowRow => ({
+  number: dto.number ?? 0,
+  dueDate: dayOf(dto.dueDate ?? ""),
+  principal: dto.principal ?? 0,
+  interest: dto.interest ?? 0,
+  fees: dto.fees ?? 0,
+  total: dto.payment ?? 0,
+  balance: dto.balance ?? 0,
+  status: PAYMENT_STATUSES[dto.status ?? "Scheduled"],
+  isResidualValue: dto.flowClass === "ResidualValue",
+});
 
 type Tally = { count: number; amount: number };
 
-const tally = (rows: CashflowRow[]): Tally => ({ count: rows.length, amount: round2(rows.reduce((sum, r) => sum + r.total, 0)) });
-
-export type CashflowSummary = {
+export type Cashflow = {
+  currency: string | null;
+  next: Payment | null;
   paid: Tally;
   overdue: Tally;
   /** Everything not paid yet (overdue included) */
   remaining: Tally;
-  next: CashflowRow | null;
-  /** Share of the total already paid, whole % */
-  paidShare: number;
+  /** Installments of the whole contract */
+  totalInstallments: number;
+  /** One page of the installments that match the filter */
+  rows: CashflowRow[];
+  /** How many match the filter, over all pages */
+  totalCount: number;
+  /** Where the next payment is in the unfiltered schedule, from 1 */
+  nextPosition: number | null;
 };
 
-export function cashflowSummary(rows: CashflowRow[]): CashflowSummary {
-  const paid = tally(rows.filter((r) => r.status === "paid"));
-  const all = tally(rows);
+export function cashflowOf(dto: CustomerCashFlowDto): Cashflow {
   return {
-    paid,
-    overdue: tally(rows.filter((r) => r.status === "overdue")),
-    remaining: tally(rows.filter((r) => r.status !== "paid")),
-    next: rows.find((r) => r.status === "due") ?? null,
-    paidShare: all.amount > 0 ? Math.round((paid.amount / all.amount) * 100) : 0,
+    currency: dto.currencyId ?? null,
+    next: paymentOf(dto.nextPayment),
+    paid: { count: dto.paidInstallments ?? 0, amount: dto.paidAmount ?? 0 },
+    overdue: { count: dto.overdueInstallments ?? 0, amount: dto.overdueAmount ?? 0 },
+    remaining: { count: dto.unpaidInstallments ?? 0, amount: dto.stillToPay ?? 0 },
+    totalInstallments: dto.totalInstallments ?? 0,
+    rows: (dto.installments ?? []).map(cashflowRowOf),
+    totalCount: dto.totalCount ?? 0,
+    nextPosition: dto.nextPosition ?? null,
   };
 }
 
-/** The contracts I hold (pay), as opposed to the ones I only guarantee */
-export const isHolder = (contract: Contract) => contract.role !== "guarantor";
+export type CashflowFilter = "all" | "upcoming" | "paid" | "overdue";
 
-export type PortfolioSummary = {
-  /** Contracts as customer or second holder */
-  holding: number;
-  /** Their monthly payments together */
-  monthly: number;
-  /** Principal still owed on them */
-  outstanding: number;
-  overdue: { amount: number; contracts: number };
-  next: { contractId: number; contractNumber: string; date: string; amount: number } | null;
-  guarantees: { contracts: number; outstanding: number; overdueAmount: number };
+/** The statuses to ask the API for; none = all of them */
+export const CASHFLOW_FILTER_STATUSES: Record<CashflowFilter, InstallmentStatus[] | undefined> = {
+  all: undefined,
+  upcoming: ["Overdue", "InCollection", "NotInvoiced", "Next", "Scheduled"],
+  paid: ["Paid"],
+  overdue: ["Overdue"],
 };
 
-export function portfolioSummary(contracts: Contract[]): PortfolioSummary {
-  const held = contracts.filter(isHolder);
-  const guaranteed = contracts.filter((c) => !isHolder(c));
-  const sum = (list: Contract[], pick: (c: Contract) => number) => round2(list.reduce((total, c) => total + pick(c), 0));
-  const upcoming = held
-    .filter((c) => c.nextDueDate && c.nextAmount != null)
-    .sort((a, b) => a.nextDueDate!.localeCompare(b.nextDueDate!));
-  const first = upcoming[0];
+/** The page holding the next payment (the first page without one) */
+export const openingPage = (nextPosition: number | null, pageSize: number) =>
+  nextPosition && nextPosition > 0 ? Math.floor((nextPosition - 1) / pageSize) + 1 : 1;
 
+export type DocumentStatus = "paid" | "open" | "overdue" | "inCollection";
+
+export const DOCUMENT_STATUS_LABELS: Record<DocumentStatus, string> = {
+  paid: "Paid",
+  open: "Open",
+  overdue: "Overdue",
+  inCollection: "In collection",
+};
+
+const DOCUMENT_STATUSES: Record<CustomerDocumentStatus, DocumentStatus> = {
+  Paid: "paid",
+  Open: "open",
+  Overdue: "overdue",
+  InCollection: "inCollection",
+};
+
+/** An invoiced document of a contract (installment invoice, late-payment debit note, credit note) */
+export type InvoiceDocument = {
+  id: string;
+  number: string;
+  /** The API's name for its type, e.g. "Invoice" */
+  typeName: string | null;
+  description: string | null;
+  issueDate: string | null;
+  dueDate: string | null;
+  total: number;
+  currency: string | null;
+  status: DocumentStatus;
+  hasPdf: boolean;
+};
+
+export function documentOf(dto: CustomerDocumentDto): InvoiceDocument {
   return {
-    holding: held.length,
-    monthly: sum(held, (c) => c.installment),
-    outstanding: sum(held, (c) => c.outstanding),
-    overdue: { amount: sum(held, (c) => c.overdueAmount), contracts: held.filter((c) => c.overdueAmount > 0).length },
-    next: first ? { contractId: first.id, contractNumber: first.number, date: first.nextDueDate!, amount: first.nextAmount! } : null,
-    guarantees: {
-      contracts: guaranteed.length,
-      outstanding: sum(guaranteed, (c) => c.outstanding),
-      overdueAmount: sum(guaranteed, (c) => c.overdueAmount),
-    },
+    id: dto.id ?? "",
+    number: dto.number ?? "",
+    typeName: dto.typeName ?? null,
+    description: dto.description ?? null,
+    issueDate: optionalDay(dto.issueDate),
+    dueDate: optionalDay(dto.dueDate),
+    total: dto.total ?? 0,
+    currency: dto.currencyId ?? null,
+    status: DOCUMENT_STATUSES[dto.status ?? "Open"],
+    hasPdf: dto.hasPdf ?? false,
   };
 }
 
-/** My payments month by month (yyyy-mm), from this month: each held contract from its next payment until it ends */
-export function paymentsAhead(contracts: Contract[], today: string, months = 12): { month: string; amount: number }[] {
-  const start = `${today.slice(0, 7)}-01`;
-  const held = contracts.filter((c) => isHolder(c) && c.nextDueDate);
-  return Array.from({ length: months }, (_, i) => {
-    const month = addMonths(start, i).slice(0, 7);
-    const paying = held.filter((c) => c.nextDueDate!.slice(0, 7) <= month && month <= c.endDate.slice(0, 7));
-    return { month, amount: round2(paying.reduce((sum, c) => sum + c.installment, 0)) };
-  });
+export type InvoiceLine = { description: string; amount: number; taxRate: number | null; isExempt: boolean };
+
+export type InvoiceDocumentDetail = InvoiceDocument & {
+  contractNumber: number | null;
+  lines: InvoiceLine[];
+  net: number;
+  tax: number;
+  paymentMethod: string | null;
+};
+
+export function documentDetailOf(dto: CustomerDocumentDetailDto): InvoiceDocumentDetail {
+  return {
+    ...documentOf(dto),
+    contractNumber: dto.contractNumber ?? null,
+    lines: (dto.lines ?? []).map((line) => ({
+      description: line.description ?? "",
+      amount: line.amount ?? 0,
+      taxRate: line.taxRate ?? null,
+      isExempt: line.isExempt ?? false,
+    })),
+    net: dto.net ?? 0,
+    tax: dto.tax ?? 0,
+    paymentMethod: joined(dto.paymentMethod, dto.maskedAccount) || null,
+  };
 }
 
-const EURO = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
+/** What a customer pays in one currency: amounts in different currencies are never added up */
+export type CurrencyOverview = {
+  currency: string | null;
+  next: (Payment & { contractId: string; contractNumber: number }) | null;
+  overdue: { amount: number; contracts: { id: string; number: number }[] };
+  stillOwed: { amount: number; contracts: number };
+  paidEachMonth: number;
+  guarantor: { stillOwed: number; overdueAmount: number; contracts: number };
+  /** Month by month (yyyy-mm) */
+  monthlyPayments: { month: string; amount: number }[];
+  owedByContract: { id: string; number: number; business: string | null; amount: number }[];
+};
 
-/** 1 234,56 € */
-export const formatEuro = (value: number): string => EURO.format(value);
+export type Dashboard = {
+  overviews: CurrencyOverview[];
+  comingUp: (Payment & { contractId: string; contractNumber: number; business: string | null; role: ContractRole; currency: string | null })[];
+  repaid: {
+    contractId: string;
+    contractNumber: number;
+    role: ContractRole;
+    paidInstallments: number;
+    totalInstallments: number;
+    hasOverdue: boolean;
+    endDate: string | null;
+    stillOwed: number;
+    currency: string | null;
+  }[];
+};
+
+export function dashboardOf(dto: CustomerDashboardDto): Dashboard {
+  const sameCurrency = (currency: string | null) => (row: { currencyId?: string | null }) => (row.currencyId ?? null) === currency;
+  return {
+    overviews: (dto.totals ?? []).map((totals) => {
+      const currency = totals.currencyId ?? null;
+      const next = paymentOf(totals.nextPayment);
+      return {
+        currency,
+        next: next && { ...next, contractId: totals.nextPayment?.contractId ?? "", contractNumber: totals.nextPayment?.contractNumber ?? 0 },
+        overdue: {
+          amount: totals.overdueAmount ?? 0,
+          contracts: (dto.overdueContracts ?? [])
+            .filter(sameCurrency(currency))
+            .map((contract) => ({ id: contract.contractId ?? "", number: contract.contractNumber ?? 0 })),
+        },
+        stillOwed: { amount: totals.stillOwed ?? 0, contracts: totals.stillOwedContracts ?? 0 },
+        paidEachMonth: totals.paidEachMonth ?? 0,
+        guarantor: {
+          stillOwed: totals.guarantor?.stillOwed ?? 0,
+          overdueAmount: totals.guarantor?.overdueAmount ?? 0,
+          contracts: totals.guarantor?.contracts ?? 0,
+        },
+        monthlyPayments: (dto.monthlyPayments ?? [])
+          .filter(sameCurrency(currency))
+          .map((month) => ({ month: (month.month ?? "").slice(0, 7), amount: month.amount ?? 0 })),
+        owedByContract: (dto.stillOwedByContract ?? []).filter(sameCurrency(currency)).map((contract) => ({
+          id: contract.contractId ?? "",
+          number: contract.contractNumber ?? 0,
+          business: contract.businessName ?? null,
+          amount: contract.amount ?? 0,
+        })),
+      };
+    }),
+    comingUp: (dto.comingUp ?? []).map((row) => ({
+      contractId: row.contractId ?? "",
+      contractNumber: row.contractNumber ?? 0,
+      business: row.businessName ?? null,
+      role: roleOf(row.role),
+      amount: row.amount ?? 0,
+      dueDate: dayOf(row.dueDate ?? ""),
+      currency: row.currencyId ?? null,
+    })),
+    repaid: (dto.repaid ?? []).map((row) => ({
+      contractId: row.contractId ?? "",
+      contractNumber: row.contractNumber ?? 0,
+      role: roleOf(row.role),
+      paidInstallments: row.paidInstallments ?? 0,
+      totalInstallments: row.totalInstallments ?? 0,
+      hasOverdue: row.hasOverdue ?? false,
+      endDate: optionalDay(row.endDate),
+      stillOwed: row.stillOwed ?? 0,
+      currency: row.currencyId ?? null,
+    })),
+  };
+}
+
+/** 1 234,56 € in the record's currency; without a usable currency code, the amount alone or with what was given */
+export function formatMoney(value: number, currency: string | null): string {
+  const plain = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+  if (currency && /^[A-Za-z]{3}$/.test(currency)) return new Intl.NumberFormat("pt-PT", { ...plain, style: "currency", currency }).format(value);
+  const amount = new Intl.NumberFormat("pt-PT", plain).format(value);
+  return currency ? `${amount} ${currency}` : amount;
+}
+
+/** 6,90 % */
+export const formatRate = (value: number) => `${value.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 4 })} %`;
 
 /** 15 Oct 2026 */
 export const formatDate = (iso: string): string =>

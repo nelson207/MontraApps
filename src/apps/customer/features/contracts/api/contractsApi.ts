@@ -1,87 +1,125 @@
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { shouldUseSample, unexpectedResponse } from "@platform/api/devFallback";
-import { emptySplitApi } from "@platform/api/emptyApi";
-import type { CashflowRow, Contract, InvoiceDocument } from "../model/contracts";
-import { invoicePdf } from "../model/invoicePdf";
-import { sampleCashflow, sampleContracts, SAMPLE_CUSTOMER_NAME, sampleDocuments } from "./sampleContracts";
+import { unexpectedResponse } from "@platform/api/devFallback";
+import {
+  MontraPOSApi,
+  type CustomerCashFlowDto,
+  type CustomerContractDto,
+  type CustomerContractsDto,
+  type CustomerDashboardDto,
+  type CustomerDocumentDetailDto,
+  type CustomerDocumentsDto,
+} from "@platform/api/generated/MontraPOSApi";
+import { isInvalidId } from "@platform/api/problemCode";
+import {
+  CASHFLOW_FILTER_STATUSES,
+  cashflowOf,
+  contractCardOf,
+  contractOf,
+  dashboardOf,
+  documentDetailOf,
+  documentOf,
+  type Cashflow,
+  type CashflowFilter,
+  type Contract,
+  type ContractCard,
+  type Dashboard,
+  type InvoiceDocument,
+  type InvoiceDocumentDetail,
+} from "../model/contracts";
 
-// The signed-in customer's contracts.
-// TODO: placeholder endpoints (not exposed by the backend yet), injected by hand:
-//   GET /api/Customer/Contracts                                →  Contract[]   (as customer, second holder or guarantor)
-//   GET /api/Customer/Contracts/{id}/Cashflow                  →  CashflowRow[]
-//   GET /api/Customer/Contracts/{id}/Documents                 →  InvoiceDocument[]
-//   GET /api/Customer/Contracts/{id}/Documents/{documentId}/Pdf →  application/pdf
-const CONTRACTS_URL = "/api/Customer/Contracts";
+// MontraAPI's /api/customer-portal, on the generated client: only reads, for the signed-in customer.
+// Added to it: record ids are opaque tokens that can hold "/" or "+", so they are encoded in paths,
+// and the answers become the model's types. Development without the API uses Demo access
+// (demo/customerDemoBackend.ts).
 
-const notFound: FetchBaseQueryError = { status: 404, data: { message: "Contract not found." } };
+const BASE_URL = "/api/customer-portal";
 
-export type PdfArgs = { contract: Contract; document: InvoiceDocument };
+const pathId = (id: string) => encodeURIComponent(id);
+
+export type CashflowArgs = { contractId: string; filter: CashflowFilter; page: number; pageSize: number };
+export type DocumentsArgs = { contractId: string; page: number; pageSize: number };
+export type DocumentsPage = { items: InvoiceDocument[]; totalCount: number };
+export type PdfArgs = Pick<InvoiceDocument, "id" | "number">;
 
 /** An object URL for the PDF (revoke it once used) and the file name to save it as */
 export type PdfFile = { url: string; fileName: string };
 
-const fileNameOf = (document: InvoiceDocument) => `${document.number.replace(/[^\w-]+/g, "_")}.pdf`;
+const fileNameOf = (number: string) => `${number.replace(/[^\w-]+/g, "_") || "document"}.pdf`;
 
-const contractsApi = emptySplitApi.injectEndpoints({
+/** A contract or document that isn't there, or isn't this customer's, as opposed to a failed read */
+export const isNotAvailable = (error: unknown) => {
+  const status = (error as FetchBaseQueryError | undefined)?.status;
+  return status === 403 || status === 404 || (status === 400 && isInvalidId(error as FetchBaseQueryError));
+};
+
+const contractsApi = MontraPOSApi.injectEndpoints({
   endpoints: (build) => ({
-    getContracts: build.query<Contract[], void>({
-      queryFn: async (_arg, _api, _extra, baseQuery) => {
-        const result = await baseQuery(CONTRACTS_URL);
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) return { data: await sampleContracts() };
-        if (error) return { error };
-        return Array.isArray(result.data) ? { data: result.data as Contract[] } : { error: unexpectedResponse("contracts") };
-      },
+    getCustomerDashboard: build.query<Dashboard, void>({
+      query: () => `${BASE_URL}/dashboard`,
+      transformResponse: (dto: CustomerDashboardDto) => dashboardOf(dto),
     }),
 
-    getCashflow: build.query<CashflowRow[], number>({
-      queryFn: async (contractId, _api, _extra, baseQuery) => {
-        const result = await baseQuery(`${CONTRACTS_URL}/${contractId}/Cashflow`);
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) {
-          const rows = await sampleCashflow(contractId);
-          return rows ? { data: rows } : { error: notFound };
-        }
-        if (error) return { error };
-        return Array.isArray(result.data) ? { data: result.data as CashflowRow[] } : { error: unexpectedResponse("cashflow") };
-      },
+    getContracts: build.query<ContractCard[], void>({
+      query: () => `${BASE_URL}/contracts`,
+      transformResponse: (dto: CustomerContractsDto) => (dto.items ?? []).map(contractCardOf),
     }),
 
-    getDocuments: build.query<InvoiceDocument[], number>({
-      queryFn: async (contractId, _api, _extra, baseQuery) => {
-        const result = await baseQuery(`${CONTRACTS_URL}/${contractId}/Documents`);
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) {
-          const docs = await sampleDocuments(contractId);
-          return docs ? { data: docs } : { error: notFound };
-        }
-        if (error) return { error };
-        return Array.isArray(result.data) ? { data: result.data as InvoiceDocument[] } : { error: unexpectedResponse("documents") };
-      },
+    getContract: build.query<Contract, string>({
+      query: (id) => `${BASE_URL}/contracts/${pathId(id)}`,
+      transformResponse: (dto: CustomerContractDto) => contractOf(dto),
     }),
 
-    // A mutation: run on demand (the download button), nothing to cache
+    getCashflow: build.query<Cashflow, CashflowArgs>({
+      query: ({ contractId, filter, page, pageSize }) => ({
+        url: `${BASE_URL}/contracts/${pathId(contractId)}/cash-flow`,
+        params: { page, pageSize, status: CASHFLOW_FILTER_STATUSES[filter] },
+      }),
+      transformResponse: (dto: CustomerCashFlowDto) => cashflowOf(dto),
+    }),
+
+    getDocuments: build.query<DocumentsPage, DocumentsArgs>({
+      query: ({ contractId, page, pageSize }) => ({
+        url: `${BASE_URL}/contracts/${pathId(contractId)}/documents`,
+        params: { page, pageSize },
+      }),
+      transformResponse: (dto: CustomerDocumentsDto) => ({ items: (dto.items ?? []).map(documentOf), totalCount: dto.totalCount ?? 0 }),
+    }),
+
+    getDocument: build.query<InvoiceDocumentDetail, string>({
+      query: (id) => `${BASE_URL}/documents/${pathId(id)}`,
+      transformResponse: (dto: CustomerDocumentDetailDto) => documentDetailOf(dto),
+    }),
+
+    // A mutation: run on demand (the download button), nothing to cache. It only reads.
     getDocumentPdf: build.mutation<PdfFile, PdfArgs>({
-      queryFn: async ({ contract, document }, _api, _extra, baseQuery) => {
+      queryFn: async ({ id, number }, _api, _extra, baseQuery) => {
         const result = await baseQuery({
-          url: `${CONTRACTS_URL}/${contract.id}/Documents/${document.id}/Pdf`,
-          responseHandler: (response) => (response.ok ? response.blob() : response.text()),
+          url: `${BASE_URL}/documents/${pathId(id)}/pdf`,
+          // A failure stays JSON when it is: the session's handling reads the problem's code
+          responseHandler: async (response) => {
+            if (response.ok) return response.blob();
+            const text = await response.text();
+            try {
+              return JSON.parse(text);
+            } catch {
+              return text;
+            }
+          },
         });
-        const error = result.error as FetchBaseQueryError | undefined;
-        let blob: Blob;
-        if (shouldUseSample(error)) {
-          // Built in the browser from the document's figures
-          // Invoices are addressed to the contract's customer (the first holder)
-          const name = contract.holders.find((h) => h.role === "customer")?.name ?? SAMPLE_CUSTOMER_NAME;
-          const bytes = invoicePdf(document, { contractNumber: contract.number, customerName: name, lender: contract.lender });
-          blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/pdf" });
-        } else if (error) return { error };
-        else if (result.data instanceof Blob) blob = result.data;
-        else return { error: unexpectedResponse("PDF") };
-        return { data: { url: URL.createObjectURL(blob), fileName: fileNameOf(document) } };
+        if (result.error) return { error: result.error as FetchBaseQueryError };
+        if (!(result.data instanceof Blob)) return { error: unexpectedResponse("PDF") };
+        return { data: { url: URL.createObjectURL(result.data), fileName: fileNameOf(number) } };
       },
     }),
   }),
 });
 
-export const { useGetContractsQuery, useGetCashflowQuery, useGetDocumentsQuery, useGetDocumentPdfMutation } = contractsApi;
+export const {
+  useGetCustomerDashboardQuery,
+  useGetContractsQuery,
+  useGetContractQuery,
+  useGetCashflowQuery,
+  useGetDocumentsQuery,
+  useGetDocumentQuery,
+  useGetDocumentPdfMutation,
+} = contractsApi;

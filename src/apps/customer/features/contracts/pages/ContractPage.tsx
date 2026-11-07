@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useGetContractsQuery } from "../api/contractsApi";
+import { isNotAvailable, useGetContractQuery, useGetContractsQuery } from "../api/contractsApi";
 import CashflowTab from "../components/CashflowTab";
 import DocumentsTab from "../components/DocumentsTab";
 import RoleBadge from "../components/RoleBadge";
-import { formatDate, formatEuro, ROLE_LABELS, type Contract } from "../model/contracts";
+import { formatDate, formatMoney, formatRate, joined, ROLE_LABELS, type Contract } from "../model/contracts";
 
 type Tab = "cashflow" | "documents" | "details";
 
@@ -17,22 +17,30 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 // One contract: switch to another from the header; its cashflow, its invoiced documents (detail
 // and PDF) and its conditions.
 function ContractPage() {
-  const { contractId } = useParams();
+  const { contractId = "" } = useParams();
   const navigate = useNavigate();
-  const { data: contracts, isLoading, isError, refetch } = useGetContractsQuery();
+  const { currentData: contract, isLoading, isError, error, refetch } = useGetContractQuery(contractId);
+  const { data: contracts } = useGetContractsQuery();
   const [tab, setTab] = useState<Tab>("cashflow");
+
+  if (isError && isNotAvailable(error))
+    return (
+      <div className="alert alert-warning" role="alert">
+        This contract isn't one of yours. <Link to="/contracts">See your contracts</Link>.
+      </div>
+    );
 
   if (isError)
     return (
       <div className="alert alert-danger d-flex align-items-center gap-2" role="alert">
-        <span className="flex-grow-1">Your contracts couldn't be loaded.</span>
+        <span className="flex-grow-1">This contract couldn't be loaded.</span>
         <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => refetch()}>
           Retry
         </button>
       </div>
     );
 
-  if (isLoading || !contracts)
+  if (isLoading || !contract)
     return (
       <div className="d-flex justify-content-center py-5">
         <div className="spinner-border text-primary" role="status">
@@ -41,13 +49,8 @@ function ContractPage() {
       </div>
     );
 
-  const contract = contracts.find((c) => String(c.id) === contractId);
-  if (!contract)
-    return (
-      <div className="alert alert-warning" role="alert">
-        This contract isn't one of yours. <Link to="/contracts">See your contracts</Link>.
-      </div>
-    );
+  // The list may still be loading, or have failed: this contract is always an option
+  const options = contracts?.some((c) => c.id === contract.id) ? contracts : [contract];
 
   return (
     <div className="d-flex flex-column gap-3">
@@ -65,11 +68,11 @@ function ContractPage() {
               id="contract-select"
               className="form-select form-select-sm w-auto mw-100 ms-auto"
               value={contract.id}
-              onChange={(e) => navigate(`/contracts/${e.target.value}`)}
+              onChange={(e) => navigate(`/contracts/${encodeURIComponent(e.target.value)}`)}
             >
-              {contracts.map((c) => (
+              {options.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.number} · {c.business} ({ROLE_LABELS[c.role]})
+                  {joined(c.number, c.business)} ({ROLE_LABELS[c.role]})
                 </option>
               ))}
             </select>
@@ -77,9 +80,7 @@ function ContractPage() {
 
           <div className="d-flex flex-wrap align-items-start justify-content-between gap-2">
             <div className="min-w-0">
-              <div className="small text-body-secondary">
-                {contract.business} · {contract.product} · {contract.lender}
-              </div>
+              <div className="small text-body-secondary">{joined(contract.business, contract.product, contract.lender)}</div>
               <h2 className="h4 mb-1">{contract.number}</h2>
               <div className="text-body-secondary">{contract.asset ?? "No financed asset"}</div>
             </div>
@@ -90,9 +91,8 @@ function ContractPage() {
             <div className="alert alert-info d-flex gap-2 small mt-3 mb-0" role="note">
               <i className="bi bi-shield-check" aria-hidden="true" />
               <span>
-                You guarantee this contract of {contract.holders.find((h) => h.role === "customer")?.name}. You'd be asked to pay
-                only if they don't.
-                {contract.overdueAmount > 0 && ` It has ${formatEuro(contract.overdueAmount)} overdue.`}
+                You guarantee this contract of {contract.customerName ?? "another customer"}. You'd be asked to pay only if they don't.
+                {contract.overdueAmount > 0 && ` It has ${formatMoney(contract.overdueAmount, contract.currency)} overdue.`}
               </span>
             </div>
           )}
@@ -100,9 +100,9 @@ function ContractPage() {
             <div className="alert alert-danger d-flex gap-2 small mt-3 mb-0" role="alert">
               <i className="bi bi-exclamation-triangle" aria-hidden="true" />
               <span>
-                {formatEuro(contract.overdueAmount)} overdue ({contract.overdueCount}{" "}
-                {contract.overdueCount === 1 ? "installment" : "installments"}). Pay it as soon as you can to stop late payment
-                interest; contact {contract.lender} if you need help.
+                {formatMoney(contract.overdueAmount, contract.currency)} overdue ({contract.overdueInstallments}{" "}
+                {contract.overdueInstallments === 1 ? "installment" : "installments"}). Pay it as soon as you can to stop late payment
+                interest; contact {contract.lender ?? "your lender"} if you need help.
               </span>
             </div>
           )}
@@ -141,18 +141,21 @@ function ContractPage() {
 }
 
 function ContractDetails({ contract }: { contract: Contract }) {
+  const money = (value: number | null) => (value != null ? formatMoney(value, contract.currency) : "—");
+  const rate = (value: number | null) => (value != null ? formatRate(value) : "—");
+  const date = (value: string | null) => (value ? formatDate(value) : "—");
   const rows: [string, string][] = [
-    ["Business", contract.business],
-    ["Product", contract.product],
-    ["Financial company", contract.lender],
-    ["Financed amount", formatEuro(contract.financedAmount)],
-    ["Monthly payment", formatEuro(contract.installment)],
-    ["Term", `${contract.term} months`],
-    ["TAN", `${contract.tan.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} %`],
-    ["TAEG", `${contract.taeg.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} %`],
-    ["Start", formatDate(contract.startDate)],
-    ["End", formatDate(contract.endDate)],
-    ["Payment method", contract.paymentMethod],
+    ["Business", contract.business ?? "—"],
+    ["Product", contract.product ?? "—"],
+    ["Financial company", contract.lender ?? "—"],
+    ["Financed amount", money(contract.financedAmount)],
+    ["Monthly payment", money(contract.monthlyPayment)],
+    ["Term", contract.term != null ? `${contract.term} months` : "—"],
+    ["TAN", rate(contract.tan)],
+    ["TAEG", rate(contract.taeg)],
+    ["Start", date(contract.startDate)],
+    ["End", date(contract.endDate)],
+    ["Payment method", contract.paymentMethod ?? "—"],
     ["Financed asset", contract.asset ?? "—"],
   ];
   return (
@@ -171,10 +174,10 @@ function ContractDetails({ contract }: { contract: Contract }) {
       <div className="col-12 col-lg-4">
         <h3 className="h6 mb-3">People on this contract</h3>
         <ul className="list-unstyled d-flex flex-column gap-2 mb-0">
-          {contract.holders.map((h) => (
-            <li key={h.name} className="d-flex align-items-center justify-content-between gap-2">
-              <span className="fw-semibold">{h.name}</span>
-              <RoleBadge role={h.role} />
+          {contract.people.map((person) => (
+            <li key={`${person.role}-${person.name}`} className="d-flex align-items-center justify-content-between gap-2">
+              <span className="fw-semibold">{person.name}</span>
+              <RoleBadge role={person.role} />
             </li>
           ))}
         </ul>
