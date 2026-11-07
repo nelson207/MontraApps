@@ -1,22 +1,25 @@
 import { useState } from "react";
-import type { Entity } from "../model/factoring";
-import EntitySearchModal from "./EntitySearchModal";
+import { useFactoringText } from "../factoringText";
+import type { Counterparty } from "../model/factoring";
+import CounterpartySearchModal, { type CounterpartyList } from "./CounterpartySearchModal";
 
 type Props = {
   id: string;
   label: string;
   /** Title of the search dialog, e.g. "Select the debtor" */
   dialogTitle: string;
-  value: Entity | null;
-  onChange: (entity: Entity) => void;
+  value: Counterparty | null;
+  onChange: (counterparty: Counterparty) => void;
+  list: CounterpartyList;
   invalidMessage?: string | null;
   /** Smaller, for a row of fields */
   compact?: boolean;
 };
 
-// A company chosen through the search dialog: shows the choice (name and tax number) and a button
-// to search for one or change it.
-function EntityField({ id, label, dialogTitle, value, onChange, invalidMessage, compact = false }: Props) {
+// A debtor or supplier chosen through the search dialog: shows the choice (name and tax number) and
+// a button to search for one or change it.
+function CounterpartyField({ id, label, dialogTitle, value, onChange, list, invalidMessage, compact = false }: Props) {
+  const tx = useFactoringText();
   const [open, setOpen] = useState(false);
   const feedbackId = `${id}-feedback`;
 
@@ -38,15 +41,15 @@ function EntityField({ id, label, dialogTitle, value, onChange, invalidMessage, 
       >
         {value ? (
           <span className="min-w-0 flex-grow-1 text-start">
-            <span className="d-block fw-semibold text-truncate">{value.name}</span>
-            {!compact && <span className="d-block small text-body-secondary">Tax no. {value.taxNumber}</span>}
+            <span className="d-block fw-semibold text-truncate">{value.name ?? value.taxNumber ?? tx("common.unavailable", "Unavailable")}</span>
+            {!compact && value.name && value.taxNumber && <span className="d-block small text-body-secondary">{tx("counterparty.taxNumberOf", "Tax no. {{number}}", { number: value.taxNumber })}</span>}
           </span>
         ) : (
-          <span className="flex-grow-1 text-start text-body-secondary">Search…</span>
+          <span className="flex-grow-1 text-start text-body-secondary">{tx("counterparty.searchPrompt", "Search…")}</span>
         )}
         <span className="app-entity-field-action">
           <i className="bi bi-search" aria-hidden="true" />
-          <span className={compact ? "visually-hidden" : "ms-2"}>{value ? "Change" : "Search"}</span>
+          <span className={compact ? "visually-hidden" : "ms-2"}>{value ? tx("counterparty.change", "Change") : tx("counterparty.search", "Search")}</span>
         </span>
       </button>
       {invalidMessage && (
@@ -56,12 +59,13 @@ function EntityField({ id, label, dialogTitle, value, onChange, invalidMessage, 
       )}
 
       {open && (
-        <EntitySearchModal
+        <CounterpartySearchModal
           title={dialogTitle}
-          selectedId={value?.id}
+          selectedId={value?.interventionId}
+          list={list}
           onClose={() => setOpen(false)}
-          onSelect={(entity) => {
-            onChange(entity);
+          onSelect={(counterparty) => {
+            onChange(counterparty);
             setOpen(false);
           }}
         />
@@ -70,4 +74,4 @@ function EntityField({ id, label, dialogTitle, value, onChange, invalidMessage, 
   );
 }
 
-export default EntityField;
+export default CounterpartyField;

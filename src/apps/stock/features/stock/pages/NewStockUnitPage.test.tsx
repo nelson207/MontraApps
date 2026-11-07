@@ -151,7 +151,7 @@ describe("validation", () => {
     const { requests } = server(() => ({ json: {} }), [CONTRACT, { ...CONTRACT, id: "AQ/c+2", number: 50002 }]);
     renderWithApi(<NewStockUnitPage />, { store: makeStore() });
     await screen.findAllByRole("radio");
-    expect((document.getElementById("stock.equipment-equipmentTypeId") as HTMLButtonElement).textContent).toContain("Select an agreement first");
+    expect(document.getElementById("stock.equipment-equipmentTypeId")).toBeNull();
     await new Promise((resolve) => setTimeout(resolve, 20));
     const withoutCompany = requests.map((r) => new URL(r.url)).filter((url) => url.pathname === "/api/equipments/types" && !url.searchParams.has("companyId"));
     expect(withoutCompany).toHaveLength(0);
@@ -275,15 +275,36 @@ describe("saving", () => {
   it("only one agreement that can take stock: it is chosen by default", async () => {
     server(() => ({ json: {} }), [CONTRACT, { ...CONTRACT, id: "AQ/c+2", number: 50002, canAddStock: false }]);
     renderWithApi(<NewStockUnitPage />, { store: makeStore() });
+    expect(await screen.findByRole("radio", { checked: true })).toBeTruthy();
+    expect(screen.getByText("Can't take new stock")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Next/ }));
     expect(await screen.findByText(/Up to €40,000.00 for this vehicle on agreement 50001/)).toBeTruthy();
-    await waitFor(() => expect(screen.getAllByRole("radio").filter((radio) => (radio as HTMLInputElement).checked)).toHaveLength(1));
   });
 
   it("several agreements: the user chooses", async () => {
     server(() => ({ json: {} }), [CONTRACT, { ...CONTRACT, id: "AQ/c+2", number: 50002 }]);
     renderWithApi(<NewStockUnitPage />, { store: makeStore() });
     await screen.findAllByRole("radio");
-    expect(screen.getAllByRole("radio").filter((radio) => (radio as HTMLInputElement).checked)).toHaveLength(0);
+    expect(screen.queryByRole("radio", { checked: true })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Next/ }));
+    expect(await screen.findByText("Select an agreement.")).toBeTruthy();
+  });
+
+  it("choosing an agreement moves on to the vehicle, and Back brings the card back", async () => {
+    server(() => ({ json: {} }), [CONTRACT, { ...CONTRACT, id: "AQ/c+2", number: 50002 }]);
+    renderWithApi(<NewStockUnitPage />, { store: makeStore() });
+    fireEvent.click((await screen.findAllByRole("radio"))[0]);
+    expect(await screen.findByText(/Up to €40,000.00 for this vehicle on agreement 50001/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(await screen.findByRole("radio", { checked: true })).toBeTruthy();
+  });
+
+  it("the only agreement: its step is left out", async () => {
+    server(() => ({ json: {} }), [CONTRACT]);
+    renderWithApi(<NewStockUnitPage />, { store: makeStore() });
+    expect(await screen.findByText(/Up to €40,000.00 for this vehicle on agreement 50001/)).toBeTruthy();
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
   });
 
   it("a contract that can't take stock can't be chosen", async () => {

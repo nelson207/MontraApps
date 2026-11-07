@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import WizardBar, { WizardNextButton } from "@platform/components/wizard/WizardBar";
 
 type Props = {
   isFirst: boolean;
@@ -30,19 +31,12 @@ const spinner = <span className="spinner-border spinner-border-sm me-2" aria-hid
 function WizardActions(props: Props) {
   const busy = props.isSaving || props.isConverting;
   return (
-    <div className="app-wizard-bar">
-      {props.sheet}
-
-      {!props.isFirst && (
-        <button type="button" className="btn btn-ghost" onClick={props.onBack} disabled={busy}>
-          <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-          Back
-        </button>
-      )}
-
-      {props.status && <div className="app-wizard-bar-status">{props.status}</div>}
-
-      <div className="app-wizard-bar-actions">
+    <WizardBar
+      onBack={props.isFirst ? undefined : props.onBack}
+      backDisabled={busy}
+      status={props.status}
+      sheet={props.sheet}
+    >
         {!props.isLast && props.nextHint && (
           <small className="app-wizard-bar-hint text-warning-emphasis" role="status">
             <i className="bi bi-calculator me-1" aria-hidden="true" />
@@ -66,17 +60,7 @@ function WizardActions(props: Props) {
           </button>
         )}
 
-        {!props.isLast && (
-          <button
-            type="button"
-            className={`btn ${props.nextBlocked ? "btn-outline-primary" : "btn-primary"}`}
-            onClick={props.onNext}
-            disabled={busy}
-          >
-            Next
-            <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
-          </button>
-        )}
+        {!props.isLast && <WizardNextButton onClick={props.onNext} disabled={busy} blocked={props.nextBlocked} />}
 
         {props.showConvert && (
           <button
@@ -98,8 +82,7 @@ function WizardActions(props: Props) {
             )}
           </button>
         )}
-      </div>
-    </div>
+    </WizardBar>
   );
 }
 

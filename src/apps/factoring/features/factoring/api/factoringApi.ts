@@ -1,130 +1,111 @@
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { delay, shouldUseSample, unexpectedResponse } from "@platform/api/devFallback";
-import { emptySplitApi } from "@platform/api/emptyApi";
-import type { AgreementNature, Entity, FactoringAgreement, FactoringDraft } from "../model/factoring";
-import { sampleAgreements, sampleCreateRequest, sampleDocuments, sampleSearchEntities } from "./sampleFactoring";
+import {
+  MontraPOSApi,
+  useGetApiFactoringAdvancesQuery,
+  useGetApiFactoringCessionsByIdQuery,
+  useGetApiFactoringContractsByIdCounterpartiesQuery,
+  useGetApiFactoringDocumentsQuery,
+  type FactoringAdvanceBatchDto,
+  type FactoringAdvanceResultDto,
+  type FactoringAdvanceSummaryDto,
+  type FactoringAdvanceSummaryRequestDto,
+  type FactoringCessionResultDto,
+  type FactoringContractDto,
+  type FactoringCounterpartyResultDto,
+  type FactoringDocumentDto,
+  type GetApiFactoringAdvancesApiArg,
+  type GetApiFactoringDocumentsApiArg,
+  type NewFactoringAdvanceDto,
+  type NewFactoringCessionDto,
+} from "@platform/api/generated/MontraPOSApi";
 
-// Factoring endpoints.
-// TODO: placeholder endpoints (not exposed by the backend yet), injected by hand:
-//   GET  /api/Factoring/Agreements?intermediaryId=          →  FactoringAgreement[]
-//   GET  /api/Factoring/Entities?search=&pageSize=           →  { items: Entity[], total }   (debtors / suppliers)
-//   GET  /api/Factoring/Documents?intermediaryId=            →  FactoringDocumentRow[]
-//   POST /api/Factoring/Requests
-//        { intermediaryId, vendorId, agreementId, supplierId, documents: [{ invoiceNumber, issueDate, dueDate, amount, debtorId }] }
-//        →  { reference, documents }
-const AGREEMENTS_URL = "/api/Factoring/Agreements";
-const ENTITIES_URL = "/api/Factoring/Entities";
-const DOCUMENTS_URL = "/api/Factoring/Documents";
-const REQUESTS_URL = "/api/Factoring/Requests";
+// MontraAPI's /api/factoring, on the generated client. Added to it:
+// - Record ids are opaque tokens that can hold "/" or "+", so they are encoded in paths.
+// - The POSTs and the batch read have a timeout, treated like a network error (same correlationId).
+// - Two lists the screens need whole, however many pages the API splits them in.
+// There is deliberately no sample fallback: it would turn a network error on a submission into a
+// sample "success". Development without the API uses Demo access (demo/factoringDemoBackend.ts).
 
-export type DocumentStatus = "submitted" | "approved" | "financed" | "paid" | "overdue";
+export const POST_TIMEOUT_MS = 60_000;
+export const STATUS_TIMEOUT_MS = 15_000;
+const ALL_PAGE_SIZE = 100;
 
-export const STATUS_LABELS: Record<DocumentStatus, string> = {
-  submitted: "Submitted",
-  approved: "Approved",
-  financed: "Financed",
-  paid: "Paid",
-  overdue: "Overdue",
-};
+const pathId = (id: string) => encodeURIComponent(id);
+const contractPath = (id: string) => `/api/factoring/contracts/${pathId(id)}`;
 
-export type EntityPage = { items: Entity[]; total: number };
+type Page<T> = { items?: T[] | null; totalCount?: number };
+type PageRead = { data?: unknown; error?: FetchBaseQueryError };
 
-/** A financed invoice, as listed */
-export type FactoringDocumentRow = {
-  id: number;
-  /** The request it was submitted in */
-  reference: string;
-  invoiceNumber: string;
-  issueDate: string;
-  dueDate: string;
-  amount: number;
-  /** The debtor (factoring) or the supplier (confirming) */
-  entity: Entity;
-  nature: AgreementNature;
-  agreementNumber: string;
-  financialCompany: string;
-  status: DocumentStatus;
-};
+/** Every page, one at a time. Stops on an empty page too, should totalCount and the items ever disagree. */
+async function allPages<T>(read: (page: number) => PageRead | Promise<PageRead>): Promise<{ data: T[] } | { error: FetchBaseQueryError }> {
+  const all: T[] = [];
+  for (let page = 1; ; page += 1) {
+    const { data, error } = await read(page);
+    if (error) return { error };
+    const { items, totalCount = 0 } = (data ?? {}) as Page<T>;
+    all.push(...(items ?? []));
+    if (!items?.length || all.length >= totalCount) return { data: all };
+  }
+}
 
-export type FactoringRequest = { reference: string; documents: number };
-
-export type CreateFactoringRequest = {
-  intermediaryId: string;
-  vendorId: string;
-  draft: FactoringDraft;
-  agreement: FactoringAgreement;
-};
-
-export const ENTITY_PAGE_SIZE = 20;
-
-const factoringApi = emptySplitApi.enhanceEndpoints({ addTagTypes: ["FactoringDocument"] }).injectEndpoints({
+export const factoringApi = MontraPOSApi.injectEndpoints({
   endpoints: (build) => ({
-    getFactoringAgreements: build.query<FactoringAgreement[], string>({
-      queryFn: async (intermediaryId, _api, _extra, baseQuery) => {
-        const result = await baseQuery({ url: AGREEMENTS_URL, params: { intermediaryId } });
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) {
-          await delay(200);
-          return { data: sampleAgreements(intermediaryId) };
-        }
-        if (error) return { error };
-        return Array.isArray(result.data) ? { data: result.data as FactoringAgreement[] } : { error: unexpectedResponse("agreements") };
-      },
+    getAllFactoringContracts: build.query<FactoringContractDto[], void>({
+      queryFn: (_arg, _api, _extra, baseQuery) =>
+        allPages<FactoringContractDto>((page) => baseQuery({ url: "/api/factoring/contracts", params: { page, pageSize: ALL_PAGE_SIZE } }) as Promise<PageRead>),
     }),
-
-    searchEntities: build.query<EntityPage, string>({
-      queryFn: async (search, _api, _extra, baseQuery) => {
-        const result = await baseQuery({ url: ENTITIES_URL, params: { search, pageSize: ENTITY_PAGE_SIZE } });
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) return { data: await sampleSearchEntities(search, ENTITY_PAGE_SIZE) };
-        if (error) return { error };
-        const page = result.data as EntityPage | undefined;
-        return Array.isArray(page?.items) ? { data: page } : { error: unexpectedResponse("companies") };
-      },
+    getApprovedInvoices: build.query<FactoringDocumentDto[], string>({
+      queryFn: (contractId, _api, _extra, baseQuery) =>
+        allPages<FactoringDocumentDto>(
+          (page) =>
+            baseQuery({
+              url: "/api/factoring/documents",
+              params: { contractId, kind: "Confirming", status: "Approved", page, pageSize: ALL_PAGE_SIZE },
+            }) as Promise<PageRead>,
+        ),
     }),
-
-    getFactoringDocuments: build.query<FactoringDocumentRow[], string>({
-      queryFn: async (intermediaryId, _api, _extra, baseQuery) => {
-        const result = await baseQuery({ url: DOCUMENTS_URL, params: { intermediaryId } });
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) return { data: await sampleDocuments(intermediaryId) };
-        if (error) return { error };
-        return Array.isArray(result.data) ? { data: result.data as FactoringDocumentRow[] } : { error: unexpectedResponse("documents") };
-      },
-      providesTags: [{ type: "FactoringDocument", id: "LIST" }],
+    addCounterparty: build.mutation<FactoringCounterpartyResultDto, { contractId: string; taxNumber: string }>({
+      query: ({ contractId, taxNumber }) => ({
+        url: `${contractPath(contractId)}/counterparties`,
+        method: "POST",
+        body: { taxNumber },
+        timeout: POST_TIMEOUT_MS,
+      }),
     }),
-
-    createFactoringRequest: build.mutation<FactoringRequest, CreateFactoringRequest>({
-      queryFn: async ({ intermediaryId, vendorId, draft, agreement }, _api, _extra, baseQuery) => {
-        const confirming = agreement.nature === 1;
-        const body = {
-          intermediaryId,
-          vendorId,
-          agreementId: agreement.id,
-          supplierId: confirming ? (draft.supplier?.id ?? null) : null,
-          documents: draft.documents.map((doc) => ({
-            invoiceNumber: doc.invoiceNumber.trim(),
-            issueDate: doc.issueDate,
-            dueDate: doc.dueDate,
-            amount: doc.amount,
-            debtorId: confirming ? null : (doc.debtor?.id ?? null),
-          })),
-        };
-        const result = await baseQuery({ url: REQUESTS_URL, method: "POST", body });
-        const error = result.error as FetchBaseQueryError | undefined;
-        if (shouldUseSample(error)) return { data: await sampleCreateRequest(intermediaryId, draft, agreement) };
-        if (error) return { error };
-        const request = result.data as FactoringRequest | undefined;
-        return request && typeof request.reference === "string" ? { data: request } : { error: unexpectedResponse("factoring request") };
-      },
-      invalidatesTags: [{ type: "FactoringDocument", id: "LIST" }],
+    submitCession: build.mutation<FactoringCessionResultDto, { contractId: string; body: NewFactoringCessionDto }>({
+      query: ({ contractId, body }) => ({ url: `${contractPath(contractId)}/cessions`, method: "POST", body, timeout: POST_TIMEOUT_MS }),
+    }),
+    readAdvanceSummary: build.mutation<FactoringAdvanceSummaryDto, { contractId: string; body: FactoringAdvanceSummaryRequestDto }>({
+      query: ({ contractId, body }) => ({ url: `${contractPath(contractId)}/advances/summary`, method: "POST", body, timeout: POST_TIMEOUT_MS }),
+    }),
+    submitAdvance: build.mutation<FactoringAdvanceResultDto, { contractId: string; body: NewFactoringAdvanceDto }>({
+      query: ({ contractId, body }) => ({ url: `${contractPath(contractId)}/advances`, method: "POST", body, timeout: POST_TIMEOUT_MS }),
+    }),
+    getAdvanceBatch: build.query<FactoringAdvanceBatchDto, string>({
+      query: (id) => ({ url: `/api/factoring/advances/batches/${pathId(id)}`, timeout: STATUS_TIMEOUT_MS }),
     }),
   }),
 });
 
-export const {
-  useGetFactoringAgreementsQuery,
-  useSearchEntitiesQuery,
-  useGetFactoringDocumentsQuery,
-  useCreateFactoringRequestMutation,
-} = factoringApi;
+export const { useAddCounterpartyMutation, useReadAdvanceSummaryMutation } = factoringApi;
+
+/** The active agreements of both kinds */
+export const useAgreements = () => factoringApi.useGetAllFactoringContractsQuery();
+
+export const useApprovedInvoices = (agreement: FactoringContractDto | undefined) =>
+  factoringApi.useGetApprovedInvoicesQuery(agreement?.id ?? "", { skip: !agreement?.id });
+
+/** The pending ones too: they can't take invoices, but the user can see that they are on their way */
+export const useCounterparties = (contractId: string | undefined) =>
+  useGetApiFactoringContractsByIdCounterpartiesQuery({ id: pathId(contractId ?? ""), includePending: true }, { skip: !contractId });
+
+export const useDocuments = (args: GetApiFactoringDocumentsApiArg) => useGetApiFactoringDocumentsQuery(args);
+
+export const useAdvances = (args: GetApiFactoringAdvancesApiArg) => useGetApiFactoringAdvancesQuery(args);
+
+/** For a cession accepted with no number yet */
+export const useCession = (id: string | null | undefined, skip: boolean) =>
+  useGetApiFactoringCessionsByIdQuery({ id: pathId(id ?? "") }, { skip: skip || !id });
+
+/** A fresh read for the polling (never from the cache) */
+export const readAdvanceBatch = (id: string) => factoringApi.endpoints.getAdvanceBatch.initiate(id, { subscribe: false, forceRefetch: true });

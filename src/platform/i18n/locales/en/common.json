@@ -5,5 +5,14 @@
   "reset": "Reset",
   "retry": "Retry",
   "save": "Save",
-  "saving": "Saving…"
+  "saving": "Saving…",
+  "wizard": {
+    "back": "Back",
+    "next": "Next",
+    "steps": "Steps",
+    "progress": "Progress",
+    "hasErrors": "Has errors",
+    "stepOf": "Step {{current}} of {{total}}",
+    "hasErrorsInline": "has errors"
+  }
 }

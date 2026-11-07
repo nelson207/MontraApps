@@ -68,7 +68,7 @@
       "saving": "A guardar…",
       "selectSupplier": "Selecione o fornecedor",
       "stepInvoice": "Fornecedor e fatura",
-      "stepVehicle": "Contrato, veículo e montante",
+      "stepVehicle": "Veículo e montante",
       "submit": "Guardar unidade de stock",
       "supplier": "Fornecedor",
       "unanswered": "Não houve resposta, por isso a unidade de stock pode já estar guardada. Tente novamente: é enviado o mesmo pedido e não será guardada duas vezes.",
@@ -120,7 +120,6 @@
     "common": {
       "back": "Voltar",
       "loading": "A carregar…",
-      "next": "Seguinte",
       "no": "Não",
       "retry": "Repetir",
       "tryAgain": "Tentar novamente",

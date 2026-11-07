@@ -1,35 +1,34 @@
 import InputField from "@platform/components/ui/InputField";
-import {
-  addDays,
-  advanceOf,
-  availableOf,
-  formatEuro,
-  totalOf,
-  type Entity,
-  type FactoringAgreement,
-  type FactoringDocument,
-} from "../model/factoring";
+import { useFactoringText } from "../factoringText";
+import { useFactoringFormat } from "../model/format";
+import { advanceOf, isConfirming, totalOf, type Agreement, type Counterparty, type InvoiceRow } from "../model/factoring";
 import type { FactoringErrors } from "../model/validation";
-import EntityField from "./EntityField";
+import CounterpartyField from "./CounterpartyField";
+import type { CounterpartyList } from "./CounterpartySearchModal";
 
 type Props = {
-  agreement: FactoringAgreement;
+  agreement: Agreement;
   /** Confirming: every invoice is this supplier's (no debtor per invoice) */
-  supplier: Entity | null;
-  documents: FactoringDocument[];
-  onChange: (index: number, changes: Partial<FactoringDocument>) => void;
+  supplier: Counterparty | null;
+  /** Factoring: the debtors to choose from */
+  debtors: CounterpartyList;
+  documents: InvoiceRow[];
+  onChange: (index: number, changes: Partial<InvoiceRow>) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
   errors: FactoringErrors;
-  today: string;
 };
 
 // The invoices of the request, one card each: number, issue date, due date and amount, plus the
-// debtor under factoring. Totals at the bottom: invoices, total, advance and what is available.
-function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRemove, errors, today }: Props) {
-  const confirming = agreement.nature === 1;
+// debtor under factoring. Totals at the bottom: invoices, total, advance and what is available. A
+// total above what is available is only pointed out: Accipiens decides.
+function DocumentsEditor({ agreement, supplier, debtors, documents, onChange, onAdd, onRemove, errors }: Props) {
+  const tx = useFactoringText();
+  const { money, percent } = useFactoringFormat();
+  const confirming = isConfirming(agreement);
+  const { currencyId, availableAmount, advancePercentage } = agreement;
   const total = totalOf(documents);
-  const lastDueDate = addDays(today, agreement.maxTermDays);
+  const advance = advanceOf(total, advancePercentage);
   const error = (index: number, field: string) => errors[`documents.${index}.${field}`];
 
   return (
@@ -37,16 +36,14 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
       {confirming && supplier && (
         <div className="d-flex align-items-center gap-2 small text-body-secondary">
           <i className="bi bi-shop" aria-hidden="true" />
-          <span>
-            Confirming: every invoice is from <span className="fw-semibold text-body">{supplier.name}</span>.
-          </span>
+          <span>{tx("invoices.supplierNote", "Confirming: every invoice is from {{name}}.", { name: supplier.name ?? supplier.taxNumber ?? "" })}</span>
         </div>
       )}
 
       {documents.length === 0 && (
         <div className="app-documents-empty">
           <i className="bi bi-receipt fs-3 d-block mb-2" aria-hidden="true" />
-          No invoices yet. Add the first one.
+          {tx("invoices.empty", "No invoices yet. Add the first one.")}
         </div>
       )}
 
@@ -57,20 +54,20 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
           <section
             key={doc.key}
             className={`app-document-card ${hasErrors ? "has-errors" : ""}`}
-            aria-label={`Invoice ${index + 1}${doc.invoiceNumber ? ` ${doc.invoiceNumber}` : ""}`}
+            aria-label={tx("invoices.cardLabel", "Invoice {{index}}", { index: index + 1 })}
           >
             <div className="d-flex align-items-center gap-2 mb-2">
               <span className="app-document-number" aria-hidden="true">
                 {index + 1}
               </span>
               <span className="fw-semibold small flex-grow-1 text-truncate">
-                {doc.invoiceNumber.trim() || "New invoice"}
-                {doc.amount ? <span className="text-body-secondary fw-normal"> · {formatEuro(doc.amount)}</span> : null}
+                {doc.invoiceNumber.trim() || tx("invoices.new", "New invoice")}
+                {doc.amount ? <span className="text-body-secondary fw-normal"> · {money(doc.amount, currencyId)}</span> : null}
               </span>
               <button
                 type="button"
                 className="btn btn-sm btn-link text-danger p-0"
-                aria-label={`Remove invoice ${index + 1}`}
+                aria-label={tx("invoices.remove", "Remove invoice {{index}}", { index: index + 1 })}
                 onClick={() => onRemove(index)}
               >
                 <i className="bi bi-trash" />
@@ -80,11 +77,12 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
             <div className="row gx-3">
               {!confirming && (
                 <div className="col-12 col-xl-4">
-                  <EntityField
+                  <CounterpartyField
                     id={id("debtor")}
-                    label="Debtor"
-                    dialogTitle={`Debtor of invoice ${index + 1}`}
+                    label={tx("invoices.debtor", "Debtor")}
+                    dialogTitle={tx("invoices.debtorDialog", "Debtor of invoice {{index}}", { index: index + 1 })}
                     value={doc.debtor}
+                    list={debtors}
                     onChange={(debtor) => onChange(index, { debtor })}
                     invalidMessage={error(index, "debtor")}
                     compact
@@ -94,9 +92,9 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
               <div className={`col-12 col-sm-6 ${confirming ? "col-xl-3" : "col-xl-2"}`}>
                 <InputField
                   id={id("number")}
-                  label="Invoice number"
+                  label={tx("invoices.number", "Invoice number")}
                   required
-                  placeholder="e.g. FT 2026/123"
+                  placeholder={tx("invoices.numberPlaceholder", "e.g. FT 2026/123")}
                   value={doc.invoiceNumber}
                   onChange={(e) => onChange(index, { invoiceNumber: e.target.value })}
                   invalidMessage={error(index, "invoiceNumber")}
@@ -105,10 +103,9 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
               <div className={`col-6 col-sm-3 ${confirming ? "col-xl-3" : "col-xl-2"}`}>
                 <InputField
                   id={id("issue")}
-                  label="Issue date"
+                  label={tx("invoices.issueDate", "Issue date")}
                   type="date"
                   required
-                  max={today}
                   value={doc.issueDate}
                   onChange={(e) => onChange(index, { issueDate: e.target.value })}
                   invalidMessage={error(index, "issueDate")}
@@ -117,11 +114,10 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
               <div className={`col-6 col-sm-3 ${confirming ? "col-xl-3" : "col-xl-2"}`}>
                 <InputField
                   id={id("due")}
-                  label="Due date"
+                  label={tx("invoices.dueDate", "Due date")}
                   type="date"
                   required
-                  min={doc.issueDate || today}
-                  max={lastDueDate}
+                  min={doc.issueDate || undefined}
                   value={doc.dueDate}
                   onChange={(e) => onChange(index, { dueDate: e.target.value })}
                   invalidMessage={error(index, "dueDate")}
@@ -130,12 +126,12 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
               <div className="col-12 col-sm-6 col-xl-2 flex-xl-grow-1">
                 <InputField
                   id={id("amount")}
-                  label="Amount"
+                  label={tx("invoices.amount", "Amount")}
                   type="number"
                   required
                   min={0}
                   step={0.01}
-                  inputGroupSpan="€"
+                  inputGroupSpan={currencyId ?? undefined}
                   value={doc.amount ?? ""}
                   onChange={(e) => onChange(index, { amount: e.target.value === "" ? null : Number(e.target.value) })}
                   invalidMessage={error(index, "amount")}
@@ -149,26 +145,32 @@ function DocumentsEditor({ agreement, supplier, documents, onChange, onAdd, onRe
       <div>
         <button type="button" className="btn btn-outline-primary" onClick={onAdd}>
           <i className="bi bi-plus-lg me-2" aria-hidden="true" />
-          Add invoice
+          {tx("invoices.add", "Add invoice")}
         </button>
       </div>
 
-      <dl className="app-documents-totals" aria-label="Totals">
+      <dl className="app-documents-totals" aria-label={tx("invoices.totals", "Totals")}>
         <div>
-          <dt>Invoices</dt>
+          <dt>{tx("invoices.count", "Invoices")}</dt>
           <dd>{documents.length}</dd>
         </div>
         <div>
-          <dt>Total</dt>
-          <dd>{formatEuro(total)}</dd>
+          <dt>{tx("invoices.total", "Total")}</dt>
+          <dd>{money(total, currencyId)}</dd>
         </div>
+        {advance !== null && (
+          <div>
+            <dt>{tx("invoices.advance", "Advance ({{percent}})", { percent: percent(advancePercentage) ?? "" })}</dt>
+            <dd>{money(advance, currencyId)}</dd>
+          </div>
+        )}
         <div>
-          <dt>Advance ({agreement.advancePercent}%)</dt>
-          <dd>{formatEuro(advanceOf(total, agreement))}</dd>
-        </div>
-        <div>
-          <dt>Available</dt>
-          <dd className={total > availableOf(agreement) ? "text-danger" : ""}>{formatEuro(availableOf(agreement))}</dd>
+          <dt>{tx("invoices.available", "Available")}</dt>
+          {availableAmount === null || availableAmount === undefined ? (
+            <dd className="text-body-secondary">{tx("common.unavailable", "Unavailable")}</dd>
+          ) : (
+            <dd className={total > availableAmount ? "text-danger" : ""}>{money(availableAmount, currencyId)}</dd>
+          )}
         </div>
       </dl>
       {errors.documents && (

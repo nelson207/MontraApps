@@ -4,6 +4,9 @@ import { createMontraStore } from "@platform/app/store";
 // Montra Factoring store: the platform slices (the documents use RTK Query, no slice yet).
 export * from "@platform/app/store";
 
+// Development only (signed in with "Demo access" and no API): the demo backend's answers
+if (import.meta.env.DEV) void import("./demo/factoringDemoBackend");
+
 export const store = createMontraStore({});
 
 export type RootState = ReturnType<typeof store.getState>;

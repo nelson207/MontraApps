@@ -1,26 +1,71 @@
-import { useSingleOptionDefault } from "@platform/hooks/useSingleOptionDefault";
-import { availableOf, formatEuro, NATURE_LABELS, type FactoringAgreement } from "../model/factoring";
+import { useFactoringText } from "../factoringText";
+import { useFactoringFormat } from "../model/format";
+import { kindClass, kindLabel, type Agreement } from "../model/factoring";
+import { LoadProblem } from "./FactoringStates";
 
 type Props = {
-  agreements: FactoringAgreement[] | undefined;
+  agreements: Agreement[] | undefined;
   isLoading: boolean;
-  isError: boolean;
-  value: number | null;
-  onChange: (agreementId: number) => void;
+  error: unknown;
+  onRetry: () => void;
+  value: string | null;
+  onChange: (agreement: Agreement) => void;
+  /** Also when it is the one already chosen: choosing moves the wizard on */
+  /** Why this card can't be chosen on this screen; null when it can */
+  disabledReason: (agreement: Agreement) => string | null;
+  /** The line under a card: what choosing this kind of agreement means here */
+  hint: (agreement: Agreement) => string;
   invalidMessage?: string;
 };
 
-const NATURE_HINTS = {
-  0: "Your customers' invoices: choose the debtor of each one.",
-  1: "One supplier's invoices: choose the supplier once.",
-} as const;
+const share = (part: number, whole: number) => Math.max(0, Math.min(100, Math.round((part / whole) * 100)));
 
-// The credit intermediary's agreements as radio cards: factoring or confirming, the financial
-// company, what is still available and the terms. One with nothing available can't be chosen.
-function AgreementPicker({ agreements, isLoading, isError, value, onChange, invalidMessage }: Props) {
-  // Only one agreement with something available: it is chosen by default
-  const choosable = (agreements ?? []).filter((agreement) => availableOf(agreement) > 0);
-  useSingleOptionDefault(value === null && !isLoading && choosable.length === 1 ? choosable[0].id : null, onChange);
+/** "X available of Y", with a bar only when both are known. A missing amount is never drawn as 0. */
+function Plafond({ label, available, total, currencyId }: { label?: string; available?: number | null; total?: number | null; currencyId?: string | null }) {
+  const tx = useFactoringText();
+  const { money } = useFactoringFormat();
+  const left = available === null || available === undefined ? null : share(available, total || 1);
+  const showBar = left !== null && !!total;
+  return (
+    <>
+      <span className="d-flex justify-content-between gap-2 small mt-3 mb-1">
+        <span>
+          {label && <span className="text-body-secondary">{label}: </span>}
+          {available === null || available === undefined ? (
+            <span className="text-body-secondary">{tx("agreement.availableUnknown", "Available amount unavailable")}</span>
+          ) : (
+            <>
+              <span className="fw-semibold">{money(available, currencyId)}</span> {tx("agreement.available", "available")}
+            </>
+          )}
+        </span>
+        {total !== null && total !== undefined && (
+          <span className="text-body-secondary text-nowrap">{tx("agreement.ofTotal", "of {{total}}", { total: money(total, currencyId) ?? "" })}</span>
+        )}
+      </span>
+      {showBar && (
+        <span
+          className="progress app-agreement-usage"
+          role="progressbar"
+          aria-label={tx("agreement.availableShare", "{{share}}% of the agreement available", { share: left })}
+          aria-valuenow={left}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span className={`progress-bar ${left <= 10 ? "bg-danger" : left <= 25 ? "bg-warning" : ""}`} style={{ width: `${left}%` }} />
+        </span>
+      )}
+    </>
+  );
+}
+
+// The dealer's active agreements as cards, the same on New request and Advance: the kind, the
+// financial institution, what is available and whatever terms the agreement has. The screen says
+// which can't be chosen, and why.
+function AgreementPicker({ agreements, isLoading, error, onRetry, value, onChange, disabledReason, hint, invalidMessage }: Props) {
+  const tx = useFactoringText();
+  const { percent } = useFactoringFormat();
+
 
   if (isLoading)
     return (
@@ -37,76 +82,77 @@ function AgreementPicker({ agreements, isLoading, isError, value, onChange, inva
       </div>
     );
 
-  if (isError)
-    return (
-      <div className="alert alert-danger mb-0" role="alert">
-        The agreements couldn't be loaded. Try again in a moment.
-      </div>
-    );
+  if (error)
+    return <LoadProblem error={error} fallback={tx("agreement.loadError", "The agreements couldn't be loaded. Try again in a moment.")} onRetry={onRetry} />;
 
   if (!agreements?.length)
     return (
       <div className="alert alert-warning mb-0" role="status">
-        This credit intermediary has no factoring or confirming agreements. Contact the financial company to set one up.
+        {tx("agreement.empty", "You have no active factoring or confirming agreements. Contact the financial institution to set one up.")}
       </div>
     );
 
   return (
-    <fieldset>
-      <legend className="visually-hidden">Agreement</legend>
-      <div className="row g-3">
+    <>
+      <div className="row g-3" role="radiogroup" aria-label={tx("agreement.title", "Agreement")}>
         {agreements.map((agreement) => {
-          const available = availableOf(agreement);
-          const usedShare = Math.min(100, Math.round((agreement.used / agreement.creditLimit) * 100));
+          const reason = disabledReason(agreement);
           const id = `agreement-${agreement.id}`;
+          const { kind, currencyId, advancePercentage, maxTermDays, rate } = agreement;
+          const showSubPlafond = kind === "Factoring" && agreement.withoutRecourseTotalAmount !== null && agreement.withoutRecourseTotalAmount !== undefined;
           return (
-            <div className="col-12 col-lg-6 col-xxl-3" key={agreement.id}>
-              <input
-                type="radio"
-                className="btn-check"
-                name="agreement"
+            <div className="col-12 col-lg-6 col-xxl-4 app-agreement-col" key={agreement.id}>
+              <button
+                type="button"
+                role="radio"
                 id={id}
-                checked={value === agreement.id}
-                disabled={available <= 0}
-                onChange={() => onChange(agreement.id)}
-                aria-describedby={invalidMessage ? "agreement-feedback" : undefined}
-              />
-              <label className={`app-agreement-card ${invalidMessage ? "is-invalid" : ""}`} htmlFor={id}>
+                aria-checked={value === agreement.id}
+                disabled={!!reason}
+                className={`app-agreement-card ${value === agreement.id ? "is-selected" : ""} ${invalidMessage ? "is-invalid" : ""}`}
+                onClick={() => onChange(agreement)}
+                aria-describedby={reason ? `${id}-reason` : invalidMessage ? "agreement-feedback" : undefined}
+              >
                 <span className="d-flex align-items-start justify-content-between gap-2">
-                  <span className={`badge rounded-pill app-nature-badge is-nature-${agreement.nature}`}>
-                    <i className={`bi ${agreement.nature === 1 ? "bi-shop" : "bi-people"} me-1`} aria-hidden="true" />
-                    {NATURE_LABELS[agreement.nature]}
+                  <span className="d-flex flex-wrap gap-1">
+                    <span className={`badge rounded-pill ${kindClass(kind)}`}>
+                      <i className={`bi ${kind === "Confirming" ? "bi-shop" : "bi-people"} me-1`} aria-hidden="true" />
+                      {kindLabel(kind, tx)}
+                    </span>
+                    {agreement.withoutRecourse && <span className="badge rounded-pill bg-body-tertiary text-body border">{tx("agreement.withoutRecourse", "Without recourse")}</span>}
                   </span>
                   <i className="bi bi-check-circle-fill app-agreement-check" aria-hidden="true" />
                 </span>
-                <span className="d-block fw-semibold text-truncate mt-2">{agreement.financialCompany}</span>
-                <span className="d-block small text-body-secondary">{agreement.number}</span>
+                <span className="d-block fw-semibold text-truncate mt-2">{agreement.financialInstitution ?? tx("common.unavailable", "Unavailable")}</span>
+                {agreement.number !== null && agreement.number !== undefined && <span className="d-block small text-body-secondary">{agreement.number}</span>}
 
-                <span className="d-flex justify-content-between small mt-3 mb-1">
-                  <span>
-                    <span className="fw-semibold">{formatEuro(available)}</span> available
+                <Plafond available={agreement.availableAmount} total={agreement.totalAmount} currencyId={currencyId} />
+                {showSubPlafond && (
+                  <Plafond
+                    label={tx("agreement.withoutRecourse", "Without recourse")}
+                    available={agreement.withoutRecourseAvailableAmount}
+                    total={agreement.withoutRecourseTotalAmount}
+                    currencyId={currencyId}
+                  />
+                )}
+
+                {(advancePercentage != null || maxTermDays != null || rate != null) && (
+                  <span className="d-flex flex-wrap gap-1 mt-3">
+                    {advancePercentage != null && (
+                      <span className="badge rounded-pill bg-body-tertiary text-body border">{tx("agreement.advanceChip", "{{percent}} advance", { percent: percent(advancePercentage) ?? "" })}</span>
+                    )}
+                    {maxTermDays != null && <span className="badge rounded-pill bg-body-tertiary text-body border">{tx("agreement.termChip", "Up to {{days}} days", { days: maxTermDays })}</span>}
+                    {rate != null && <span className="badge rounded-pill bg-body-tertiary text-body border">{percent(rate)}</span>}
                   </span>
-                  <span className="text-body-secondary">of {formatEuro(agreement.creditLimit)}</span>
-                </span>
-                <span
-                  className="progress app-agreement-usage"
-                  role="progressbar"
-                  aria-label={`${usedShare}% of the agreement used`}
-                  aria-valuenow={usedShare}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <span className={`progress-bar ${usedShare >= 90 ? "bg-danger" : usedShare >= 75 ? "bg-warning" : ""}`} style={{ width: `${usedShare}%` }} />
-                </span>
-
-                <span className="d-flex flex-wrap gap-1 mt-3">
-                  <span className="badge rounded-pill bg-body-tertiary text-body border">{agreement.advancePercent}% advance</span>
-                  <span className="badge rounded-pill bg-body-tertiary text-body border">Up to {agreement.maxTermDays} days</span>
-                  <span className="badge rounded-pill bg-body-tertiary text-body border">{agreement.rate.toFixed(2)}%</span>
-                </span>
-                <span className="d-block small text-body-secondary mt-2">{NATURE_HINTS[agreement.nature]}</span>
-                {available <= 0 && <span className="d-block small text-danger mt-1">Nothing available</span>}
-              </label>
+                )}
+                {!reason && <span className="d-block small text-body-secondary mt-2">{hint(agreement)}</span>}
+              </button>
+              {/* Outside the card, which is dimmed while disabled: the reason is what has to be read */}
+              {reason && (
+                <div id={`${id}-reason`} className="small text-danger-emphasis mt-2">
+                  <i className="bi bi-info-circle me-1" aria-hidden="true" />
+                  {reason}
+                </div>
+              )}
             </div>
           );
         })}
@@ -116,7 +162,7 @@ function AgreementPicker({ agreements, isLoading, isError, value, onChange, inva
           {invalidMessage}
         </div>
       )}
-    </fieldset>
+    </>
   );
 }
 

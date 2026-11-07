@@ -17,6 +17,17 @@
   }
 }
 
+// A card fills its column, leaving room for the reason written under a disabled one
+.app-agreement-col {
+  display: flex;
+  flex-direction: column;
+
+  .app-agreement-card {
+    flex-grow: 1;
+    height: auto;
+  }
+}
+
 // --- Company chosen through the search dialog ---------------------------------
 
 .app-entity-field {
@@ -61,6 +72,12 @@
 
 .app-entity-modal .modal-body {
   min-height: 22rem;
+}
+
+.app-entity-option.is-waiting {
+  &:hover {
+    background: none;
+  }
 }
 
 .app-entity-option {

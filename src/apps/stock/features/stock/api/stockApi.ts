@@ -47,6 +47,9 @@ export const stockApi = MontraPOSApi.injectEndpoints({
 
 export const { useAddStockUnitMutation } = stockApi;
 
+/** The agreement cards' page: the wizard reads the same one to know when there is only one */
+export const AGREEMENT_CARDS_PAGE_SIZE = 6;
+
 export const useStockContracts = (page: number, pageSize: number) => useGetApiStockContractsQuery({ page, pageSize });
 
 export const useStockUnits = (args: { contractId?: string; page: number; pageSize: number }) => useGetApiStockUnitsQuery(args);

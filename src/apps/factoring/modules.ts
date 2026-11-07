@@ -52,6 +52,20 @@ export const APP_MODULES: AppModule[] = [
     component: lazy(() => import("./features/factoring/pages/NewRequestPage")),
   },
   {
+    path: "/factoring/advance",
+    label: "Advance",
+    icon: "bi-cash-coin",
+    section: "Factoring",
+    component: lazy(() => import("./features/factoring/pages/AdvancePage")),
+  },
+  {
+    path: "/factoring/advances",
+    label: "Advances",
+    icon: "bi-clock-history",
+    section: "Factoring",
+    component: lazy(() => import("./features/factoring/pages/AdvancesPage")),
+  },
+  {
     path: "/admin/users",
     label: "Users",
     icon: "bi-people",

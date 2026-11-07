@@ -35,39 +35,40 @@
   }
 }
 
-// --- Short wizard steps (components/ui/StepsNav): marker + label, a line between --
+// --- Wizard stepper (components/wizard/WizardStepper) -----------------------------------------------------------------
 
-.app-steps {
-  display: flex;
-  align-items: center;
-  gap: map-get($spacers, 3);
+.app-stepper {
+  gap: map-get($spacers, 2);
 }
 
-.app-step {
-  display: flex;
-  align-items: center;
-  gap: map-get($spacers, 3);
+.app-stepper-item {
+  position: relative;
+  flex: 1 1 0;
   min-width: 0;
 
-  // connector line
+  // connector line between steps
   & + &::before {
     content: "";
-    flex: 0 0 clamp(1.5rem, 8vw, 5rem);
+    position: absolute;
+    top: 1rem;
+    right: calc(50% + 1.25rem);
+    left: calc(-50% + 1.25rem);
     height: 2px;
     background-color: var(--#{$prefix}border-color);
   }
 
-  &.is-current + &::before,
-  & + &.is-current::before {
+  // filled after a step that is reached and complete (the current one included)
+  &.is-complete + &::before {
     background-color: var(--app-primary);
   }
 }
 
-.app-step-button {
+.app-stepper-button {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: map-get($spacers, 2);
-  min-width: 0;
+  gap: map-get($spacers, 1);
+  width: 100%;
   padding: 0;
   border: 0;
   background: none;
@@ -75,6 +76,7 @@
 
   &:disabled {
     cursor: default;
+    opacity: 0.6;
   }
 
   &:focus-visible {
@@ -84,11 +86,12 @@
   }
 }
 
-.app-step-marker {
+.app-stepper-marker {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
@@ -98,56 +101,85 @@
   background-color: var(--#{$prefix}body-bg);
 }
 
-.app-step-label {
+.app-stepper-label {
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: $font-size-sm;
 }
 
-.app-step.is-current {
-  .app-step-marker {
+.app-stepper-item.is-current {
+  .app-stepper-marker {
     border-color: var(--app-primary);
     background-color: var(--app-primary);
     color: var(--app-on-primary);
   }
-
-  .app-step-button {
+  .app-stepper-button {
     color: var(--#{$prefix}body-color);
     font-weight: $font-weight-semibold;
   }
 }
 
-.app-step.is-done .app-step-marker {
+.app-stepper-item.is-done .app-stepper-marker {
   border-color: var(--app-primary);
   color: var(--app-primary-text);
 }
 
-// Narrow screens: only the current step's label
-@include media-breakpoint-down(sm) {
-  .app-step:not(.is-current) .app-step-label {
-    display: none;
-  }
+.app-stepper-item.is-error .app-stepper-marker {
+  border-color: var(--#{$prefix}danger);
+  background-color: var(--#{$prefix}danger-bg-subtle);
+  color: var(--#{$prefix}danger-text-emphasis);
+}
+
+// The current step can have errors too (after a failed Next)
+.app-stepper-item.is-current.has-errors .app-stepper-marker {
+  border-color: var(--#{$prefix}danger);
+  background-color: var(--#{$prefix}danger);
+  color: $white;
 }
 
 // --- Agreement cards (Stock Credit, Factoring): radio cards -------------------
 
 .app-agreement-card {
   display: block;
+  width: 100%;
   height: 100%;
   padding: map-get($spacers, 3);
+  color: inherit;
+  text-align: start;
   border: 1px solid var(--#{$prefix}border-color);
   border-radius: $border-radius-lg;
   background-color: var(--#{$prefix}body-bg);
   cursor: pointer;
   @include transition(border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease);
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: var(--app-primary);
   }
 
   &.is-invalid {
     border-color: var(--#{$prefix}form-invalid-border-color);
+  }
+
+  &.is-selected {
+    border-color: var(--app-primary);
+    background-color: var(--#{$prefix}primary-bg-subtle);
+    box-shadow: 0 0 0 1px var(--app-primary);
+
+    .app-agreement-check {
+      visibility: visible;
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-primary-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 }
 
@@ -159,26 +191,6 @@
 .app-agreement-usage {
   display: flex;
   height: 0.375rem;
-}
-
-.btn-check:checked + .app-agreement-card {
-  border-color: var(--app-primary);
-  background-color: var(--#{$prefix}primary-bg-subtle);
-  box-shadow: 0 0 0 1px var(--app-primary);
-
-  .app-agreement-check {
-    visibility: visible;
-  }
-}
-
-.btn-check:focus-visible + .app-agreement-card {
-  outline: 3px solid var(--app-primary-focus-ring);
-  outline-offset: 2px;
-}
-
-.btn-check:disabled + .app-agreement-card {
-  cursor: not-allowed;
-  opacity: 0.6;
 }
 
 // Summary box on a wizard's "submitted" screen

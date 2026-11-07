@@ -2,103 +2,6 @@
 // Quotation / Proposal wizard (features/credoper)
 // ---------------------------------------------------------------------------
 
-// --- Stepper -----------------------------------------------------------------
-
-.app-stepper {
-  gap: map-get($spacers, 2);
-}
-
-.app-stepper-item {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-
-  // connector line between steps
-  & + &::before {
-    content: "";
-    position: absolute;
-    top: 1rem;
-    right: calc(50% + 1.25rem);
-    left: calc(-50% + 1.25rem);
-    height: 2px;
-    background-color: var(--#{$prefix}border-color);
-  }
-
-  // filled after a step that is reached and complete (the current one included)
-  &.is-complete + &::before {
-    background-color: var(--app-primary);
-  }
-}
-
-.app-stepper-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: map-get($spacers, 1);
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--#{$prefix}secondary-color);
-
-  &:disabled {
-    cursor: default;
-    opacity: 0.6;
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--app-primary-focus-ring);
-    outline-offset: 2px;
-    border-radius: $border-radius;
-  }
-}
-
-.app-stepper-marker {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  border: 2px solid var(--#{$prefix}border-color);
-  background-color: var(--#{$prefix}body-bg);
-}
-
-.app-stepper-label {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: $font-size-sm;
-}
-
-.app-stepper-item.is-current {
-  .app-stepper-marker {
-    border-color: var(--app-primary);
-    background-color: var(--app-primary);
-    color: var(--app-on-primary);
-  }
-  .app-stepper-button {
-    color: var(--#{$prefix}body-color);
-    font-weight: $font-weight-semibold;
-  }
-}
-
-.app-stepper-item.is-done .app-stepper-marker {
-  border-color: var(--app-primary);
-  color: var(--app-primary-text);
-}
-
-.app-stepper-item.is-error .app-stepper-marker {
-  border-color: var(--#{$prefix}danger);
-  background-color: var(--#{$prefix}danger-bg-subtle);
-  color: var(--#{$prefix}danger-text-emphasis);
-}
-
 // --- Summary panel -----------------------------------------------------------
 
 .app-summary-panel {
@@ -148,13 +51,6 @@
       opacity: 0.55;
     }
   }
-}
-
-// The current step can have errors too (after a failed Next)
-.app-stepper-item.is-current.has-errors .app-stepper-marker {
-  border-color: var(--#{$prefix}danger);
-  background-color: var(--#{$prefix}danger);
-  color: $white;
 }
 
 // --- Form sections -------------------------------------------------------------

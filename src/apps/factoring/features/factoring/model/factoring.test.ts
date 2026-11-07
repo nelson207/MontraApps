@@ -1,137 +1,167 @@
 import { describe, expect, it } from "vitest";
 import {
   advanceOf,
-  availableOf,
-  emptyDocument,
-  emptyFactoringDraft,
-  formatEuro,
-  isConfirming,
+  buildCessionRequest,
+  counterpartiesOf,
+  pendingCounterpartiesOf,
+  emptyInvoice,
+  findAgreement,
+  sameContract,
+  searchCounterparties,
+  sumOfAmounts,
   totalOf,
-  type Entity,
-  type FactoringAgreement,
-  type FactoringDocument,
-  type FactoringDraft,
+  type Agreement,
+  type Counterparty,
+  type InvoiceRow,
+  type RequestDraft,
 } from "./factoring";
-import { validateAgreementStep, validateDocumentsStep } from "./validation";
+import { validateAdvance, validateAgreementStep, validateSupplierStep, validateDocumentsStep } from "./validation";
 
-const TODAY = "2026-10-06";
+const factoring: Agreement = { id: "AQ/f+1", number: 100053964, kind: "Factoring", currencyId: "EUR", canSubmit: true, canAdvance: true, availableAmount: 1000, totalAmount: 5000 };
+const confirming: Agreement = { ...factoring, id: "AQ/c+1", number: 100053963, kind: "Confirming" };
+const debtor: Counterparty = { interventionId: "AQ/d+1", name: "Oficina Évora", taxNumber: "500100200", externalNumber: "E7", kind: "Debtor" };
+const supplier: Counterparty = { interventionId: "AQ/s+1", name: "Importadora", taxNumber: "500300400", kind: "Supplier" };
 
-const FACTORING: FactoringAgreement = {
-  id: 1,
-  number: "FCT-001-1",
-  financialCompany: "Banco Atlântico",
-  nature: 0,
-  creditLimit: 200_000,
-  used: 150_000,
-  advancePercent: 80,
-  maxTermDays: 120,
-  rate: 3.9,
-};
-const CONFIRMING: FactoringAgreement = { ...FACTORING, id: 2, number: "CNF-001-1", nature: 1 };
-
-const DEBTOR: Entity = { id: 7, name: "Construtora Norte, S.A.", taxNumber: "500123456" };
-const OTHER_DEBTOR: Entity = { id: 8, name: "Hotel Mar Azul, Lda.", taxNumber: "509876543" };
-
-const doc = (changes: Partial<FactoringDocument> = {}): FactoringDocument => ({
-  ...emptyDocument("d1"),
-  invoiceNumber: "FT 2026/101",
-  issueDate: "2026-09-20",
-  dueDate: "2026-12-20",
-  amount: 10_000,
-  debtor: DEBTOR,
-  ...changes,
+const invoice = (extra: Partial<InvoiceRow> = {}): InvoiceRow => ({
+  ...emptyInvoice("k"),
+  invoiceNumber: "FT 1",
+  issueDate: "2026-11-01",
+  dueDate: "2026-12-01",
+  amount: 100,
+  debtor,
+  ...extra,
 });
+const draft = (documents: InvoiceRow[], chosenSupplier: Counterparty | null = null): RequestDraft => ({ supplier: chosenSupplier, documents });
 
-const draft = (documents: FactoringDocument[], changes: Partial<FactoringDraft> = {}): FactoringDraft => ({
-  ...emptyFactoringDraft(),
-  agreementId: 1,
-  documents,
-  ...changes,
-});
-
-describe("agreement figures", () => {
-  it("nature 1 is confirming, 0 is factoring", () => {
-    expect(isConfirming(CONFIRMING)).toBe(true);
-    expect(isConfirming(FACTORING)).toBe(false);
-  });
-
-  it("available is what is left of the limit; the advance is a share of the total", () => {
-    expect(availableOf(FACTORING)).toBe(50_000);
-    expect(availableOf({ ...FACTORING, used: 300_000 })).toBe(0);
-    expect(totalOf([doc(), doc({ amount: 2_500.5 }), doc({ amount: null })])).toBe(12_500.5);
-    expect(advanceOf(12_500, FACTORING)).toBe(10_000);
-  });
-
-  it("amounts show cents only when they have them", () => {
-    expect(formatEuro(25_000)).toBe("€25,000");
-    expect(formatEuro(2_500.5)).toBe("€2,500.50");
+describe("step 1 of a new request", () => {
+  it("needs an agreement", () => expect(validateAgreementStep(undefined).agreement).toBeTruthy());
+  it("refuses an agreement with canSubmit false", () => expect(validateAgreementStep({ ...factoring, canSubmit: false }).agreement).toBeTruthy());
+  it("confirming needs its supplier, factoring doesn't", () => {
+    expect(validateSupplierStep(draft([]), confirming).supplier).toBeTruthy();
+    expect(validateSupplierStep(draft([], supplier), confirming)).toEqual({});
+    expect(validateSupplierStep(draft([]), factoring)).toEqual({});
   });
 });
 
-describe("validateAgreementStep", () => {
-  it("requires an agreement", () =>
-    expect(validateAgreementStep(draft([], { agreementId: null }), undefined)).toEqual({ agreement: "Select an agreement." }));
+describe("step 2 of a new request", () => {
+  const errorsOf = (...documents: InvoiceRow[]) => validateDocumentsStep(draft(documents), factoring);
 
-  it("factoring needs nothing else (the debtor is chosen invoice by invoice)", () =>
-    expect(validateAgreementStep(draft([]), FACTORING)).toEqual({}));
+  it("needs at least one invoice", () => expect(errorsOf().documents).toBeTruthy());
+  it("accepts a complete invoice", () => expect(errorsOf(invoice())).toEqual({}));
 
-  it("confirming needs its supplier", () => {
-    expect(validateAgreementStep(draft([], { agreementId: 2 }), CONFIRMING)).toEqual({ supplier: "Select the supplier." });
-    expect(validateAgreementStep(draft([], { agreementId: 2, supplier: DEBTOR }), CONFIRMING)).toEqual({});
+  it("needs the invoice number, counted without the outer spaces, up to 30 characters", () => {
+    expect(errorsOf(invoice({ invoiceNumber: "   " }))["documents.0.invoiceNumber"]).toBeTruthy();
+    expect(errorsOf(invoice({ invoiceNumber: `  ${"x".repeat(30)}  ` }))).toEqual({});
+    expect(errorsOf(invoice({ invoiceNumber: "x".repeat(31) }))["documents.0.invoiceNumber"]).toBeTruthy();
+  });
+
+  it("refuses a repeated number, ignoring case and outer spaces, even with another debtor", () => {
+    const errors = errorsOf(invoice({ invoiceNumber: "FT 1" }), invoice({ invoiceNumber: "  ft 1 ", debtor: { ...debtor, interventionId: "AQ/d+2" } }));
+    expect(errors["documents.1.invoiceNumber"]).toBeTruthy();
+    expect(errors["documents.0.invoiceNumber"]).toBeUndefined();
+  });
+
+  it.each([0, -5, null])("refuses an amount of %s", (amount) => expect(errorsOf(invoice({ amount }))["documents.0.amount"]).toBeTruthy());
+
+  it("the due date can't be before the issue date; the same day is fine", () => {
+    expect(errorsOf(invoice({ issueDate: "2026-11-02", dueDate: "2026-11-01" }))["documents.0.dueDate"]).toBeTruthy();
+    expect(errorsOf(invoice({ issueDate: "2026-11-02", dueDate: "2026-11-02" }))).toEqual({});
+  });
+
+  it("needs both dates", () => {
+    const errors = errorsOf(invoice({ issueDate: "", dueDate: "" }));
+    expect(errors["documents.0.issueDate"]).toBeTruthy();
+    expect(errors["documents.0.dueDate"]).toBeTruthy();
+  });
+
+  it("factoring needs a debtor per invoice; confirming asks for none", () => {
+    expect(errorsOf(invoice({ debtor: null }))["documents.0.debtor"]).toBeTruthy();
+    expect(validateDocumentsStep(draft([invoice({ debtor: null })], supplier), confirming)).toEqual({});
+  });
+
+  it("leaves dates against today and totals above what is available to Accipiens", () => {
+    expect(errorsOf(invoice({ issueDate: "2030-01-01", dueDate: "2031-01-01", amount: 99_999 }))).toEqual({});
+    expect(errorsOf(invoice({ issueDate: "2000-01-01", dueDate: "2000-02-01" }))).toEqual({});
   });
 });
 
-describe("validateDocumentsStep", () => {
-  it("accepts complete invoices", () => expect(validateDocumentsStep(draft([doc()]), FACTORING, TODAY)).toEqual({}));
-
-  it("needs at least one invoice", () =>
-    expect(validateDocumentsStep(draft([]), FACTORING, TODAY)).toEqual({ documents: "Add at least one invoice." }));
-
-  it("requires number, dates and amount, and the debtor under factoring", () =>
-    expect(validateDocumentsStep(draft([emptyDocument("d1")]), FACTORING, TODAY)).toEqual({
-      "documents.0.invoiceNumber": "Enter the invoice number.",
-      "documents.0.issueDate": "Enter the issue date.",
-      "documents.0.dueDate": "Enter the due date.",
-      "documents.0.amount": "Enter the amount.",
-      "documents.0.debtor": "Select the debtor.",
-    }));
-
-  it("under confirming every invoice is the supplier's: no debtor to choose", () =>
-    expect(validateDocumentsStep(draft([doc({ debtor: null })], { agreementId: 2, supplier: DEBTOR }), CONFIRMING, TODAY)).toEqual({}));
-
-  it("checks the dates: issued by today, due after the issue, not yet due, within the agreement's term", () => {
-    expect(validateDocumentsStep(draft([doc({ issueDate: "2026-10-07", dueDate: "2026-12-01" })]), FACTORING, TODAY)).toEqual({
-      "documents.0.issueDate": "The issue date can't be in the future.",
-    });
-    expect(validateDocumentsStep(draft([doc({ issueDate: "2026-09-20", dueDate: "2026-09-19" })]), FACTORING, TODAY)).toEqual({
-      "documents.0.dueDate": "The due date can't be before the issue date.",
-    });
-    expect(validateDocumentsStep(draft([doc({ dueDate: "2026-10-05" })]), FACTORING, TODAY)).toEqual({
-      "documents.0.dueDate": "This invoice is already due.",
-    });
-    // 120 days from 2026-10-06 is 2027-02-03
-    expect(validateDocumentsStep(draft([doc({ dueDate: "2027-02-03" })]), FACTORING, TODAY)).toEqual({});
-    expect(validateDocumentsStep(draft([doc({ dueDate: "2027-02-04" })]), FACTORING, TODAY)).toEqual({
-      "documents.0.dueDate": "Due beyond the agreement's term (120 days).",
+describe("the body of a new request", () => {
+  it("factoring sends a debtor per invoice and no supplier; the number is trimmed", () => {
+    expect(buildCessionRequest(draft([invoice({ invoiceNumber: "  FT 1 " })]), factoring)).toEqual({
+      documents: [{ debtorInterventionId: "AQ/d+1", invoiceNumber: "FT 1", issueDate: "2026-11-01", dueDate: "2026-12-01", amount: 100 }],
     });
   });
 
-  it("an invoice number appears once per debtor (once in all under confirming)", () => {
-    expect(
-      validateDocumentsStep(draft([doc(), doc({ key: "d2", invoiceNumber: " ft 2026/101 " })]), FACTORING, TODAY),
-    ).toEqual({ "documents.1.invoiceNumber": "This invoice is already in the list." });
-    expect(validateDocumentsStep(draft([doc(), doc({ key: "d2", debtor: OTHER_DEBTOR })]), FACTORING, TODAY)).toEqual({});
-    expect(
-      validateDocumentsStep(
-        draft([doc({ debtor: null }), doc({ key: "d2", debtor: null })], { agreementId: 2, supplier: DEBTOR }),
-        CONFIRMING,
-        TODAY,
-      ),
-    ).toEqual({ "documents.1.invoiceNumber": "This invoice is already in the list." });
+  it("confirming sends the supplier and no debtor", () => {
+    expect(buildCessionRequest(draft([invoice({ debtor: null })], supplier), confirming)).toEqual({
+      supplierInterventionId: "AQ/s+1",
+      documents: [{ invoiceNumber: "FT 1", issueDate: "2026-11-01", dueDate: "2026-12-01", amount: 100 }],
+    });
   });
+});
 
-  it("the invoices must fit in what is available", () =>
-    expect(
-      validateDocumentsStep(draft([doc({ amount: 30_000 }), doc({ key: "d2", invoiceNumber: "FT 2026/102", amount: 25_000 })]), FACTORING, TODAY),
-    ).toEqual({ documents: "The invoices add up to €55,000; only €50,000 is available on this agreement." }));
+describe("the advance form", () => {
+  const form = (extra = {}) => ({ agreement: factoring, amount: 500 as number | null, valueDate: "2026-11-10", invoiceCount: 0, ...extra });
+
+  it("factoring refuses an amount above what is available; exactly that is fine", () => {
+    expect(validateAdvance(form({ amount: 1000.01 })).amount).toBeTruthy();
+    expect(validateAdvance(form({ amount: 1000 }))).toEqual({});
+  });
+  it("factoring with no known available amount leaves it to Accipiens", () =>
+    expect(validateAdvance(form({ agreement: { ...factoring, availableAmount: null }, amount: 9_999_999 }))).toEqual({}));
+  it("confirming needs invoices, and doesn't cap the amount here", () => {
+    expect(validateAdvance(form({ agreement: confirming })).invoices).toBeTruthy();
+    expect(validateAdvance(form({ agreement: confirming, invoiceCount: 1, amount: 9_999 }))).toEqual({});
+  });
+  it("needs an amount above 0 and a value date", () => {
+    expect(validateAdvance(form({ amount: 0 })).amount).toBeTruthy();
+    expect(validateAdvance(form({ amount: null })).amount).toBeTruthy();
+    expect(validateAdvance(form({ valueDate: "" })).valueDate).toBeTruthy();
+  });
+});
+
+describe("amounts", () => {
+  it("adds up in cents", () => expect(totalOf([{ amount: 0.1 }, { amount: 0.2 }, { amount: null }])).toBe(0.3));
+  it("the advance is hidden (null), not 0, when the percentage is null", () => {
+    expect(advanceOf(1000, null)).toBeNull();
+    expect(advanceOf(1000, undefined)).toBeNull();
+    expect(advanceOf(1000, 80)).toBe(800);
+    expect(advanceOf(1000, 0)).toBe(0);
+  });
+  it("a sum with a missing amount isn't guessed", () => {
+    expect(sumOfAmounts([{ amount: 10 }, { amount: null }])).toBeNull();
+    expect(sumOfAmounts([])).toBeNull();
+    expect(sumOfAmounts([{ amount: 10.1 }, { amount: 20.2 }])).toBe(30.3);
+  });
+});
+
+describe("counterparties", () => {
+  it("each kind of agreement offers only its own", () => {
+    expect(counterpartiesOf([debtor, supplier], factoring)).toEqual([debtor]);
+    expect(counterpartiesOf([debtor, supplier], confirming)).toEqual([supplier]);
+    expect(counterpartiesOf(undefined, factoring)).toEqual([]);
+    const waiting = { ...supplier, state: "Pending" as const };
+    const ended = { ...supplier, state: "Ended" as const };
+    const active = { ...supplier, state: "Active" as const };
+    expect(counterpartiesOf([waiting, ended, active], confirming)).toEqual([active]);
+    expect(pendingCounterpartiesOf([waiting, ended, active, debtor], confirming)).toEqual([waiting]);
+  });
+  it.each(["evora", "ÉVORA", "500100", "e7", "oficina evora"])("finds by name, tax number or external number: %s", (search) =>
+    expect(searchCounterparties([debtor, supplier], search)).toEqual([debtor]),
+  );
+  it("copes with a name that is null", () => expect(searchCounterparties([{ ...debtor, name: null }], "500100")).toHaveLength(1));
+});
+
+describe("opaque ids", () => {
+  it("compares them as they are, with the number as the fallback", () => {
+    expect(sameContract({ contractId: "AQ/f+1", contractNumber: null }, factoring)).toBe(true);
+    expect(sameContract({ contractId: "other", contractNumber: 100053964 }, factoring)).toBe(true);
+    expect(sameContract({ contractId: "other", contractNumber: 1 }, factoring)).toBe(false);
+    expect(sameContract({ contractId: "other", contractNumber: null }, { id: "x", number: null })).toBe(false);
+  });
+  it("finds the chosen agreement in a fresh list, or nothing", () => {
+    expect(findAgreement([factoring], { id: "AQ/f+1", number: 100053964 })).toBe(factoring);
+    expect(findAgreement([factoring], { id: "AQ/gone", number: 5 })).toBeUndefined();
+    expect(findAgreement([factoring], null)).toBeUndefined();
+  });
 });

@@ -5,5 +5,14 @@
   "reset": "Repor",
   "retry": "Tentar novamente",
   "save": "Guardar",
-  "saving": "A guardar…"
+  "saving": "A guardar…",
+  "wizard": {
+    "back": "Voltar",
+    "next": "Seguinte",
+    "steps": "Passos",
+    "progress": "Progresso",
+    "hasErrors": "Tem erros",
+    "stepOf": "Passo {{current}} de {{total}}",
+    "hasErrorsInline": "tem erros"
+  }
 }
